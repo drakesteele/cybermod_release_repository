@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: relation module loaded")
+debugPrint(3,"CyberScript: relation module loaded")
 questMod.module = questMod.module +1
 
 --Phone UI --
@@ -331,7 +331,7 @@ function SetNextDialog(tag,source)
 		else
 		
 		local option = {}
-		option.Description = "We talk later."
+		option.Description = getLang("relation_talklater")
 		option.action = {}
 		option.trigger = {}
 		option.trigger.auto = {}
@@ -391,7 +391,7 @@ function SetNextDialog(tag,source)
 					dialogy.options = {}
 					
 					local option = {}
-					option.Description = "We talk later."
+					option.Description =getLang("relation_talklater")
 					option.action = {}
 					option.trigger = {}
 					option.trigger.auto = {}
@@ -502,8 +502,8 @@ function npcAskHelp(npc)--0
 			positionVec4.z = positionVec4.z 
 			
 			spawnEntity(dbPnjId.TweakIDs,  "current_star", positionVec4.x, positionVec4.y ,positionVec4.z,2,false)
-			local index =getIndexFromGroupManager("companion")
-			table.insert(questMod.GroupManager[index].entities,"current_star")
+			
+			table.insert(questMod.GroupManager["companion"].entities,"current_star")
 				
 			doFunction("currentstar_follower",nil,nil)
 			
@@ -538,8 +538,7 @@ function StarIsHere(timer)
 	
 	
 	Cron.After(1, function()
-	-- local index =getIndexFromGroupManager("companion")
-	-- table.insert(questMod.GroupManager[index].entities,"current_star")
+	
 	setFollower("current_star")
 	
 	

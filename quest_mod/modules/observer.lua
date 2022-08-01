@@ -1,15 +1,1148 @@
-debugPrint(3,"CyberMod: observer module loaded")
+debugPrint(3,"CyberScript: observer module loaded")
 questMod.module = questMod.module +1
 
 ---Observer and Overrider---
 function SetOverrider()
+	
+	-- Override("DeathLandEvents", "OnEnter", function(this,stateContext, scriptInterface,wrappedMethod)
+	-- print("tombé1")
+	 -- this:PlayHardLandingEffects(stateContext, scriptInterface)
+    -- this:BroadcastLandingStim(stateContext, scriptInterface, gamedataStimType.LandingHard)
+    -- this:OnForcedExit(stateContext, scriptInterface)
+    -- this:SetDetailedState(scriptInterface, gamePSMDetailedLocomotionStates.HardLand);
+    -- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Landing, EnumInt(gamePSMLandingState.HardLand))
 
-	Override("MessengerGameController","PopulateData", function(this) 
+	-- end)
+	
+	
+	
+
+	
+	Override('PlayerPuppet', 'OnLookAtObjectChangedEvent', function(this)
+		this.isAimingAtFriendly = false
+		this.isAimingAtChild = false
+	end)
+	
+	Override('NcartTimetableControllerPS', 'UpdateCurrentTimeToDepart', function(self,wrappedMethod)
+		if(activeMetroDisplay == true) then
+			self.currentTimeToDepart = MetroCurrentTime
+			--NewMetroTime = 0
+			--debugPrint(1,MetroCurrentTime)
+			else
+			wrappedMethod()
+		end
+	end)
+	
+	Override('PhoneDialerGameController','CallSelectedContact',function(this, wrappedMethod)
+		
+		local callRequest = nil
+		local item = this.listController:GetSelectedItem()
+		local contactData = item:GetContactData()
+		
+		if IsDefined(contactData) and contactData.lastMesssagePreview ~= "CyberScript" then
+			
+			return wrappedMethod()
+			
+		end
+	end
+	)
+	
+	Override('DoubleJumpDecisions','EnterCondition',function(this,stateContext,scriptInterface, wrappedMethod)
+		
+		if(getUserSetting('InfiniteDoubleJump') == true) then
+			
+			
+			local currentNumberOfJumps = 0
+			local jumpPressedFlag = stateContext:GetConditionBool("JumpPressed");
+			
+			if not jumpPressedFlag and not this.jumpPressed then
+				return false
+			end
+			
+			
+			if not scriptInterface:HasStatFlag(gamedataStatType.HasDoubleJump) then
+				return false
+			end
+			if scriptInterface:HasStatFlag(gamedataStatType.HasChargeJump) or scriptInterface:HasStatFlag(gamedataStatType.HasAirHover) then
+				return false
+			end
+			
+			if scriptInterface.localBlackboard:GetBool(GetAllBlackboardDefs().PlayerStateMachine.IsPlayerInsideMovingElevator) then
+				return false
+			end
+			
+			currentNumberOfJumps = stateContext:GetIntParameter("currentNumberOfJumps", true)
+			
+			
+			if jumpPressedFlag or scriptInterface:IsActionJustPressed("Jump") then
+				
+				return true
+				
+			end
+			
+			
+			return false
+			
+			
+			else
+			
+			if not jumpPressedFlag and not this.jumpPressed then
+				this:EnableOnEnterCondition(false)
+			end
+			
+			
+			if not scriptInterface:HasStatFlag(gamedataStatType.HasDoubleJump) then
+				return false
+			end
+			if scriptInterface:HasStatFlag(gamedataStatType.HasChargeJump) or scriptInterface:HasStatFlag(gamedataStatType.HasAirHover) then
+				return false
+			end
+			
+			if scriptInterface.localBlackboard:GetBool(GetAllBlackboardDefs().PlayerStateMachine.IsPlayerInsideMovingElevator) then
+				return false
+			end
+			
+			currentNumberOfJumps = stateContext:GetIntParameter("currentNumberOfJumps", true)
+			
+			if currentNumberOfJumps >= this:GetStaticIntParameterDefault("numberOfMultiJumps", 1) then
+				return false
+			end
+			
+			if jumpPressedFlag or scriptInterface:IsActionJustPressed("Jump") then
+				
+				return true
+				
+			end
+			
+			
+			return false
+		end
+	end)
+	
+	Override('LocomotionAirEvents','OnUpdate',function(this,timeDelta, stateContext, scriptInterface, wrappedMethod)
+		
+		if(getUserSetting('DisableFallDamage') == true) then
+			
+			
+			return 
+			
+			-- local deathLandingFallingSpeed
+			-- local hardLandingFallingSpeed
+			-- local horizontalSpeed
+			-- local isInSuperheroFall
+			-- local landingAnimFeature
+			-- local landingType
+			-- local maxAllowedDistanceToGround;
+			-- local playerVelocity
+			-- local regularLandingFallingSpeed
+			-- local safeLandingFallingSpeed
+			-- local verticalSpeed
+			-- local veryHardLandingFallingSpeed
+			
+			-- wrappedMethod(timeDelta,stateContext, scriptInterface)
+			
+			-- if this:IsTouchingGround(scriptInterface) then
+			  -- this:ResetFallingParameters(stateContext)
+			  -- return
+			-- end
+			-- verticalSpeed = this:GetVerticalSpeed(scriptInterface)
+			-- if this.updateInputToggles and verticalSpeed < this:GetFallingSpeedBasedOnHeight(scriptInterface, this:GetStaticFloatParameterDefault("minFallHeightToConsiderInputToggles", 0)) then
+			  -- this:UpdateInputToggles(stateContext, scriptInterface)
+			-- end
+			-- if scriptInterface:IsActionJustPressed("Jump") then
+			  -- stateContext:SetConditionBoolParameter("CrouchToggled", false, true)
+			  -- return
+			-- end
+			-- if StatusEffectSystem:ObjectHasStatusEffect(scriptInterface.executionOwner, "BaseStatusEffect.BerserkPlayerBuff") and verticalSpeed < this:GetFallingSpeedBasedOnHeight(scriptInterface, this:GetStaticFloatParameterDefault("minFallHeightToEnterSuperheroFall", 0)) then
+			  -- stateContext:SetTemporaryBoolParameter("requestSuperheroLandActivatio", true, true)
+			-- end
+			-- regularLandingFallingSpeed = stateContext:GetFloatParameter("RegularLandingFallingSpeed", true)
+			-- safeLandingFallingSpeed = stateContext:GetFloatParameter("SafeLandingFallingSpeed", true)
+			-- hardLandingFallingSpeed = stateContext:GetFloatParameter("HardLandingFallingSpeed", true)
+			-- veryHardLandingFallingSpeed = stateContext:GetFloatParameter("VeryHardLandingFallingSpeed", true)
+			-- deathLandingFallingSpeed = stateContext:GetFloatParameter("DeathLandingFallingSpeed", true)
+			-- isInSuperheroFall = stateContext:IsStateActive("Locomotio", "superheroFall")
+			-- maxAllowedDistanceToGround = this:GetStaticFloatParameterDefault("maxDistToGroundFromSuperheroFall", 20.00)
+			-- if isInSuperheroFall and not this.maxSuperheroFallHeight then
+			  -- this:StartEffect(scriptInterface, "falling")
+			  -- this:PlaySound("lcfalling_wind_loop", scriptInterface)
+			  -- if DefaultTransition:GetDistanceToGround(scriptInterface) >= maxAllowedDistanceToGround then
+				-- this.maxSuperheroFallHeight = true
+				-- return
+			  -- end
+			  -- landingType = LandingType.Superhero
+			
+			-- else 
+					-- if verticalSpeed <= safeLandingFallingSpeed then
+					  -- landingType = LandingType.Regular
+					  -- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.RegularFall))
+					  -- playerVelocity = DefaultTransition.GetLinearVelocity(scriptInterface)
+					  -- horizontalSpeed = Vector4.Length2D(playerVelocity)
+					  -- if horizontalSpeed <= this:GetStaticFloatParameterDefault("maxHorizontalSpeedToAerialTakedow", 0) then
+						-- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.SafeFall))
+					  -- end
+					 
+				-- else 
+					  -- if verticalSpeed <= regularLandingFallingSpeed then
+						-- if this:GetLandingType(stateContext) ~= EnumInt(LandingType.Regular) then
+						  -- this.PlaySound("lcfalling_wind_loop", scriptInterface)
+						-- end
+						-- landingType = LandingType.Regular
+					  -- else 
+						-- landingType = LandingType.Off
+					  -- end
+				-- end
+			-- end
+			-- stateContext:SetPermanentIntParameter("LandingType", EnumInt(landingType), true)
+			-- stateContext:SetPermanentFloatParameter("ImpactSpeed", verticalSpeed, true)
+			-- stateContext:SetPermanentFloatParameter("InAirDuratio", this.GetInStateTime(), true)
+			-- landingAnimFeature =  AnimFeature_Landing.new()
+			-- landingAnimFeature.impactSpeed = verticalSpeed
+			-- landingAnimFeature.type = EnumInt(landingType)
+			-- scriptInterface:SetAnimationParameterFeature("Landing", landingAnimFeature)
+			-- this:SetAudioParameter("RTPC_Vertical_Velocity", verticalSpeed, scriptInterface)
+			-- this:SetAudioParameter("RTPC_Landing_Type", EnumInt(landingType), scriptInterface)
+					
+			else
+			
+			wrappedMethod(timeDelta,stateContext, scriptInterface)
+		end
+	end)
+	
+	
+	Override('WorldMapMenuGameController','OnGangListItemSpawned', function(self,gangWidget,userData) 
+		
+	end)
+	
+	Override('WorldMapMenuGameController','OnSelectedDistrictChanged', function(self,oldDistrict,newDistrict) 
+		self:ShowGangsInfo(newDistrict)
+	end)
+	
+	Override('WorldMapGangItemController','SetData', function(self,affiliationRecord) 
+		
+		if(CurrentGang ~= nil) then
+			
+			
+			inkTextRef.SetText(self.factionNameText, CurrentGang)
+			inkImageRef.SetTexturePart(self.factionIconImage, CName(CurrentGangLogo))
+			
+		end
+	end)
+	
+	
+	
+	Override('ComputerMainLayoutWidgetController', 'InitializeMenuButtons', function(this, gameController, widgetsData,wrappedMethod)
+		wrappedMethod(gameController,widgetsData)
+		if(currentHouse ~= nil) then
+			local test = this
+			local gameCon = gameController
+			local wid = widget
+			
+			local widget = SComputerMenuButtonWidgetPackage.new()
+			widget.libraryID = widgetsData[2].libraryID 
+			widget.widgetTweakDBID = widgetsData[2].widgetTweakDBID 
+			widget.widget = widgetsData[2].widget 
+			widget.widgetName = widgetsData[2].widgetName 
+			widget.placement = widgetsData[2].placement 
+			widget.isValid = widgetsData[2].isValid 
+			widget.displayName = widgetsData[2].displayName 
+			widget.ownerID = widgetsData[2].ownerID 
+			widget.ownerIDClassName = widgetsData[2].ownerIDClassName 
+			widget.customData = widgetsData[2].customData 
+			widget.isWidgetInactive = widgetsData[2].isWidgetInactive 
+			widget.widgetState = widgetsData[2].widgetState 
+			widget.iconID = widgetsData[2].iconID 
+			widget.bckgroundTextureID = widgetsData[2].bckgroundTextureID 
+			widget.iconTextureID = widgetsData[2].iconTextureID 
+			widget.textData = widgetsData[2].textData 
+			widget.counter = widgetsData[2].counter 
+			widget.displayName = "CyberScript"
+			widget.widgetName = "CyberScript"
+			local widgeto = this:CreateMenuButtonWidget(gameController, inkWidgetRef.Get(this.menuButtonList), widget);
+			this:AddMenuButtonWidget(widgeto, widget, gameController)
+			this:InitializeMenuButtonWidget(gameController, widgeto, widget)
+		end
+	end)
+	
+	Override('ComputerMainLayoutWidgetController', 'ShowInternet', function(this, startingPage,wrappedMethod)
+		if(startingPage == "CyberScript") then
+			this:GetWindowContainer():SetVisible(true)
+			Keystone_Load()
+			else
+			wrappedMethod(startingPage)
+		end
+	end)
+	
+	
+	
+	
+	---Scanner
+	Override('ScannervehicleGameController', 'OnVehicleInfoChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
+			local vehicleInfoData = ScannerVehicleInfo.new()
+			vehicleInfoData = FromVariant(value)
+			
+			
+			
+			if vehicleInfoData ~= nil then
+				
+				
+				if(Game.GetLocalizedText(vehicleInfoData:GetVehicleInfo()) ~= nil) then 
+					
+					inkTextRef:SetLocalizedTextScript(this.vehicleInfoText, vehicleInfoData:GetVehicleInfo())
+					
+				end
+				this.isValidVehicleInfo = true
+				else
+				inkTextRef.SetText(this.vehicleInfoText, ScannerInfoManager[entity.tag].text)
+				this.isValidVehicleInfo = true
+			end
+			this:UpdateGlobalVisibility()
+			
+			else
+			
+			wrappedMethod(value)
+			end
+			else
+			
+			wrappedMethod(value)
+		end
+		
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	end)
+	
+	
+	Override('ScannerNPCHeaderGameController', 'OnNameChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			
+			if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
+			
+			local testshow = ScannerInfoManager[entity.tag].primaryname
+			
+			if(ScannerInfoManager[entity.tag].secondaryname ~= nil) then
+			
+				testshow = testshow.."\n"..ScannerInfoManager[entity.tag].secondaryname
+				
+			end
+			
+			inkTextRef.SetText(this.nameText, ScannerInfoManager[entity.tag].primaryname)
+			this.isValidName = true
+			this:UpdateGlobalVisibility()
+			else
+			wrappedMethod(value)
+			
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+		
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	
+	end)
+	
+	Override('ScannerNPCHeaderGameController', 'OnLevelChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			
+			if(ScannerInfoManager[entity.tag].level ~= nil) then
+			
+			inkWidgetRef.SetVisible(this.skullIndicator, (Game.GetStatsSystem():GetStatValue(Game.GetPlayer():GetEntityID(), 605) < ScannerInfoManager[entity.tag].level))
+		
+		
+			this:UpdateGlobalVisibility()
+			
+			else
+			wrappedMethod()
+			
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+	
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	end)
+	
+	Override('ScannerNPCHeaderGameController', 'OnAttitudeChange', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			
+			if(ScannerInfoManager[entity.tag].attitude ~= nil) then
+			
+				if(ScannerInfoManager[entity.tag].attitude == 0) then
+				 inkWidgetRef.SetState(this.nameText, "Friendly")
+				end
+				
+				if(ScannerInfoManager[entity.tag].attitude == 1) then
+				 inkWidgetRef.SetState(this.nameText, "Neutral")
+				end
+				
+				if(ScannerInfoManager[entity.tag].attitude == 2) then
+				 inkWidgetRef.SetState(this.nameText, "Hostile")
+				end
+			
+			
+			
+			else
+			wrappedMethod(value)
+			
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+	
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	
+	end)
+	
+	Override('ScannerNPCBodyGameController', 'OnFactionChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			
+			if(ScannerInfoManager[entity.tag].faction ~= nil) then
+				local gang = getFactionByTag(ScannerInfoManager[entity.tag].faction)
+				inkTextRef.SetText(this.factionText, "CS faction "..gang.Name)
+				this.isValidFaction = true;
+			
+			else
+			wrappedMethod(value)
+			
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+	
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	end)
+	
+	
+	Override('ScannerNPCBodyGameController', 'OnRarityChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			 --this.asyncSpawnRequest:Cancel()
+			if(ScannerInfoManager[entity.tag].rarity ~= nil) then
+				if(ScannerInfoManager[entity.tag].iscivilian == nil) then
+				ScannerInfoManager[entity.tag].iscivilian = true
+				end
+				if (ScannerInfoManager[entity.tag].iscivilian == true and this.asyncSpawnRequest ~= nil) then
+				  this.asyncSpawnRequest = this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.dataBaseWidgetHolder), "ScannerCitizenDB", this, "OnCitizenDBSpawned")
+				end
+			
+			else
+			wrappedMethod(value)
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+	
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	end)
+	
+	Override('ScannerBountySystemGameController', 'OnBountySystemChanged', function(this, value,wrappedMethod)
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+
+			if(ScannerInfoManager[entity.tag].bounty ~= nil) then
+				
+				 this.isValidBounty = true
+				 
+				 inkWidgetRef.SetVisible(this.rewardPanel, true)
+				 
+				 if #ScannerInfoManager[entity.tag].bounty.transgressions >0 then
+						local transgressionsText = ""
+						
+						
+						inkWidgetRef.SetVisible(this.streetCredRewardRow, true);
+						inkTextRef.SetText(this.streetCredReward, IntToString(ScannerInfoManager[entity.tag].bounty.streetreward))
+						
+						inkWidgetRef.SetVisible(this.moneyRewardRow, true);
+						
+						inkTextRef.SetText(this.moneyReward, IntToString(ScannerInfoManager[entity.tag].bounty.reward))
+						
+						if(ScannerInfoManager[entity.tag].bounty.danger > 5) then
+						
+						ScannerInfoManager[entity.tag].bounty.danger = 5
+						
+						end
+						
+						if(ScannerInfoManager[entity.tag].bounty.danger < 0) then
+						
+						ScannerInfoManager[entity.tag].bounty.danger = 0
+						
+						end
+						
+						if(ScannerInfoManager[entity.tag].bounty.danger > 0) then
+							for i = 1, ScannerInfoManager[entity.tag].bounty.danger do
+							  if i <= ScannerInfoManager[entity.tag].bounty.danger then
+								inkWidgetRef.SetVisible(this.starsWidget[i], true)
+							 else
+								inkWidgetRef.SetVisible(this.starsWidget[i], false)
+							  end
+							end
+							else
+							inkWidgetRef.SetVisible(this.starsWidget[1], false)
+							inkWidgetRef.SetVisible(this.starsWidget[2], false)
+							inkWidgetRef.SetVisible(this.starsWidget[3], false)
+							inkWidgetRef.SetVisible(this.starsWidget[4], false)
+							inkWidgetRef.SetVisible(this.starsWidget[5], false)
+							
+						end
+						
+						local transgressionslist = {}
+						
+						for i,trans in ipairs(ScannerInfoManager[entity.tag].bounty.transgressions) do
+							
+							local tweak = TweakDBID.new("Transgression."..trans)
+							table.insert(transgressionslist,tweak)
+							
+							
+						end
+						
+						if(#transgressionslist > 0) then	
+					
+						
+						for i = 1, #transgressionslist do
+							local record = TweakDBInterface.GetTransgressionRecord(transgressionslist[i])
+							local trantext = ""
+							if(record ~= nil) then
+								
+								trantext = record:LocalizedDescription()
+								print(trantext)
+							end
+							
+							 transgressionsText = transgressionsText..GetLocalizedText(trantext)
+							  if i < #transgressionslist then
+								transgressionsText = transgressionsText.." ; "
+							  end
+						 end
+						inkTextRef.SetText(this.transgressions, transgressionsText)
+						
+						inkWidgetRef.SetVisible(this.transgressionsWidget, true)
+						end
+					   
+					   if(#ScannerInfoManager[entity.tag].bounty.customtransgressions > 0) then
+					   transgressionsText = transgressionsText.." ; "
+					   
+					   
+						   for i = 1, #ScannerInfoManager[entity.tag].bounty.customtransgressions do
+								transgressionsText = transgressionsText..ScannerInfoManager[entity.tag].bounty.customtransgressions[i]
+								 
+								 if i < #ScannerInfoManager[entity.tag].bounty.customtransgressions then
+									transgressionsText = transgressionsText.." ; "
+								  end
+							   
+						   end
+						   
+							inkTextRef.SetText(this.transgressions, transgressionsText)
+						
+							inkWidgetRef.SetVisible(this.transgressionsWidget, true)
+					   end
+					   
+						inkWidgetRef.SetVisible(this.wanted, true)
+						inkTextRef.SetText(this.wanted, "By : "..ScannerInfoManager[entity.tag].bounty.issuedby)
+						
+						else
+						
+						inkWidgetRef.SetVisible(this.transgressionsWidget, false)
+						inkWidgetRef.SetVisible(this.rewardPanel, false)
+						inkWidgetRef.SetVisible(this.notFound, true)
+						inkTextRef.SetLocalizedTextScript(this.notFound, "LocKey#40655")
+						inkWidgetRef.SetVisible(this.mugShot, false)
+						inkWidgetRef.SetVisible(this.wanted, false)
+					end
+					
+					
+				this:UpdateGlobalVisibility()
+				 
+				 
+			else
+			wrappedMethod(value)
+			
+		end
+			else
+			
+				wrappedMethod(value)
+			
+		end
+	
+		else
+		
+		wrappedMethod(value)
+		
+		end
+	end)
+	
+	Override('scannerDetailsGameController', 'RefreshLayout', function(this,wrappedMethod)
+	
+		if(objLook ~= nil) then
+		local entid = objLook:GetEntityID()
+		local entity = getEntityFromManagerById(entid)
+		
+		if (entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+			this:BreakAniamtions()
+			
+			if HUDManager.GetActiveMode() ~= ActiveMode.FOCUS then
+				this:PlayCloseScannerAnimation();
+			end
+			
+			if this.scanningState == gameScanningState.Complete or this.scanningState == gameScanningState.ShallowComplete or this.scanningState ==  gameScanningState.Started then
+				
+				for i,value in ipairs(this.asyncSpawnRequests) do
+					
+					value:Cancel()
+					
+					
+				end
+				
+				this.asyncSpawnRequests = {}
+				
+				inkCompoundRef.RemoveAllChildren(this.scannerCountainer)
+				inkCompoundRef.RemoveAllChildren(this.quickhackContainer)
+				inkWidgetRef.SetVisible(this.bg, true)
+				this:GetRootWidget():SetVisible(false)
+				table.insert(this.asyncSpawnRequests,this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.quickhackContainer), "QuickHackDescription"))
+				
+				
+				if(this.scannedObjectType == ScannerObjectType.PUPPET) then
+					this:GetRootWidget():SetVisible(true)
+					this:AsyncSpawnScannerModule("ScannerNPCHeaderWidget")
+					this:AsyncSpawnScannerModule("ScannerNPCBodyWidget")
+					this:AsyncSpawnScannerModule("ScannerBountySystemWidget")
+					this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
+					this:AsyncSpawnScannerModule("ScannerAbilitiesWidget")
+					this:AsyncSpawnScannerModule("ScannerResistancesWidget")
+					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+					this:AsyncSpawnScannerModule("ScannerVehicleBody")
+					
+					
+					elseif(this.scannedObjectType == ScannerObjectType.DEVICE) then
+					
+					this:GetRootWidget():SetVisible(true)
+					this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
+					this:AsyncSpawnScannerModule("ScannerVulnerabilitiesWidget")
+					this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
+					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+					
+					elseif(this.scannedObjectType == ScannerObjectType.VEHICLE) then
+					
+					this:GetRootWidget():SetVisible(true)
+					this:AsyncSpawnScannerModule("ScannerVehicleBody")
+					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+					
+					elseif(this.scannedObjectType == ScannerObjectType.GENERIC) then
+					this:GetRootWidget():SetVisible(true)
+					this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
+					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+					inkWidgetRef:SetVisible(this.toggleDescirptionHackPart, false)
+					
+				end
+				
+				
+				this.showScanAnimProxy = this:PlayLibraryAnimation("intro")
+				this.showScanAnimProxy:RegisterToCallback(inkanimEventType.OnFinish, this, "OnScannerDetailsShown")
+			end
+			
+			
+			if this.scanningState == gameScanningState.Stopped or this.scanningState ==  gameScanningState.Default then 
+				this:PlayCloseScannerAnimation()
+			end
+			
+			else
+			
+			wrappedMethod()
+			
+		end
+		
+		else
+			
+				wrappedMethod()
+			
+		end
+		
+	end)
+	
+	
+	---Scanner
+	
+	Override('ComputerInkGameController', 'ShowMenuByName', function(this, elementName, wrappedMethod)
+		if(elementName == "CyberScript") then
+			local internetData = (this:GetOwner():GetDevicePS()):GetInternetData()
+			this:GetMainLayoutController():ShowInternet("CyberScript")
+			this:RequestMainMenuButtonWidgetsUpdate()
+			else
+			wrappedMethod(elementName)
+		end
+	end)
+	
+	Override('BrowserController', 'TryGetWebsiteData', function(this, address, wrappedMethod)
+		if(address == "CyberScript") then
+			return wrappedMethod("NETdir://ncity.pub")
+			else
+			return wrappedMethod(address)
+		end
+	end)
+	
+	Override('WorldMapMenuGameController', 'ShowGangsInfo', function(self,district)
+		
+		local zoomlevel = self:GetCurrentZoom()
+		debugPrint(1,zoomlevel)
+		
+		if(currentMapDistrictView ~= gameuiEWorldMapDistrictView.None or zoomlevel > 7000) then
+			
+			local districtRecord = nil
+			
+			if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or mapSubDistrict == nil) then
+				
+				districtRecord =  MappinUtils.GetDistrictRecord(district)
+				inkWidgetRef.SetVisible(self.subdistrictNameText, false)
+				
+				else
+				districtRecord =  MappinUtils.GetDistrictRecord(mapSubDistrict)
+				inkWidgetRef.SetVisible(self.subdistrictNameText, true)
+				
+			end
+			
+			local enum = "Badlands"
+			
+			if(districtRecord ~= nil and districtRecord:EnumName() ~= nil and districtRecord:EnumName() ~= "" and districtRecord:EnumName() ~= "Null") then
+				enum = districtRecord:EnumName()
+			end
+			
+			
+			
+			inkCompoundRef.RemoveAllChildren(self.gangsList)
+			
+			inkWidgetRef.SetVisible(self.gangsInfoContainer, true)
+			
+			local mydistrict = nil
+			
+			
+			if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or enum == "Badlands") then
+				
+				local dis =getDistrictfromEnum(enum)
+				if(dis == nil) then
+					mydistrict = enum
+					else
+					mydistrict = dis.Tag
+				end
+				
+				else
+				mydistrict = enum
+			end
+			
+			
+			
+			if(mydistrict ~= nil) then
+				if(MultiplayerOn and ActualPlayerMultiData.guildscores ~= nil) then
+					local guilds = getGuildfromDistrict(mydistrict,-5)
+					if(#guilds > 0) then
+						for i=1,#guilds do 
+							
+							local gangWidget = self:SpawnFromLocal(inkWidgetRef.Get(self.gangsList), CName("GangListItem"))
+							local gangController = gangWidget:GetController()
+							
+							CurrentGang =  guilds[i].tag.." ("..guilds[i].score..")"
+							CurrentGangLogo = "logo_netwatch"
+							
+							
+							gangController:SetData(gamedataAffiliation_Record.new())
+						end
+					end
+					
+					else
+					
+					
+					
+					local gangs = {}
+					gangs = getGangfromDistrict(mydistrict,20)
+					if(#gangs > 0) then
+						for i=1,#gangs do 
+							
+							local gangWidget = self:SpawnFromLocal(inkWidgetRef.Get(self.gangsList), CName("GangListItem"))
+							local gangController = gangWidget:GetController()
+							local gang = getFactionByTag(gangs[i].tag)
+							
+							if(gang ~= nil) then
+								CurrentGang = gang.Name.." ("..gangs[i].score..")"
+								CurrentGangLogo = gang.Logo
+								
+								
+								gangController:SetData(gamedataAffiliation_Record.new())
+								else
+								spdlog.error("can't get gang for tag "..gangs[i].tag.." for district "..mydistrict)
+							end
+						end
+					end
+					
+					
+				end
+			end
+			
+			else
+			
+			inkWidgetRef.SetVisible(self.gangsInfoContainer, false)
+			
+			
+		end
+	end)
+	
+end
+
+function SetObserver()
+	QuestJournalUI.Initialize()
+	
+	QuestTrackerUI.Initialize()
+	
+	ObserveAfter("WorldMapMenuGameController", "TrackMappin", function(this,mappinController)
+		
+		print(GameDump(mappinController))
+		spdlog.error(GameDump(mappinController))
+		spdlog.error(GameDump(mappinController.mappin))
+		
+		
+		
+	end)
+	ObserveAfter("PlayerPuppet", "SetEntityNoticedPlayerBBValue", function(this,b)
+		playerNoticed = b
+		print("playerNoticed "..tostring(b))
+	end)
+	
+	ObserveAfter("PlayerPuppet", "OnBeingTarget", function(this,evt)
+		
+		
+		if(evt.noLongerTarget == false) then
+for i,v in ipairs(entityTargetPlayer) do
+
+if(evt.objectThatTargets:GetEntityID()==v:GetEntityID())then
+table.remove(entityTargetPlayer,i)
+break
+end
+
+
+end
+
+else
+
+table.insert(entityTargetPlayer,evt.noLongerTarget)
+end
+		playerTargeted = #entityTargetPlayer>0
+		print("playerTargeted "..tostring(playerTargeted))
+		end) 
+	
+	
+	ObserveAfter("NPCPuppet", "CompileScannerChunks", function(this)
+		
+		local vehicleSummonDef = Game.GetAllBlackboardDefs().UI_ScannerModules
+		local scannerBlackboard = Game.GetBlackboardSystem():Get(vehicleSummonDef)
+		
+		
+		local characterRecord  = TweakDBInterface.GetCharacterRecord(this:GetRecordID())
+		local scannerPreset = characterRecord:ScannerModulePreset()
+		
+		
+		
+		
+		if (characterRecord ~= nil and scannerBlackboard ~= nil and scannerPreset ~= nil )then
+			
+			
+			
+			---get information
+			local thisEntity = this:GetRecordID()
+			
+			local ps = this:GetPS()
+			currentScannerItem = {}
+			
+			
+			
+			
+			
+			
+			
+			if ps:GetForcedScannerPreset() ~= nil then
+				scannerPreset = TweakDBInterface.GetScannerModuleVisibilityPresetRecord(ps:GetForcedScannerPreset())
+				else
+				scannerPreset = characterRecord.ScannerModulePreset()
+			end
+			
+			
+			currentScannerItem.networkstate = tonumber(ScannerNetworkState.NOT_CONNECTED)
+			
+			local aps = ps:GetAccessPoint()
+			
+			if(aps ~= nil)then
+				if aps:IsBreached() then
+					
+					currentScannerItem.networkstate = tonumber(ScannerNetworkState.BREACHED)
+					else
+					
+					currentScannerItem.networkstate = tonumber(ScannerNetworkState.NOT_BREACHED)
+				end
+				
+			end
+			
+			
+			local archetype = characterRecord:ArchetypeData()
+			local archetypename = nil
+			if(archetype ~= nil) then
+			
+			archetypename = archetype:Type():LocalizedName()
+			
+			end
+			
+			
+			
+			
+			
+			
+			
+			if(archetypeName ~= nil and archetypeName ~= "") then
+			
+			--currentScannerItem.archetypename = archetypeName
+			
+			end
+			
+			
+			
+			-- local items = AIActionTransactionSystem.CalculateEquipmentItems(this, this:GetRecord():PrimaryEquipment(), -1)
+			
+			-- local primaryweapons = nil
+			
+			-- if(#items>0) then
+				-- primaryweapons = items[1]:Item():DisplayName()
+			-- end
+			
+			
+			
+			
+			currentScannerItem.bounty = nil
+			
+			if this.bounty ~= nil then
+				
+				local bountyChunk =ScannerBountySystem.new()
+				local bountyUI = BountyUI.new() 
+				local bounty =Bounty.new()
+				local transgressions = {}
+				
+				
+				if #this.bounty.transgressions >0 then
+					
+					for i,trans in ipairs(this.bounty.transgressions) do
+					local transText = getTransgressionFromTweakId(trans)
+					
+						if(transText ~= nil) then
+						table.insert(transgressions,transText)
+						
+						end
+					
+					
+					end
+				
+					
+					bounty = BountyManager.GenerateBounty(this)
+					else 
+					bounty = this.bounty
+				end
+				
+				
+				
+					
+			
+				currentScannerItem.entityname = this:ToString()
+				currentScannerItem.entityname = this:ToString()
+				currentScannerItem.secondaryname = Game.NameToString(this:GetCurrentAppearanceName())
+				currentScannerItem.primaryname = LocKeyToString(this:GetDisplayName())
+				currentScannerItem.attitude = tonumber(this:GetAttitudeTowards(Game.GetPlayer()))
+				currentScannerItem.faction = tostring(NameToString(characterRecord:Affiliation():EnumName()))
+				currentScannerItem.rarity = tonumber(this:GetPuppetRarity():Type())
+				
+				currentScannerItem.bounty = {}
+				currentScannerItem.bounty.danger = bountyUI.level
+				currentScannerItem.bounty.reward = bountyUI.moneyReward
+				currentScannerItem.bounty.streetreward = bountyUI.streetCredReward
+				currentScannerItem.bounty.transgressions = transgressions
+				currentScannerItem.bounty.customtransgressions = {}
+				currentScannerItem.bounty.issuedby = getAffiliationsFromTweakId(bounty.bountySetter)
+				
+				
+				
+			end
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			-- --custom scanner
+			local entid = this:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) then
+				
+				
+				if (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+					currentScannerItem = getScannerdataFromEntityOrGroupOfEntity(entity)
+					currentScannerItem.entityname = this:ToString()
+				
+				end
+				
+				
+				
+				
+				
+			end
+				
+			else
+			
+			
+			currentScannerItem = nil
+			
+			end
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			
+			
+			
+			
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+		
+		
+	end)
+	
+	ObserveAfter("PhoneDialerGameController", "PopulateData", function(this)
+	
+		local contactDataArray = this.journalManager:GetContactDataArray(false)
+		------printdump(contactDataArray))
+		if(#contactList > 0) then
+			for i = 1, #contactList do
+				local itemData = ContactData.new()
+				itemData.id = contactList[i].id
+				itemData.localizedName  = contactList[i].name
+				itemData.avatarID = TweakDBID.new(contactList[i].avatarID)
+				itemData.questRelated  =  false
+				itemData.hasMessages   =  true
+				itemData.unreadMessegeCount  = 13
+				itemData.unreadMessages  = {}
+				itemData.playerCanReply   =  false
+				itemData.playerIsLastSender   =  false
+				itemData.lastMesssagePreview  =  "CyberScript"
+				itemData.threadsCount  = 0
+				itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
+				itemData.hash  = 0
+				table.insert(contactDataArray,itemData)
+			end
+		end
+		-- for i = 1,#contactDataArray do
+		------printGameDump(contactDataArray[i]))
+		-- end
+		--table.sort(contactDataArray)
+		this.dataView:EnableSorting();
+		this.dataSource:Reset(contactDataArray);
+		this.dataView:DisableSorting();
+		this.firstInit = true;
+		--	----printGameDump(_.dataView))
+	end)
+	
+	ObserveAfter("MessengerGameController","PopulateData", function(this) 
+	if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
+	
+	print("flib sort mod is enabled, custom message is disabled")
+	else
 		local data = MessengerUtils.GetContactDataArray(this.journalManager,true,true,this.activeData)
 		-- for i=1,#data do
 		-- spdlog.info(GameDump(data[i].data))
 		-- end
-		if(multiReady and OnlineConversation ~= nil) then
+		if(MultiplayerOn and OnlineConversation ~= nil) then
 			onlineInstanceMessageProcessing()
 			local phoneConversation = OnlineConversation
 			spdlog.error(JSON:encode_pretty(phoneConversation))
@@ -176,472 +1309,37 @@ function SetOverrider()
 			end
 		end
 		this.listController:SetData(data, true)
-	end)
-
-	Override('PlayerPuppet', 'OnLookAtObjectChangedEvent', function(this)
-		this.isAimingAtFriendly = false
-		this.isAimingAtChild = false
-	end)
-
-	Override('NcartTimetableControllerPS', 'UpdateCurrentTimeToDepart', function(self)
-		if(activeMetroDisplay == true) then
-			self.currentTimeToDepart = MetroCurrentTime
-			--NewMetroTime = 0
-			--debugPrint(1,MetroCurrentTime)
-			else
-			self.currentTimeToDepart = self.currentTimeToDepart  - self.ncartTimetableSetup.uiUpdateFrequency
-			if self.currentTimeToDepart < 0 then
-				self:ResetTimeToDepart()
-			end
-		end
-	end)
-
-	Override('PhoneDialerGameController','CallSelectedContact',function(this, wrappedMethod)
-	
-	local callRequest = nil
-	local item = this.listController:GetSelectedItem()
-	local contactData = item:GetContactData()
-	
-		if IsDefined(contactData) and contactData.lastMesssagePreview ~= "cybermod" then
-		
-				return wrappedMethod()
-			
-		end
 	end
-	)
-
-	Override("PhoneDialerGameController", "PopulateData", function(this)
-		local contactDataArray = this.journalManager:GetContactDataArray(false)
-		------printdump(contactDataArray))
-		if(#contactList > 0) then
-			for i = 1, #contactList do
-				local itemData = ContactData.new()
-				itemData.id = contactList[i].id
-				itemData.localizedName  = contactList[i].name
-				itemData.avatarID = TweakDBID.new(contactList[i].avatarID)
-				itemData.questRelated  =  false
-				itemData.hasMessages   =  true
-				itemData.unreadMessegeCount  = 13
-				itemData.unreadMessages  = {}
-				itemData.playerCanReply   =  false
-				itemData.playerIsLastSender   =  false
-				itemData.lastMesssagePreview  =  "cybermod"
-				itemData.threadsCount  = 0
-				itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
-				itemData.hash  = 0
-				table.insert(contactDataArray,itemData)
-			end
-		end
-		-- for i = 1,#contactDataArray do
-		------printGameDump(contactDataArray[i]))
-		-- end
-		--table.sort(contactDataArray)
-		this.dataView:EnableSorting();
-		this.dataSource:Reset(contactDataArray);
-		this.dataView:DisableSorting();
-		this.firstInit = true;
-		--	----printGameDump(_.dataView))
 	end)
-
-	Override("ShardsMenuGameController", "PopulateData", function(this)
-		local counter = 0
-		local groupData
-		local groupVirtualListData
-		local i
-		local items
-		local level
-		local success = false
-		local newEntries
-		local tagsFilter = {}
-		local toti = {}
-		local data = {}
-		groupData = ShardEntryData.new()
-		groupData.title = "CyberMod"
-		groupData.activeDataSync = this.activeData
-		groupData.counter = 9999
-		groupData.isNew = this.hasNewCryptedEntries
-		groupData.newEntries = newEntries
-		groupVirtualListData = VirutalNestedListData.new()
-		groupVirtualListData.level = 9999
-		groupVirtualListData.widgetType = 1
-		groupVirtualListData.isHeader = true
-		groupVirtualListData.data = groupData
-		groupVirtualListData.forceToTopWithinLevel  = true
-		table.insert(data, groupVirtualListData)
-		local datatemp = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
-		table.insert(tagsFilter, CName("HideInBackpackUI"))
-		items = this.InventoryManager:GetPlayerItemsByType(gamedataItemType.Gen_Misc, tagsFilter)
-		counter = 0
-		level = #data+1
-		this.hasNewCryptedEntries = false
-		i = 1
-		local textAffinity = "Affinity"
-		for i = 1,#arrayPnjDb  do
-			local score = getScoreKey(arrayPnjDb[i].Names,"Score")
-			if score ~= nil and score > 1 then
-				textAffinity = textAffinity.."\n "..arrayPnjDb[i].Names.." : "..score
-			end
-		end
-		local shardData =  ShardEntryData.new()
-		shardData.title = "CM : NPC Affinity"
-		shardData.description = textAffinity
-		shardData.activeDataSync = this.activeData
-		shardData.counter = counter
-		shardData.isNew = true
-		shardData.imageId = datatemp[i].imageId
-		shardData.hash = -9998
-		shardData.activeDataSync = this.activeData
-		shardData.isCrypted = false
-		shardData.itemID = datatemp[i].itemID
-		table.insert(shardData.newEntries, shardData.hash)
-		local shardVirtualListData = VirutalNestedListData.new()
-		groupVirtualListData.level = 9999
-		shardVirtualListData.widgetType = 0
-		shardVirtualListData.isHeader = false
-		shardVirtualListData.data = shardData
-		table.insert(data, shardVirtualListData)
-		textAffinity = "Gang Affinity"
-		for k,v in pairs(arrayFaction) do
-			local score = getScorebyTag(k)
-			if score ~= nil then
-				textAffinity = textAffinity.."\n "..arrayFaction[k].faction.Name.." : "..score
-			end
-		end
-		local shardData =  ShardEntryData.new()
-		shardData.title = "CM : Gang Affinity"
-		shardData.description = textAffinity
-		shardData.activeDataSync = this.activeData
-		shardData.counter = counter
-		shardData.isNew = true
-		shardData.imageId = datatemp[i].imageId
-		shardData.hash = -9999
-		shardData.activeDataSync = this.activeData
-		shardData.isCrypted = false
-		shardData.itemID = datatemp[i].itemID
-		table.insert(shardData.newEntries, shardData.hash)
-		local shardVirtualListData = VirutalNestedListData.new()
-		groupVirtualListData.level = 9999
-		shardVirtualListData.widgetType = 0
-		shardVirtualListData.isHeader = false
-		shardVirtualListData.data = shardData
-		table.insert(data, shardVirtualListData)
-		for i = 1,#arrayHelp do
-			local shard = arrayHelp[i]
-			local description = ""
-			for y=1,#shard.section do
-				description = description..shard.section[y].."\n"
-			end
-			local shardData =  ShardEntryData.new()
-			shardData.title = "CM Wiki : "..getLang(shard.title)
-			shardData.description = description
-			shardData.activeDataSync = this.activeData
-			shardData.counter = counter
-			shardData.isNew = false
-			shardData.imageId = datatemp[2].imageId
-			shardData.hash = -(i+8000)
-			shardData.activeDataSync = this.activeData
-			shardData.isCrypted = false
-			shardData.itemID = datatemp[1].imageId
-			table.insert(shardData.newEntries, shardData.hash)
-			local shardVirtualListData = VirutalNestedListData.new()
-			groupVirtualListData.level = 9999
-			shardVirtualListData.widgetType = 0
-			shardVirtualListData.isHeader = false
-			shardVirtualListData.data = shardData
-			table.insert(data, shardVirtualListData)
-		end
-		for i = 1,#arrayShard do
-			local shard = arrayShard[i]
-			if((getScoreKey(shard.tag,"Score") == nil and shard.locked == false) or getScoreKey(shard.tag,"Score") == 0) then
-				local shardData =  ShardEntryData.new()
-				shardData.title = "CM : "..shard.title
-				shardData.description = shard.description
-				shardData.activeDataSync = this.activeData
-				shardData.counter = counter
-				shardData.isNew = shard.new
-				shardData.imageId = datatemp[1].imageId
-				shardData.hash = -i
-				shardData.activeDataSync = this.activeData
-				shardData.isCrypted = shard.crypted
-				shardData.itemID = datatemp[1].itemID
-				table.insert(shardData.newEntries, shardData.hash)
-				local shardVirtualListData = VirutalNestedListData.new()
-				groupVirtualListData.level = 9999
-				shardVirtualListData.widgetType = 0
-				shardVirtualListData.isHeader = false
-				shardVirtualListData.data = shardData
-				table.insert(data, shardVirtualListData)
-			end
-		end
-		while i < #items+1 do
-			--	  if this.ProcessItem(items[i], data, level, newEntries) then
-			--counter = counte + 1
-			--	  end
-			success,toti = this:ProcessItem(items[i], level, newEntries)
-			------printtostring(success))
-			if success == true then
-				counter = counter + 1
-			end	
-			i = i +1
-		end
-		if counter >= 1 then
-			groupData = ShardEntryData.new()
-			groupData.title = GetLocalizedText("Story-base-gameplay-static_data-database-scanning-scanning-quest_clue_template_04_localizedDescription")
-			groupData.activeDataSync = this.activeData
-			groupData.counter = counter
-			groupData.isNew = this.hasNewCryptedEntries
-			groupData.newEntries = newEntries
-			groupVirtualListData = VirutalNestedListData.new()
-			groupVirtualListData.level = level
-			groupVirtualListData.widgetType = 1
-			groupVirtualListData.isHeader = true
-			groupVirtualListData.data = groupData
-			table.insert(data, groupVirtualListData)
-		end
-		for i=1,#datatemp do
-			datatemp[i].level = i+1
-			table.insert(data,datatemp[i])
-		end
-		local datatemp2 = data
-		data = {}
-		local count = 0
-		for i = 1,#datatemp2 do
-			if(datatemp2[i].isHeader == true ) then
-				count = count +1
-				datatemp2[i].level = count
-				else
-				datatemp2[i].level = count
-			end
-			table.insert(data,datatemp2[i])
-		end
-		if #data <= 0 then
-			this:ShowNodataWarning()
-			else 
-			this:HideNodataWarning()
-			this.listController:SetData(data, true, true)
-		end
-		
-		this:RefreshButtonHints()
-	end)
-	
-	Override('WorldMapMenuGameController','OnGangListItemSpawned', function(self,gangWidget,userData) 
-	
-	end)
-	
-	Override('WorldMapMenuGameController','OnSelectedDistrictChanged', function(self,oldDistrict,newDistrict) 
-		self:ShowGangsInfo(newDistrict)
-	end)
-	
-	Override('WorldMapGangItemController','SetData', function(self,affiliationRecord) 
-	
-		if(CurrentGang ~= nil) then
-	
-			
-				inkTextRef.SetText(self.factionNameText, CurrentGang)
-				inkImageRef.SetTexturePart(self.factionIconImage, CName(CurrentGangLogo))
-			
-		end
-	end)
-	
-	Override('ComputerMainLayoutWidgetController', 'InitializeMenuButtons', function(this, gameController, widgetsData,wrappedMethod)
-		wrappedMethod(gameController,widgetsData)
-		if(currentHouse ~= nil) then
-			local test = this
-			local gameCon = gameController
-			local wid = widget
-			
-			local widget = SComputerMenuButtonWidgetPackage.new()
-			widget.libraryID = widgetsData[2].libraryID 
-			widget.widgetTweakDBID = widgetsData[2].widgetTweakDBID 
-			widget.widget = widgetsData[2].widget 
-			widget.widgetName = widgetsData[2].widgetName 
-			widget.placement = widgetsData[2].placement 
-			widget.isValid = widgetsData[2].isValid 
-			widget.displayName = widgetsData[2].displayName 
-			widget.ownerID = widgetsData[2].ownerID 
-			widget.ownerIDClassName = widgetsData[2].ownerIDClassName 
-			widget.customData = widgetsData[2].customData 
-			widget.isWidgetInactive = widgetsData[2].isWidgetInactive 
-			widget.widgetState = widgetsData[2].widgetState 
-			widget.iconID = widgetsData[2].iconID 
-			widget.bckgroundTextureID = widgetsData[2].bckgroundTextureID 
-			widget.iconTextureID = widgetsData[2].iconTextureID 
-			widget.textData = widgetsData[2].textData 
-			widget.counter = widgetsData[2].counter 
-			widget.displayName = "CyberMod"
-			widget.widgetName = "CyberMod"
-			local widgeto = this:CreateMenuButtonWidget(gameController, inkWidgetRef.Get(this.menuButtonList), widget);
-			this:AddMenuButtonWidget(widgeto, widget, gameController)
-			this:InitializeMenuButtonWidget(gameController, widgeto, widget)
-		end
-	end)
-	
-	Override('ComputerMainLayoutWidgetController', 'ShowInternet', function(this, startingPage,wrappedMethod)
-		if(startingPage == "CyberMod") then
-			this:GetWindowContainer():SetVisible(true)
-			Keystone_Load()
-			else
-			wrappedMethod(startingPage)
-		end
-	end)
-	
-	Override('ComputerInkGameController', 'ShowMenuByName', function(this, elementName, wrappedMethod)
-		if(elementName == "CyberMod") then
-			local internetData = (this:GetOwner():GetDevicePS()):GetInternetData()
-			this:GetMainLayoutController():ShowInternet("CyberMod")
-			this:RequestMainMenuButtonWidgetsUpdate()
-			else
-			wrappedMethod(elementName)
-		end
-	end)
-	
-	Override('BrowserController', 'TryGetWebsiteData', function(this, address, wrappedMethod)
-		if(address == "CyberMod") then
-			return wrappedMethod("NETdir://ncity.pub")
-			else
-			return wrappedMethod(address)
-		end
-	end)
-	
-	Override('WorldMapMenuGameController', 'ShowGangsInfo', function(self,district)
-		
-			local zoomlevel = self:GetCurrentZoom()
-			debugPrint(1,zoomlevel)
-			
-			if(currentMapDistrictView ~= gameuiEWorldMapDistrictView.None or zoomlevel > 7000) then
-		
-			local districtRecord = nil
-			
-			if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or mapSubDistrict == nil) then
-				
-				districtRecord =  MappinUtils.GetDistrictRecord(district)
-				inkWidgetRef.SetVisible(self.subdistrictNameText, false)
-				
-			else
-				districtRecord =  MappinUtils.GetDistrictRecord(mapSubDistrict)
-				inkWidgetRef.SetVisible(self.subdistrictNameText, true)
-				
-			end
-			
-			local enum = "Badlands"
-			
-			if(districtRecord ~= nil and districtRecord:EnumName() ~= nil and districtRecord:EnumName() ~= "" and districtRecord:EnumName() ~= "Null") then
-				enum = districtRecord:EnumName()
-			end
-			
-			
-			
-			inkCompoundRef.RemoveAllChildren(self.gangsList)
-			
-			inkWidgetRef.SetVisible(self.gangsInfoContainer, true)
-			
-			local mydistrict = nil
-			 
-			
-			if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or enum == "Badlands") then
-	
-				local dis =getDistrictfromEnum(enum)
-				if(dis == nil) then
-				mydistrict = enum
-				else
-				mydistrict = dis.Tag
-				end
-				
-				else
-				mydistrict = enum
-			end
-			
-		
-			
-			if(mydistrict ~= nil) then
-			if(multiReady and ActualPlayerMultiData.guildscores ~= nil) then
-					local guilds = getGuildfromDistrict(mydistrict,-5)
-					if(#guilds > 0) then
-						for i=1,#guilds do 
-						
-							local gangWidget = self:SpawnFromLocal(inkWidgetRef.Get(self.gangsList), CName("GangListItem"))
-							local gangController = gangWidget:GetController()
-							
-							CurrentGang =  guilds[i].tag.." ("..guilds[i].score..")"
-							CurrentGangLogo = "logo_netwatch"
-							
-							
-							gangController:SetData(gamedataAffiliation_Record.new())
-						end
-					end
-			
-			else
-			
-			
-			
-				local gangs = {}
-				gangs = getGangfromDistrict(mydistrict,20)
-				if(#gangs > 0) then
-					for i=1,#gangs do 
-						
-						local gangWidget = self:SpawnFromLocal(inkWidgetRef.Get(self.gangsList), CName("GangListItem"))
-						local gangController = gangWidget:GetController()
-						local gang = getFactionByTag(gangs[i].tag)
-						
-						if(gang ~= nil) then
-						CurrentGang = gang.Name.." ("..gangs[i].score..")"
-						CurrentGangLogo = gang.Logo
-						
-							
-						gangController:SetData(gamedataAffiliation_Record.new())
-						else
-						spdlog.error("can't get gang for tag "..gangs[i].tag.." for district "..mydistrict)
-						end
-					end
-				end
-				
-				
-				end
-			end
-			
-			else
-			
-			inkWidgetRef.SetVisible(self.gangsInfoContainer, false)
-			
-			
-			end
-	end)
-
-end
-
-function SetObserver()
-	QuestJournalUI.Initialize()
-	
-	QuestTrackerUI.Initialize()
 	
 	ObserveAfter('VehiclesManagerListItemController', 'OnDataChanged', function(this,value)
-	
-	
-	if(tostring(this.vehicleData.displayName) == "None")then
-		inkTextRef.SetText(this.label, tostring(NameToString(this.vehicleData.data.name)));
-	end
-	
+		
+		
+		if(tostring(this.vehicleData.displayName) == "None")then
+			inkTextRef.SetText(this.label, tostring(NameToString(this.vehicleData.data.name)));
+		end
+		
 	end)
 	
 	ObserveAfter('VehiclesManagerListItemController', 'OnSelected', function(this,itemController,discreteNav)
-	
-	
-	if(tostring(this.vehicleData.displayName) == "None")then
-		inkTextRef.SetText(this.label, tostring(NameToString(this.vehicleData.data.name)));
-	end
-	
+		
+		
+		if(tostring(this.vehicleData.displayName) == "None")then
+			inkTextRef.SetText(this.label, tostring(NameToString(this.vehicleData.data.name)));
+		end
+		
 	end)
 	
 	ObserveAfter('IncomingCallGameController', 'OnInitialize', function(this)
-	incomingCallGameController = this
+		incomingCallGameController = this
 	end)
 	
 	ObserveAfter('IncomingCallGameController', 'GetIncomingContact', function(this)
-	incomingCallGameController = this
+		incomingCallGameController = this
 	end)
 	
 	ObserveAfter('IncomingCallGameController', 'OnPhoneCall', function(this)
-	incomingCallGameController = this
+		incomingCallGameController = this
 	end)
 	
 	ObserveAfter('TutorialPopupGameController', 'OnInitialize', function(this)
@@ -651,7 +1349,7 @@ function SetObserver()
 	
 	ObserveAfter('TutorialPopupGameController', 'OnPlayerAttach', function(this,playerPuppet)
 		TutorialPopupGameController = this
-	
+		
 	end)
 	
 	ObserveBefore('WorldMapMenuGameController', 'GetDistrictAnimation', function(this,view ,show)
@@ -662,58 +1360,58 @@ function SetObserver()
 	ObserveAfter('WorldMapMenuGameController', 'GetDistrictAnimation', function(this,view ,show)
 		debugPrint(1,tostring(view))
 		if(show == true or view == gameuiEWorldMapDistrictView.None) then
-		
+			
 			
 			currentMapDistrictView = view
-		
+			
 			
 		end
 		
 		if(view == gameuiEWorldMapDistrictView.None) then
 			
-				inkWidgetRef.SetVisible(this.gangsInfoContainer, false)
-				
+			inkWidgetRef.SetVisible(this.gangsInfoContainer, false)
+			
 		end
 		
 		this:ShowGangsInfo(mapDistrict)
 	end)
 	
 	ObserveAfter('TrackQuestNotificationAction', 'TrackFirstObjective', function(this,questEntry)
-	
-
-	if(questEntry ~= nil or questEntry.id == nil or questEntry.id == "")then
 		
-		local quest = getQuestByTag(questEntry.districtID)
-					
+		
+		if(questEntry ~= nil or questEntry.id == nil or questEntry.id == "")then
+			
+			local quest = getQuestByTag(questEntry.districtID)
+			
+			
+			if(quest ~= nil and getScoreKey(quest.tag,"Score") <= 3 and currentQuest == nil ) then
+				
+				--untrackQuest()
+				
+				
+				
+				
+				local objective = QuestManager.GetFirstObjectiveEntry(quest.tag)
+				
+				
+				
+				
+				if QuestManager.IsKnownQuest(quest.tag) then
+					if QuestManager.IsQuestComplete(quest.tag) then
 						
-		if(quest ~= nil and getScoreKey(quest.tag,"Score") <= 3 and currentQuest == nil ) then
-			
-			--untrackQuest()
-		
-			
-		
-			
-			local objective = QuestManager.GetFirstObjectiveEntry(quest.tag)
-			
-
-			
-			
-			if QuestManager.IsKnownQuest(quest.tag) then
-				if QuestManager.IsQuestComplete(quest.tag) then
+						return
+					end
 					
-					return
+					QuestManager.MarkQuestAsVisited(quest.tag)
+					QuestManager.MarkQuestAsActive(quest.tag)
+					QuestManager.MarkObjectiveAsActive(objective.id)
+					
+					
+					QuestManager.TrackObjective(objective.id,true)
 				end
-			
-				QuestManager.MarkQuestAsVisited(quest.tag)
-				QuestManager.MarkQuestAsActive(quest.tag)
-				QuestManager.MarkObjectiveAsActive(objective.id)
 				
-				
-				QuestManager.TrackObjective(objective.id,true)
 			end
-		
 		end
-	end
 	end)
 	
 	ObserveAfter('WorldMapMenuGameController', 'OnUpdateHoveredDistricts', function(this,district,subdistrict)
@@ -728,16 +1426,191 @@ function SetObserver()
 		
 		
 		if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or subdistrict == gamedataDistrict.Invalid) then
-				
-				
-				inkWidgetRef.SetVisible(this.subdistrictNameText, false)
-				
+			
+			
+			inkWidgetRef.SetVisible(this.subdistrictNameText, false)
+			
 			else
-				
-				inkWidgetRef.SetVisible(this.subdistrictNameText, true)
-				
+			
+			inkWidgetRef.SetVisible(this.subdistrictNameText, true)
+			
 		end
 		
+	end)
+	
+	ObserveAfter("ShardsMenuGameController", "PopulateData", function(this)
+	
+	if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
+	
+	print("flib sort mod is enabled, custom shard is disabled")
+	else
+		local counter = 0
+		local groupData
+		local groupVirtualListData
+		local i
+		local items
+		local level
+		local success = false
+		local newEntries
+		local tagsFilter = {}
+		local toti = {}
+		local data = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
+		
+		
+		local totalcount = 0
+		
+		
+		local datatemp = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
+		table.insert(tagsFilter, CName("HideInBackpackUI"))
+		items = this.InventoryManager:GetPlayerItemsByType(gamedataItemType.Gen_Misc, tagsFilter)
+		counter = 0
+		level = #data+1
+		this.hasNewCryptedEntries = false
+		i = 1
+		local textAffinity = "Affinity"
+		for i = 1,#arrayPnjDb  do
+			local score = getScoreKey("Affinity",arrayPnjDb[i].Names) 
+			if score ~= nil and score > 1 then
+				textAffinity = textAffinity.."\n "..arrayPnjDb[i].Names.." : "..score
+			end
+		end
+		
+		
+		local shardData =  ShardEntryData.new()
+		shardData.title = "CyberScript : NPC Affinity"
+		shardData.description = textAffinity
+		shardData.activeDataSync = this.activeData
+		shardData.counter = counter
+		shardData.isNew = true
+		shardData.imageId = datatemp[i].imageId
+		shardData.hash = -13082022
+		shardData.activeDataSync = this.activeData
+		shardData.isCrypted = false
+		shardData.itemID = datatemp[i].itemID
+		table.insert(shardData.newEntries, shardData.hash)
+		
+		local shardVirtualListData = VirutalNestedListData.new()
+		shardVirtualListData.level = -1
+		shardVirtualListData.widgetType = 0
+		shardVirtualListData.isHeader = false
+		shardVirtualListData.data = shardData
+		table.insert(data, shardVirtualListData)
+		totalcount = totalcount +1
+		
+		textAffinity = "Gang Affinity"
+		for k,v in pairs(arrayFaction) do
+			local score =getScoreKey("Affinity",k)
+			if score ~= nil then
+				textAffinity = textAffinity.."\n "..arrayFaction[k].faction.Name.." : "..score
+			end
+		end
+		
+		
+		
+		local shardData =  ShardEntryData.new()
+		shardData.title = "CyberScript : Gang Affinity"
+		shardData.description = textAffinity
+		shardData.activeDataSync = this.activeData
+		shardData.counter = counter
+		shardData.isNew = true
+		shardData.imageId = datatemp[i].imageId
+		shardData.hash = -13082021
+		shardData.activeDataSync = this.activeData
+		shardData.isCrypted = false
+		shardData.itemID = datatemp[i].itemID
+		table.insert(shardData.newEntries, shardData.hash)
+		
+		
+		
+		local shardVirtualListData = VirutalNestedListData.new()
+		shardVirtualListData.level = -1
+		shardVirtualListData.widgetType = 0
+		shardVirtualListData.isHeader = false
+		shardVirtualListData.data = shardData
+		table.insert(data, shardVirtualListData)
+		totalcount = totalcount +1
+		
+		for i = 1,#arrayHelp do
+			local shard = arrayHelp[i]
+			local description = ""
+			for y=1,#shard.section do
+				description = description..shard.section[y].."\n"
+			end
+			
+			local shardData =  ShardEntryData.new()
+			shardData.title = "CyberScript Wiki : "..getLang(shard.title)
+			shardData.description = description
+			shardData.activeDataSync = this.activeData
+			shardData.counter = counter
+			shardData.isNew = false
+			shardData.imageId = datatemp[2].imageId
+			shardData.hash = -(i+130820221)
+			shardData.activeDataSync = this.activeData
+			shardData.isCrypted = false
+			shardData.itemID = datatemp[1].imageId
+			table.insert(shardData.newEntries, shardData.hash)
+			
+			local shardVirtualListData = VirutalNestedListData.new()
+			shardVirtualListData.level =-1
+			shardVirtualListData.widgetType = 0
+			shardVirtualListData.isHeader = false
+			shardVirtualListData.data = shardData
+			table.insert(data, shardVirtualListData)
+			totalcount = totalcount +1
+		end
+		
+		for i = 1,#arrayShard do
+			local shard = arrayShard[i]
+			if((getScoreKey(shard.tag,"Score") == nil and shard.locked == false) or getScoreKey(shard.tag,"Score") == 0) then
+				
+				local shardData =  ShardEntryData.new()
+				shardData.title = "CS : "..shard.title
+				shardData.description = shard.description
+				shardData.activeDataSync = this.activeData
+				shardData.counter = counter
+				shardData.isNew = shard.new
+				shardData.imageId = datatemp[1].imageId
+				shardData.hash = -(i+130820202)
+				shardData.activeDataSync = this.activeData
+				shardData.isCrypted = shard.crypted
+				shardData.itemID = datatemp[1].itemID
+				table.insert(shardData.newEntries, shardData.hash)
+				
+				local shardVirtualListData = VirutalNestedListData.new()
+				shardVirtualListData.level = -1
+				shardVirtualListData.widgetType = 0
+				shardVirtualListData.isHeader = false
+				shardVirtualListData.data = shardData
+				table.insert(data, shardVirtualListData)
+				totalcount = totalcount +1
+			end
+		end
+		
+		groupData = ShardEntryData.new()
+		groupData.title = "CyberScript"
+		groupData.activeDataSync = this.activeData
+		groupData.counter = totalcount
+		groupData.isNew = this.hasNewCryptedEntries
+		groupData.newEntries = {}
+		
+		groupVirtualListData = VirutalNestedListData.new()
+		groupVirtualListData.level = -1
+		groupVirtualListData.widgetType = 1
+		groupVirtualListData.isHeader = true
+		groupVirtualListData.data = groupData
+		groupVirtualListData.forceToTopWithinLevel  = true
+		table.insert(data, groupVirtualListData)
+		
+		
+		if #data <= 0 then
+			this:ShowNodataWarning()
+			else 
+			this:HideNodataWarning()
+			this.listController:SetData(data, true, true)
+		end
+		
+		this:RefreshButtonHints()
+	end
 	end)
 	
 	ObserveAfter('WorldMapMenuGameController', 'OnSelectedDistrictChanged', function(this,oldDistrict,newDistrict)
@@ -746,29 +1619,29 @@ function SetObserver()
 		
 		
 		if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil or newDistrict == gamedataDistrict.Invalid) then
-				
-				
-				inkWidgetRef.SetVisible(this.subdistrictNameText, false)
-				
+			
+			
+			inkWidgetRef.SetVisible(this.subdistrictNameText, false)
+			
 			else
-				
-				inkWidgetRef.SetVisible(this.subdistrictNameText, true)
-				
+			
+			inkWidgetRef.SetVisible(this.subdistrictNameText, true)
+			
 		end
 		
 		if(currentMapDistrictView == gameuiEWorldMapDistrictView.Districts or currentMapDistrictView == nil ) then
-				
-				
-				mapSubDistrict = nil
-				
+			
+			
+			mapSubDistrict = nil
+			
 			else
-				
-				mapSubDistrict = newDistrict
-				this:ShowGangsInfo(mapDistrict)
-				
+			
+			mapSubDistrict = newDistrict
+			this:ShowGangsInfo(mapDistrict)
+			
 		end
 		
-	
+		
 	end)
 	
 	ObserveAfter('WorldMapMenuGameController', 'OnZoomLevelChanged', function(this,oldLevel,newLevel)
@@ -776,18 +1649,18 @@ function SetObserver()
 		
 		local zoomlevel = this:GetCurrentZoom()
 		
-			
-		if( zoomlevel < 7000) then
 		
-		inkWidgetRef.SetVisible(this.gangsInfoContainer, false)
+		if( zoomlevel < 7000) then
+			
+			inkWidgetRef.SetVisible(this.gangsInfoContainer, false)
 		end
-	
+		
 	end)
 	
 	ObserveBefore('WorldMapMenuGameController', 'OnSetUserData', function(this,userData )
 		setNewFixersPoint()
 		setCustomLocationPoint() 
-	
+		
 	end)
 	Observe("SettingsMainGameController", "RequestClose", function (_, _, target) -- Check if activated button is the custom mods button
 		
@@ -795,16 +1668,16 @@ function SetObserver()
 			LoadDataPackCache()
 		end
 	end)
-
+	
 	Observe('PlayerPuppet', 'OnGameAttached', function(this)
 		startListeners(this)
 	end)
-
+	
 	Observe('JournalNotificationQueue','OnMenuUpdate', function(self)
 		----debugPrint(1,"obs2")
 		JournalNotificationQueue = self
 	end)
-
+	
 	Observe('BaseWorldMapMappinController', 'SelectMappin', function(self)
 		if(self.mappin ~= nil) then
 			SelectedMappinMetro = nil
@@ -824,7 +1697,7 @@ function SetObserver()
 				mappinType == gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant or
 				mappinType == gamedataMappinVariant.ServicePointFoodVariant or
 				mappinType == gamedataMappinVariant.ServicePointBarVariant or
-				mappinType == gamedataMappinVariant.ServicePointJunkVariant) then
+			mappinType == gamedataMappinVariant.ServicePointJunkVariant) then
 			local haveFounded = false
 			-- local test = {}
 			-- table.insert(test,arrayHouse["playerhouse01"])
@@ -863,17 +1736,17 @@ function SetObserver()
 		end
 	end)
 	
-	--region CyberMod Estates
-
+	--region CyberScript Estates
+	
 	ObserveAfter('BrowserController', 'OnPageSpawned', function(this, widget, userData)
-		if(this.defaultDevicePage == "CyberMod") then
-			inkTextRef.SetText(this.addressText, "NETdir://cybermod.mod");
+		if(this.defaultDevicePage == "CyberScript") then
+			inkTextRef.SetText(this.addressText, "NETdir://CyberScript.mod");
 		end
 		if(CurrentAddress == "NETdir://ezestates.web/renovations" and BrowserCustomPlace ~= nil) then
-			inkTextRef.SetText(this.addressText, "NETdir://ezestates.web/cybermod/estates")
+			inkTextRef.SetText(this.addressText, "NETdir://ezestates.web/CyberScript/estates")
 		end
 	end)
-
+	
 	ObserveAfter('BrowserController', 'LoadWebPage', function(self,address)
 		CurrentAddress = address
 		debugPrint(1,CurrentAddress)
@@ -884,7 +1757,7 @@ function SetObserver()
 		debugPrint(1,BrowserCustomPlace)
 		-- end)
 	end)
-
+	
 	ObserveAfter('WebPage', 'OnInitialize', function(self)
 		LinkController = self
 	end)
@@ -900,7 +1773,7 @@ function SetObserver()
 			debugPrint(1,"obs6")
 			local buttonData = {
 				name = StringToName("testButton"),
-				text = "CyberMod Estates",
+				text = "CyberScript Estates",
 				value = 1,
 				tag =  "testButton"
 			}
@@ -940,7 +1813,7 @@ function SetObserver()
 			debugPrint(1,"obs6")
 			local buttonData = {
 				name = StringToName("testButton"),
-				text = "CyberMod Estates",
+				text = "CyberScript Estates",
 				value = 1,
 				tag =  "testButton"
 			}
@@ -991,7 +1864,7 @@ function SetObserver()
 			anquestionPics:SetText("An Bug ? An Suggestions ?")
 			anquestionPics:SetFontSize(35)
 			local contactUs = self.textList[16].widget
-			contactUs:SetText("Go to CyberMod Discord for Help !")
+			contactUs:SetText("Go to CyberScript Discord for Help !")
 			contactUs:SetFontSize(35)
 		end
 		if(CurrentAddress == "NETdir://ezestates.web/renovations" and BrowserCustomPlace == "main") then
@@ -1277,27 +2150,27 @@ function SetObserver()
 		end
 	end)
 	
-	--endregion CyberMod Estates
+	--endregion CyberScript Estates
 	ObserveAfter('WorldMapTooltipController', 'SetData', function(self,data,menu)
-	local mappinVariant = nil
+		local mappinVariant = nil
 		
 		if( data.mappin ~= nil) then
-		
-		mappinVariant = data.mappin:GetVariant()
-		
+			
+			mappinVariant = data.mappin:GetVariant()
+			
 		end
 		if(SelectedScriptMappin ~= nil) then
 			if(mappinVariant ~= nil and mappinVariant == gamedataMappinVariant.FixerVariant) then
-			inkTextRef.SetText(self.gigBarCompletedText, "")
-			inkTextRef.SetText(self.gigBarTotalText, "")
-			
-			inkImageRef.SetVisible(self.icon, false)
-			
-			inkWidgetRef.SetVisible(self.descText, true)
-			inkWidgetRef.SetVisible(self.fixerPanel, true)
-		end
-		else
-		inkWidgetRef.SetVisible(self.icon, true)
+				inkTextRef.SetText(self.gigBarCompletedText, "")
+				inkTextRef.SetText(self.gigBarTotalText, "")
+				
+				inkImageRef.SetVisible(self.icon, false)
+				
+				inkWidgetRef.SetVisible(self.descText, true)
+				inkWidgetRef.SetVisible(self.fixerPanel, true)
+			end
+			else
+			inkWidgetRef.SetVisible(self.icon, true)
 		end
 	end)
 	
@@ -1307,9 +2180,9 @@ function SetObserver()
 		local mappinVariant = nil
 		
 		if( data.mappin ~= nil) then
-		
-		mappinVariant = data.mappin:GetVariant()
-		
+			
+			mappinVariant = data.mappin:GetVariant()
+			
 		end
 		
 		if(SelectedMappinHouse ~= nil or SelectedMappinMetro ~= nil or SelectedScriptMappin ~= nil) then
@@ -1364,14 +2237,14 @@ function SetObserver()
 			end
 		end
 	end)
-
+	
 	Observe('WorldMapMenuGameController', 'UntrackCustomPositionMappin', function(self)
 		ActivecustomMappin = nil
 		--debugPrint(1,"obs3")
 	end)
-
-	ObserveAfter('BraindanceGameController','OnInitialize', function(self)
 	
+	ObserveAfter('BraindanceGameController','OnInitialize', function(self)
+		
 		BraindanceGameController = self
 		local root = self.rootWidget.parentWidget 
 		
@@ -1416,7 +2289,7 @@ function SetObserver()
 		subdistrictWidget:SetVerticalAlignment(textVerticalAlignment.Center)
 		subdistrictWidget:Reparent(container, -1)
 		
-				
+		
 		roomwidget = inkText.new()
 		roomwidget:SetName(CName.new("roomwidget"))
 		roomwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
@@ -1492,7 +2365,7 @@ function SetObserver()
 			healthbarwidget = root
 		end
 	end)
-
+	
 	Observe('QuestTrackerGameController', 'OnInitialize', function()
 		--debugPrint(1,"obs7")
 		if not isGameLoaded then
@@ -1501,7 +2374,7 @@ function SetObserver()
 			draw = true
 		end
 	end)
-
+	
 	Observe('QuestTrackerGameController', 'OnUninitialize', function()
 		--debugPrint(1,"obs8")
 		if Game.GetPlayer() == nil then
@@ -1512,7 +2385,7 @@ function SetObserver()
 			draw = false
 		end
 	end)
-
+	
 	Observe('interactionWidgetGameController', 'OnInitialize', function(self)
 		--debugPrint(1,"obs8")
 		Cron.NextTick(function()
@@ -1520,22 +2393,22 @@ function SetObserver()
 			--debugPrint(1,"new interact hub")
 		end)
 	end)
-
+	
 	ObserveAfter('ChattersGameController','OnInitialize', function(self) 
 		--debugPrint(1,"obs99")
 		
-			currentChattersGameController = self
-			--debugPrint(1,"Chat Sub Controller Init")
+		currentChattersGameController = self
+		--debugPrint(1,"Chat Sub Controller Init")
 		
 	end)
 	
 	ObserveAfter('ChattersGameController','OnPlayerAttach', function(self,playerGameObject) 
 		--debugPrint(1,"obs99")
 		
-			currentChattersGameController = self
-			--debugPrint(1,"Chat Sub Controller Init")
+		currentChattersGameController = self
+		--debugPrint(1,"Chat Sub Controller Init")
 	end)
-
+	
 	ObserveAfter('SubtitlesGameController','OnInitialize', function(self) 
 		currentSubtitlesGameController = self
 	end)
@@ -1550,7 +2423,7 @@ function SetObserver()
 			end)
 		end
 	end)
-
+	
 	Observe('ChattersGameController','SetupLine', function(self) 
 		if(currentChattersGameController == nil) then
 			--debugPrint(1,"obs99")
@@ -1560,7 +2433,7 @@ function SetObserver()
 			end)
 		end
 	end)
-
+	
 	Observe('SubtitlesGameController','SetupLine', function(self) 
 		--debugPrint(1,"obs999")
 		if(currentSubtitlesGameController == nil) then
@@ -1570,22 +2443,22 @@ function SetObserver()
 			end)
 		end
 	end)
-
+	
 	Observe('BaseSubtitlesGameController','OnUninitialize', function(self) 
 		--debugPrint(1,"obs988")
 		currentChattersGameController = nil
 		currentSubtitlesGameController = nil
 	end)
-
+	
 	
 	Observe('NPCPuppet', 'SendAfterDeathOrDefeatEvent', function(target)
 		if target ~= nil and target.shouldDie and ((target.myKiller ~= nil and target.myKiller:GetEntityID().hash == Game.GetPlayer():GetEntityID().hash) or target.wasJustKilledOrDefeated) then
-		
-		lastTargetKilled = target
-		print("last killed target")
 			
-		else
-		  lastTargetKilled = nil
+			lastTargetKilled = target
+			print("last killed target")
+			
+			else
+			lastTargetKilled = nil
 		end
 	end)
 	
@@ -1598,7 +2471,7 @@ function SetObserver()
 	
 	
 	Observe('MessengerGameController','OnContactActivated', function(self,evt) 
-			debugPrint(1,"MessengerGameController.OnContactActivated")
+		debugPrint(1,"MessengerGameController.OnContactActivated")
 		debugPrint(1,GameDump(evt))
 		--if(currentSubtController == nil) then
 		currentPhoneConversation = nil
@@ -1620,7 +2493,7 @@ function SetObserver()
 						end
 					end
 				end
-				if(multiReady and OnlineConversation ~= nil) then
+				if(MultiplayerOn and OnlineConversation ~= nil) then
 					for z=1,#OnlineConversation.conversation do
 						local conversation = OnlineConversation.conversation[z]
 						if(conversation.hash == evt.entryHash)then
@@ -1646,16 +2519,16 @@ function SetObserver()
 		local messages = this.messages
 		local choices = this.replyOptions
 		MessengerGameController = this
-	
-		if(currentPhoneConversation ~= nil) then
 		
-				debugPrint(1,currentPhoneConversation.loaded)
+		if(currentPhoneConversation ~= nil) then
+			
+			debugPrint(1,currentPhoneConversation.loaded)
 			currentPhoneConversation.loaded = currentPhoneConversation.loaded + 1
 			if(currentPhoneConversation ~= nil and currentPhoneConversation.loaded >= 1) then
 				currentPhoneConversation.loaded = 0
-			
 				
-					
+				
+				
 				for i=1,#currentPhoneConversation.message do
 					local msgexist = false
 					local sms = currentPhoneConversation.message[i]
@@ -1681,7 +2554,7 @@ function SetObserver()
 								for z=1,#sms.choices do
 									local reply = sms.choices[z]
 									debugPrint(1,reply.tag)
-									if(getScoreKey(reply.tag,"unlocked") == 0 and checkTriggerRequirement(reply.requirement,reply.trigger)) then
+									if((getScoreKey(reply.tag,"unlocked") == 0 or getScoreKey(reply.tag,"unlocked") == nil ) and checkTriggerRequirement(reply.requirement,reply.trigger)) then
 										local test2 = gameJournalPhoneMessage.new()
 										test2.sender = 1
 										test2.text = getLang(reply.text)
@@ -1706,19 +2579,19 @@ function SetObserver()
 	ObserveAfter('MessengerDialogViewController','AttachJournalManager', function(this, journalManager) 
 		
 		MessengerGameController = this
-	
+		
 		
 	end)
 	
 	ObserveAfter('MessengerDialogViewController','OnInitialize', function(this) 
 		
 		MessengerGameController = this
-	
+		
 		
 	end)
-
+	
 	ObserveAfter('PhoneMessagePopupGameController', 'SetupData', function(this)
-				debugPrint(1,"PhoneMessagePopupGameController.SetupData")
+		debugPrint(1,"PhoneMessagePopupGameController.SetupData")
 		if (currentPhoneDialogPopup ~= nil and MessengerGameController ~= nil) then
 			
 			this.dialogViewController = MessengerGameController
@@ -1729,7 +2602,7 @@ function SetObserver()
 		end
 		
 	end)
-
+	
 	Observe('MessengerDialogViewController', 'ShowThread', function(self,thread)
 		debugPrint(1,"MessengerDialogViewController.ShowThread")
 		if(thread == nil) then
@@ -1750,7 +2623,7 @@ function SetObserver()
 	
 	Observe('MessengerDialogViewController', 'UpdateData', function(self,animateLastMessage)
 		debugPrint(1,"MessengerDialogViewController.UpdateData")
-	
+		
 		if(contact == nil) then
 			local message = {}
 			table.insert(message,currentPhoneDialogPopup)
@@ -1761,9 +2634,9 @@ function SetObserver()
 			self.messages = message
 		end
 	end)
-
+	
 	Observe('MessangerItemRenderer', 'GetData', function(self)
-			print("MessangerItemRenderer.GetData")
+		print("MessangerItemRenderer.GetData")
 		local choicepress = false
 		if(currentPhoneConversation ~= nil) then
 			for i = 1, #currentPhoneConversation.currentchoices do
@@ -1798,7 +2671,7 @@ function SetObserver()
 	Observe('MessangerReplyItemRenderer', 'OnDataChanged', function(self,value)
 		print("MessangerReplyItemRenderer.OnDataChanged")
 	end)
-
+	
 	Observe('MessangerItemRenderer', 'OnJournalEntryUpdated', function(self,entry,extraData)
 		debugPrint(1,"MessangerItemRenderer.OnJournalEntryUpdated")
 		--	----printmessage.id)
@@ -1827,7 +2700,7 @@ function SetObserver()
 						end
 						if(#sms.choices > 0) then
 							for z=1,#sms.choices do
-								if(getScoreKey(sms.choices[z].tag,"unlocked") == 0 and checkTriggerRequirement(sms.choices[z].requirement,sms.choices[z].trigger)) then
+								if((getScoreKey(sms.choices[z].tag,"unlocked") == 0 or getScoreKey(sms.choices[z].tag,"unlocked") == nil) and checkTriggerRequirement(sms.choices[z].requirement,sms.choices[z].trigger)) then
 									debugPrint(1,getScoreKey(sms.choices[z].tag,"unlocked"))
 									debugPrint(1,sms.choices[z].tag)
 									
@@ -1850,8 +2723,8 @@ function SetObserver()
 			end
 		end)
 	end)
-
-
+	
+	
 	Observe('MessangerReplyItemRenderer', 'OnJournalEntryUpdated', function(self,entry,extraData)
 		print("MessangerReplyItemRenderer.OnJournalEntryUpdated")
 		--	----printmessage.id)
@@ -1860,8 +2733,8 @@ function SetObserver()
 			local message = entry
 			local txt = ""
 			local typo =  1
-		
-		
+			
+			
 			--	----print"test")
 			--	----printmessage.id.."titi")
 			if(message.delay == -9999) then
@@ -1879,7 +2752,7 @@ function SetObserver()
 						end
 						if(#sms.choices > 0) then
 							for z=1,#sms.choices do
-								if(getScoreKey(sms.choices[z].tag,"unlocked") == 0 and checkTriggerRequirement(sms.choices[z].requirement,sms.choices[z].trigger)) then
+								if((getScoreKey(sms.choices[z].tag,"unlocked") == 0 or getScoreKey(sms.choices[z].tag,"unlocked") == nil) and checkTriggerRequirement(sms.choices[z].requirement,sms.choices[z].trigger)) then
 									debugPrint(1,getScoreKey(sms.choices[z].tag,"unlocked"))
 									debugPrint(1,sms.choices[z].tag)
 									
@@ -1888,8 +2761,8 @@ function SetObserver()
 										txt = sms.choices[z].text
 										txt = getLang(txt)
 										
-									
-									
+										
+										
 										inkTextRef.SetText(self.labelPathRef, txt)
 										--				inkTextRef.SetText(this.m_fluffText, "CHKSUM_" + IntToString(contact.hash));
 									end
@@ -1901,26 +2774,26 @@ function SetObserver()
 			end
 		end)
 	end)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	Observe('MenuScenario_HubMenu', 'OnSelectMenuItem', function(_, menuItemData)
 		------print"toto"..menuItemData.menuData.label)
 		--debugPrint(1,"obs17")
 	end)
-
+	
 	ObserveAfter('PhoneDialerGameController','CallSelectedContact', function(this)
 		-- let item: ref<PhoneContactItemVirtualController> = this.m_listController.GetSelectedItem() as PhoneContactItemVirtualController;
 		-- let contactData: ref<ContactData> = item.GetContactData();
@@ -1935,93 +2808,93 @@ function SetObserver()
 				----printcontactData.id)
 				if(contactList[i].id == contactData.id) then
 					if(contactList[i].phonetype == "NPC") then
-							
-							
-							
-							currentNPC = findPhonedNPCByName(contactList[i].truename)
-							
-							if(currentNPC ~= nil) then
-								
-								local actionlist = {}
-								local action = {}
-								action.title = {}
-								
-								
-								local title = "Hey V !"
-								
-								table.insert(action.title,title)
-								
-								local title = "V."
-								
-								table.insert(action.title,title)
-								
-								local title = "I was thinking about you, I let you imagine why."
-								
-								table.insert(action.title,title)
-								
-								local title = "V, Perfect time to call !"
-								
-								table.insert(action.title,title)
-								
-								local title = "V ! Do you need something ?"
-								
-								table.insert(action.title,title)
-								
-								local title = "V ! Are you ok ?"
-								
-								table.insert(action.title,title)
-								
-								local title = "V !"
-								
-								table.insert(action.title,title)
-								
-								action.name = "random_subtitle"
-								action.speaker = contactList[i].truename
-								
-								action.type = 1
-								action.target = "player"
-								action.duration = 3
-								
-								table.insert(actionlist,action)
-								
-								
-								
-								action = {}
-								
-								
-								
-								action.title = "How are you ?"
-								
-								
-								action.name = "subtitle"
-								action.speaker = contactList[i].truename
-								
-								action.type = 1
-								action.target = "player"
-								action.duration = 3
-								
-								table.insert(actionlist,action)
-								
-							
-								action = {}
-							
-								action.name = "speak_npc"
-								action.way = "phone"
-								action.speaker = "current_phone_npc"
-								
 						
-								table.insert(actionlist,action)
-								
-								
 						
-								runActionList(actionlist,"call_"..contactData.id,"phone",false,"player")
-								
+						
+						currentNPC = findPhonedNPCByName(contactList[i].truename)
+						
+						if(currentNPC ~= nil) then
+							
+							local actionlist = {}
+							local action = {}
+							action.title = {}
+							
+							
+							local title = getLang("observer_callselectedcontact_msg01")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg02")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg03")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg04")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg05")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg06")
+							
+							table.insert(action.title,title)
+							
+							local title = getLang("observer_callselectedcontact_msg07")
+							
+							table.insert(action.title,title)
+							
+							action.name = "random_subtitle"
+							action.speaker = contactList[i].truename
+							
+							action.type = 1
+							action.target = "player"
+							action.duration = 3
+							
+							table.insert(actionlist,action)
+							
+							
+							
+							action = {}
+							
+							
+							
+							action.title = getLang("observer_callselectedcontact_v_answer")
+							
+							
+							action.name = "subtitle"
+							action.speaker = contactList[i].truename
+							
+							action.type = 1
+							action.target = "player"
+							action.duration = 3
+							
+							table.insert(actionlist,action)
+							
+							
+							action = {}
+							
+							action.name = "speak_npc"
+							action.way = "phone"
+							action.speaker = "current_phone_npc"
+							
+							
+							table.insert(actionlist,action)
+							
+							
+							
+							runActionList(actionlist,"call_"..contactData.id,"phone",false,"player")
+							
 							else
 							
-								print("can't find currentNPC ".. contactList[i].truename)
-								Game.GetPlayer():SetWarningMessage("Unknow Contact")
-							end
-							
+							print("can't find currentNPC ".. contactList[i].truename)
+							Game.GetPlayer():SetWarningMessage(getLang("observer_callselectedcontact_unknown"))
+						end
+						
 					end
 					if(contactList[i].phonetype == "Service") then
 						local interact = arrayInteract[contactList[i].id].interact
@@ -2038,14 +2911,14 @@ function SetObserver()
 							local action = {}
 							
 							action.name = "hacking_notification"
-							action.title =  "Downloading latest quests into your journal..."
+							action.title =  getLang("observer_callselectedcontact_v_answer")
 							action.title = getLang("download_quest_from_01")..phoned.Name..getLang("download_quest_from_02")
 							action.duration = 3
 							
 							table.insert(actionlist,action)
 							
 							
-						
+							
 						end
 					end
 				end
@@ -2053,8 +2926,8 @@ function SetObserver()
 		end
 		
 		this:CloseContactList()
-
-
+		
+		
 	end)
 	
 	ObserveAfter('PhoneSystem','OnTriggerCall', function(this, request)
@@ -2064,30 +2937,30 @@ function SetObserver()
 		local contactName = request.addressee
 		debugPrint(1,"IsNameValid "..tostring(IsNameValid(contactName)))
 		if IsNameValid(contactName) == false then
-		debugPrint(1,"stopcall")
-		this.ToggleContacts(true)
-		this.TriggerCall(questPhoneCallMode.Undefined, this.LastCallInformation.isAudioCall, this.LastCallInformation.contactName, this.LastCallInformation.isPlayerCalling, questPhoneCallPhase.EndCall, this.LastCallInformation.isPlayerTriggered, this.LastCallInformation.isRejectable)
+			debugPrint(1,"stopcall")
+			this.ToggleContacts(true)
+			this.TriggerCall(questPhoneCallMode.Undefined, this.LastCallInformation.isAudioCall, this.LastCallInformation.contactName, this.LastCallInformation.isPlayerCalling, questPhoneCallPhase.EndCall, this.LastCallInformation.isPlayerTriggered, this.LastCallInformation.isRejectable)
 		end
-	
+		
 	end)
-
+	
 	ObserveAfter('PhoneSystem','OnUsePhone', function(this, request)
 		debugPrint(1,"usephone")
 		debugPrint(1,GameDump(request))
 		
 		
-	
+		
 	end)
-
+	
 	Observe('PhoneDialerGameController', 'Show', function(_,contactsList)
 		refreshContact()
 		openPhone = true
 	end)
-
+	
 	Observe('PhoneDialerGameController', 'Hide', function()
 		openPhone = false
 	end)
-
+	
 	Observe('VehicleRadioPopupGameController', 'VirtualListReady', function(self)
 		----debugPrint(1,#self.dataSource:GetArray())
 		-- 1. Remove stations that are not supported by the radio device
@@ -2112,9 +2985,9 @@ function SetObserver()
 		end
 		self.dataSource:Reset(self.dataSource:GetArray())
 	end)
-
-	Observe('VehicleSummonWidgetGameController', 'OnVehicleSummonStateChanged', function(state,value ) 
 	
+	Observe('VehicleSummonWidgetGameController', 'OnVehicleSummonStateChanged', function(state,value ) 
+		
 		local vehicleSummonDef = Game.GetAllBlackboardDefs().VehicleSummonData
 		local vehicleSummonBB = Game.GetBlackboardSystem():Get(vehicleSummonDef)
 		vehicleEntId = vehicleSummonBB:GetEntityID(vehicleSummonDef.SummonedVehicleEntityID)
@@ -2126,7 +2999,7 @@ function SetObserver()
 		if(calledfromgarage == true) then
 			for i=1,#currentSave.garage do
 				----printtostring(mygarage[i].asAV))
-			
+				
 				if(TweakDBID.new(currentSave.garage[i].path).hash == vehi:GetRecordID().hash and currentSave.garage[i].asAV == true) then
 					--debugPrint(1,"garage")
 					local obj = getEntityFromManager(currentSave.garage[i].tag)
@@ -2144,8 +3017,9 @@ function SetObserver()
 						entity.availableSeat = GetSeats(veh)
 						--entity.availableSeat = {}
 						entity.driver = {}
-						table.insert(questMod.EntityManager,entity)
-					
+						questMod.EntityManager[entity.tag] = entity
+						
+						
 						if(entity.isAV == true) then
 							local group =getGroupfromManager("AV")
 							if(group.entities == nil) then
@@ -2192,7 +3066,7 @@ function SetObserver()
 								
 								table.insert(script,action)
 								
-							else
+								else
 								action = {}
 								action.name = "vehicle_change_doors"
 								action.value = "open"
@@ -2201,7 +3075,7 @@ function SetObserver()
 								
 							end
 							
-						
+							
 							runActionList(script, entity.tag, "interact",false,"engine",false)
 						end
 						else
@@ -2211,15 +3085,15 @@ function SetObserver()
 			end
 		end
 	end)
-
+	
 	Observe('PopupsManager', 'OnPlayerAttach', function(self)
 		radiopopup = self
 	end)
-
+	
 	Observe('PopupsManager', 'OnPlayerDetach', function()
 		radiopopup = nil
 	end)
-
+	
 	Observe('RadioStationListItemController', 'OnDataChanged', function(self,value)
 		-- --debugPrint(1,"this is it 2")
 		-- -- --debugPrint(1,GameDump(self.label))
@@ -2239,7 +3113,7 @@ function SetObserver()
 		-- end
 		----debugPrint(1,Dump(value))
 	end)
-
+	
 	Observe('RadioStationListItemController', 'Activate', function(self)
 		if currentRadio ~= nil then
 			self.quickSlotsManager:SendRadioEvent(false, false, -1)
@@ -2262,37 +3136,37 @@ function SetObserver()
 		-- end
 		----debugPrint(1,Dump(value))
 	end)
-
+	
 	Observe('VehicleRadioPopupGameController', 'OnScrollChanged', function(self)
 		for k,v in pairs(arrayRadio) do
 			arrayRadio[k].enabled = false
 		end
 		
 	end)
-
+	
 	ObserveBefore('RadioStationListItemController', 'OnSelected', function(self,itemController,discreteNav)
 		
 		if(self.stationData.record:DisplayName() == nil or self.stationData.record:DisplayName() == "") then
 			
-				local radioToPut = nil
-				for k,v in pairs(arrayRadio) do
-					
-					if(self.label:GetText() == nil or self.label:GetText() == "") then
-						if(arrayRadio[k].enabled == false ) then
-							currentRadio = arrayRadio[k]
-							
-							inkTextRef.SetText(self.label, arrayRadio[k].radio.name)
-							arrayRadio[k].enabled = true
-							break
-						end
-						else
-						if(arrayRadio[k].radio.name == self.label:GetText() ) then
-							currentRadio = arrayRadio[k]
-							
-							break
-						end
+			local radioToPut = nil
+			for k,v in pairs(arrayRadio) do
+				
+				if(self.label:GetText() == nil or self.label:GetText() == "") then
+					if(arrayRadio[k].enabled == false ) then
+						currentRadio = arrayRadio[k]
+						
+						inkTextRef.SetText(self.label, arrayRadio[k].radio.name)
+						arrayRadio[k].enabled = true
+						break
+					end
+					else
+					if(arrayRadio[k].radio.name == self.label:GetText() ) then
+						currentRadio = arrayRadio[k]
+						
+						break
 					end
 				end
+			end
 			
 			else
 			currentRadio = nil
@@ -2300,141 +3174,141 @@ function SetObserver()
 			
 		end
 	end)
-
+	
 	Observe('VehicleRadioPopupGameController', 'OnClose', function()
 		for k,v in pairs(arrayRadio) do
 			arrayRadio[k].enabled = false
 		end
 		popupActive = false
 	end)
-
+	
 	Observe('PlayerPuppet', 'OnDeath', function()
 		isdead = true
 	end)
-
+	
 	
 	
 	Override('DialogChoiceLogicController', 'UpdateView', function(self,wrappedMethod)
 		
-							
-			if(currentDialogHub ~= nil and self.ActiveTextRef ~= nil) then
+		
+		if(currentDialogHub ~= nil and self.ActiveTextRef ~= nil) then
 			
-				local isphoneDialog = currentDialogHub.dial.speaker.way == "phone"
-				
-				self.isPhoneLockActive = false
-				inkWidgetRef.SetVisible(self.phoneIcon, false)
-				inkWidgetRef.SetVisible(self.InputView.TopArrowRef, (self.InputView.CurrentNum ~= 0 or self.InputView.HasAbove))
-				inkWidgetRef.SetVisible(self.InputView.BotArrowRef, (self.InputView.CurrentNum ~= (self.InputView.AllItemsNum - 1) or self.InputView.HasBelow))
+			local isphoneDialog = currentDialogHub.dial.speaker.way == "phone"
 			
-				local dialogoption = currentDialogHub.dial.options[currentDialogHub.index]
+			self.isPhoneLockActive = false
+			inkWidgetRef.SetVisible(self.phoneIcon, false)
+			inkWidgetRef.SetVisible(self.InputView.TopArrowRef, (self.InputView.CurrentNum ~= 0 or self.InputView.HasAbove))
+			inkWidgetRef.SetVisible(self.InputView.BotArrowRef, (self.InputView.CurrentNum ~= (self.InputView.AllItemsNum - 1) or self.InputView.HasBelow))
+			
+			local dialogoption = currentDialogHub.dial.options[currentDialogHub.index]
+			
+			if(dialogoption.Description == self.ActiveTextRef:GetText()) then
 				
-					if(dialogoption.Description == self.ActiveTextRef:GetText()) then
+				
+				
+				
+				
+				inkWidgetRef.SetVisible(self.VerticalLineWidget, false)
+				self.InputView:SetVisible(true)
+				self.isSelected = true
+				
+				if(dialogoption.style == nil) then
+					
+					self.ActiveTextRef.widget:SetTintColor(gamecolor(0,0,0,1))
+					self.InActiveTextRef.widget:SetTintColor(gamecolor(0,0,0,1))
 					
 					
-					
-					
-					
-					inkWidgetRef.SetVisible(self.VerticalLineWidget, false)
-					self.InputView:SetVisible(true)
-					self.isSelected = true
-						
-					if(dialogoption.style == nil) then
-					
-						self.ActiveTextRef.widget:SetTintColor(gamecolor(0,0,0,1))
-						self.InActiveTextRef.widget:SetTintColor(gamecolor(0,0,0,1))
-						
-						
-						self.SelectedBg:SetTintColor(gamecolor(0,255,255,1))
+					self.SelectedBg:SetTintColor(gamecolor(0,255,255,1))
 					
 					else
 					
-						local fontcolor = dialogoption.style.textcolor
-						
-						self.ActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
-						self.InActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
-						
-						self.SelectedBg:SetTintColor(gamecolorStyle(dialogoption.style.bgcolor))
+					local fontcolor = dialogoption.style.textcolor
+					
+					self.ActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
+					self.InActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
+					
+					self.SelectedBg:SetTintColor(gamecolorStyle(dialogoption.style.bgcolor))
 					
 					
-					end
-						
-						
-						
-						
-						local captionParts = {}
-						
-						
-						
+				end
+				
+				
+				
+				
+				local captionParts = {}
+				
+				
+				
+				
+				
+				
+				inkWidgetRef.SetOpacity(self.ActiveTextRef, 1)
+				inkWidgetRef.SetOpacity(self.InActiveTextRef, 1)
+				self.SelectedBg:SetOpacity(0.6)
+				
+				
+				
+				
+				
+				else
+				
+				
+				inkWidgetRef.SetVisible(self.VerticalLineWidget, true)
+				self.InputView:SetVisible(false)
+				
+				
+				
+				self.isSelected = true
+				
+				
+				if(dialogoption.style == nil) then
 					
-						
-						
-						inkWidgetRef.SetOpacity(self.ActiveTextRef, 1)
-						inkWidgetRef.SetOpacity(self.InActiveTextRef, 1)
-						self.SelectedBg:SetOpacity(0.6)
-						
-						
-      
-  
-						
+					self.ActiveTextRef.widget:SetTintColor(gamecolor(0,255,255,1))
+					self.InActiveTextRef.widget:SetTintColor(gamecolor(0,255,255,1))
+					self.VerticalLineWidget.widget:SetTintColor(gamecolor(0,255,255,1))
+					
+					
+					
 					else
-						
-						
-						inkWidgetRef.SetVisible(self.VerticalLineWidget, true)
-						self.InputView:SetVisible(false)
-						
-						
 					
-						self.isSelected = true
-						
-						
-						if(dialogoption.style == nil) then
+					local fontcolor = dialogoption.style.font
 					
-						self.ActiveTextRef.widget:SetTintColor(gamecolor(0,255,255,1))
-						self.InActiveTextRef.widget:SetTintColor(gamecolor(0,255,255,1))
-						self.VerticalLineWidget.widget:SetTintColor(gamecolor(0,255,255,1))
-						
-						
-					
-						else
-					
-						local fontcolor = dialogoption.style.font
-						
-						self.ActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
-						self.InActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
-						self.VerticalLineWidget.widget:SetTintColor(gamecolorStyle(fontcolor))
-						
-						
+					self.ActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
+					self.InActiveTextRef.widget:SetTintColor(gamecolorStyle(fontcolor))
+					self.VerticalLineWidget.widget:SetTintColor(gamecolorStyle(fontcolor))
 					
 					
-						end
-						
-						
-						
-						self.SelectedBg:SetTintColor(gamecolor(0,0,0,0))
-						
-						inkWidgetRef.SetOpacity(self.ActiveTextRef, 1)
-						inkWidgetRef.SetOpacity(self.InActiveTextRef,0)
-						self.SelectedBg:SetOpacity(0.0)
-						
-						
-					end
+					
+					
+				end
 				
-			else
 				
-				return wrappedMethod()
+				
+				self.SelectedBg:SetTintColor(gamecolor(0,0,0,0))
+				
+				inkWidgetRef.SetOpacity(self.ActiveTextRef, 1)
+				inkWidgetRef.SetOpacity(self.InActiveTextRef,0)
+				self.SelectedBg:SetOpacity(0.0)
+				
 				
 			end
 			
-				
-	
+			else
+			
+			return wrappedMethod()
+			
+		end
+		
+		
+		
 	end)
 	
 	
 	Observe('CaptionImageIconsLogicController', 'OnInitialize',function(self,backgroundColor,iconColor)
-	
-	
-	end)
 		
+		
+	end)
+	
 	Observe('PlayerPuppet', 'OnAction',function(_,action)
 		actionName = Game.NameToString(action:GetName(action))
 		actionType = action:GetType(action).value
@@ -2466,50 +3340,50 @@ function SetObserver()
 		end
 		
 		if currentHelp ~= nil and (actionName == "cancel" and actionType == "BUTTON_RELEASED" and currentController == "gamepad") or ((actionName == "activate_secondary" or actionName == "proceed_popup") and actionType == "BUTTON_RELEASED" and currentController ~= "gamepad")then
-		 
-		 local actionlisth = {}
-		 local actionh = {}
-		if(currentHelpIndex+1 >= #currentHelp.section)then
-		      UIPopupsManager.ClosePopup()
-		      currentHelp = nil
-		      currentHelpIndex = 1
-		else
-		 actionh.name = "previous_help"
-		 table.insert(actionlisth,actionh)
-		 
-		 actionh = {}
-		 actionh =currentHelp.action
-		 actionh.name = "open_help"
-		 actionh.tag = currentHelp.tag
-		 table.insert(actionlisth,actionh)
-		 
-		  runActionList(actionlisth,currentHelp.tag,"interact",true,"player")
-		end		
+			
+			local actionlisth = {}
+			local actionh = {}
+			if(currentHelpIndex+1 >= #currentHelp.section)then
+				UIPopupsManager.ClosePopup()
+				currentHelp = nil
+				currentHelpIndex = 1
+				else
+				actionh.name = "previous_help"
+				table.insert(actionlisth,actionh)
+				
+				actionh = {}
+				actionh =currentHelp.action
+				actionh.name = "open_help"
+				actionh.tag = currentHelp.tag
+				table.insert(actionlisth,actionh)
+				
+				runActionList(actionlisth,currentHelp.tag,"interact",true,"player")
+			end		
 		end
-	  
+		
 		if currentHelp ~= nil and (actionName == "close_tutorial" and actionType == "BUTTON_RELEASED" and currentController == "gamepad") or ((actionName == "activate" or actionName == "close_tutorial") and actionType == "BUTTON_RELEASED" and currentController ~= "gamepad") then
-		 
-		 local actionlisth = {}
-		 local actionh = {}
-		 
-		print(currentHelpIndex+1) print(#currentHelp.section)
-		 
-		if(currentHelpIndex+1 >= #currentHelp.section)then
-		      UIPopupsManager.ClosePopup()
-		      currentHelp = nil
-		      currentHelpIndex = 1
-		else
-			actionh.name = "next_help"
-		 table.insert(actionlisth,actionh)
-		 actionh = {}
-		 actionh =currentHelp.action
-		 actionh.name = "open_help"
-		 actionh.tag = currentHelp.tag
-		 table.insert(actionlisth,actionh)
-		 
-		  runActionList(actionlisth,currentHelp.tag,"interact",true,"player")
-		end		
-		  end
+			
+			local actionlisth = {}
+			local actionh = {}
+			
+			print(currentHelpIndex+1) print(#currentHelp.section)
+			
+			if(currentHelpIndex+1 >= #currentHelp.section)then
+				UIPopupsManager.ClosePopup()
+				currentHelp = nil
+				currentHelpIndex = 1
+				else
+				actionh.name = "next_help"
+				table.insert(actionlisth,actionh)
+				actionh = {}
+				actionh =currentHelp.action
+				actionh.name = "open_help"
+				actionh.tag = currentHelp.tag
+				table.insert(actionlisth,actionh)
+				
+				runActionList(actionlisth,currentHelp.tag,"interact",true,"player")
+			end		
+		end
 		
 		
 		if(actionType == "BUTTON_RELEASED" and (string.find(tostring(actionName), "hoiceScrollUp") or string.find(tostring(actionName), "hoiceScrollDown") or string.find(tostring(actionName), "up_button") or string.find(tostring(actionName), "down_button") or string.find(tostring(actionName), "hoice1") or string.find(tostring(actionName), "hoice2") or string.find(tostring(actionName), "hoice3") or string.find(tostring(actionName), "hoice4")))then 
@@ -2518,21 +3392,21 @@ function SetObserver()
 			-- --debugPrint(1,actionType)
 			local inputHitted = false
 			if(isdialogactivehub == true ) then
-			
+				
 				local inputIndex = 0
 				
 				if(string.find(tostring(actionName), "hoice1_Release")and actionType == "BUTTON_RELEASED") then
 					ClickOnDialog(currentDialogHub.dial.options[currentDialogHub.index],currentDialogHub.dial.speaker.value,currentDialogHub.dial.speaker.way)
 					
-			
+					
 				end
 				
 				
 				
 				
 				if((string.find(tostring(actionName), "hoiceScrollUp") or string.find(tostring(actionName), "up_button"))and actionType == "BUTTON_RELEASED") then
-				
-							
+					
+					
 					if(currentDialogHub.index == nil) then
 						currentDialogHub.index = 1
 					end
@@ -2553,9 +3427,9 @@ function SetObserver()
 						currentDialogHub.index = 1
 					end
 					
-			
+					
 					currentDialogHub.index = currentDialogHub.index+1
-				
+					
 					if(currentDialogHub.index >  #currentDialogHub.dial.options) then
 						currentDialogHub.index =  1
 					end
@@ -2614,21 +3488,31 @@ function SetObserver()
 				if(actionName == "Choice4") then
 					inputIndex = 4
 				end
-				--	----printinputIndex)
-				--	----print#possibleInteractDisplay[currentPossibleInteractChunkIndex])
-				if(possibleInteractDisplay[currentPossibleInteractChunkIndex] ~= nil) then
-					for i = 1, #possibleInteractDisplay[currentPossibleInteractChunkIndex] do
-						--	----print"expected input for "..possibleInteractDisplay[currentPossibleInteractChunkIndex][i].name.." : "..possibleInteractDisplay[currentPossibleInteractChunkIndex][i].input)
-						if(inputIndex == i) then
-							runActionList(possibleInteractDisplay[currentPossibleInteractChunkIndex][i].action,possibleInteractDisplay[currentPossibleInteractChunkIndex][i].tag,"interact",false,"player")
-							if(currentHouse == nil or (currentHouse ~= nil and interactautohide == true)) then
-								currentPossibleInteractChunkIndex = 0
-								debugPrint(1,"lol")
-								createInteraction(false)
-								candisplayInteract = false
+				
+				
+				if(#loadInteract > 0) then
+					local interact = arrayInteract[loadInteract[inputIndex]].interact
+					runActionList(interact.action,interact.tag,"interact",false,"player")
+					
+					else
+					
+					
+					if(possibleInteractDisplay[currentPossibleInteractChunkIndex] ~= nil) then
+						for i = 1, #possibleInteractDisplay[currentPossibleInteractChunkIndex] do
+							--	----print"expected input for "..possibleInteractDisplay[currentPossibleInteractChunkIndex][i].name.." : "..possibleInteractDisplay[currentPossibleInteractChunkIndex][i].input)
+							if(inputIndex == i) then
+								runActionList(possibleInteractDisplay[currentPossibleInteractChunkIndex][i].action,possibleInteractDisplay[currentPossibleInteractChunkIndex][i].tag,"interact",false,"player")
+								if(currentHouse == nil or (currentHouse ~= nil and interactautohide == true)) then
+									currentPossibleInteractChunkIndex = 0
+									debugPrint(1,"lol")
+									createInteraction(false)
+									candisplayInteract = false
+								end
 							end
 						end
 					end
+					
+					
 				end
 			end
 		end
@@ -2646,7 +3530,7 @@ function SetObserver()
 		if (AVisIn == true) then
 			AVinput.keyPressed = false
 			--back/forward
-
+			
 			if  actionName == 'world_map_menu_move_vertical' or actionName == 'left_stick_y'then
 				if actionType == 'BUTTON_HOLD_PROGRESS' or (actionType == 'AXIS_CHANGE' and actionValue > 0) then
 					AVinput.currentDirections.forward = true
@@ -2717,11 +3601,11 @@ function SetObserver()
 	end)
 	
 	ObserveAfter('ShardNotificationController', 'OnInitialize', function(self)
-	currentShardNotificationController = self
+		currentShardNotificationController = self
 	end)
 	
 	ObserveAfter('ShardNotificationController', 'OnPlayerAttach', function(self,playerPuppet)
-	currentShardNotificationController = self
+		currentShardNotificationController = self
 	end)
 	
 	Observe('ShardNotificationController', 'SetButtonHints', function(self)
@@ -2788,7 +3672,7 @@ function SetObserver()
 					if(currentInterface.controls[i].type == "label") then
 						
 						if(currentInterface.controls[i].textcolor == nil or (currentInterface.controls[i].textcolor ~= nil and currentInterface.controls[i].textcolor.red == nil)) then
-						textcolor = HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 })
+							textcolor = HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 })
 						end
 						
 						labelcount = labelcount +1
@@ -2806,7 +3690,7 @@ function SetObserver()
 							end
 							texttoDisplay = score 
 							elseif(currentInterface.controls[i].value.type == "multi_score") then
-							if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.scores ~= nil and #ActualPlayerMultiData.scores ~= 0) then
+							if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.scores ~= nil and #ActualPlayerMultiData.scores ~= 0) then
 								local score = ActualPlayerMultiData.scores[currentInterface.controls[i].value.tag]
 								if(score== nil) then
 									score = 0
@@ -3021,7 +3905,7 @@ function SetObserver()
 	Observe('gameuiInGameMenuGameController', 'OnHandleMenuInput', function(self)
 		popupManager = self
 	end)
-
+	
 	Observe('gameuiInGameMenuGameController', 'SpawnMenuInstanceEvent', function(self) -- Get Controller to spawn popup
 		popupManager = self
 	end)
@@ -3029,15 +3913,15 @@ function SetObserver()
 	Observe('PopupsManager', 'ShowPhoneMessage', function(self)
 		
 		
-			if self.phoneMessageData ~= nil and self.phoneMessageData.journalEntry == nil then
-		
+		if self.phoneMessageData ~= nil and self.phoneMessageData.journalEntry == nil then
+			
 			else
 			if self.phoneMessageData ~= nil and self.phoneMessageData.journalEntry ~= nil then
-			spdlog.error(GameDump(self.phoneMessageData))
+				spdlog.error(GameDump(self.phoneMessageData))
 			end
 		end
-	
-	
+		
+		
 	end)
 	
 	Observe('PopupsManager', 'OnMessagePopupUseCloseRequest', function(self)
@@ -3045,14 +3929,14 @@ function SetObserver()
 		if(currentPhoneConversation ~= nil) then
 			currentPhoneConversation = nil
 		end
-	
-	
+		
+		
 	end)
 	
 	
 	
 	
-	end
+end
 ---Observer and Overrider---
 
 ---Misc Function---

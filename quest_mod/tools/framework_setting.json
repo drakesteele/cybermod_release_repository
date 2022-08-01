@@ -1,6 +1,6 @@
 {
-	"version":"0.26",
-	"debug":true,
+	"version":"0.30",
+	"debug":false,
 	"recovery":false
 	
 }

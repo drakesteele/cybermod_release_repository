@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: saves module loaded")
+debugPrint(3,"CyberScript: saves module loaded")
 questMod.module = questMod.module +1
 
 
@@ -7,51 +7,86 @@ function migrateFromDB()
 reloadDB()
 
 currentSave.arrayPlayerData = arrayPlayerData
-currentSave.arrayAffinity = arrayAffinity
-currentSave.arrayQuestStatut = arrayQuestStatut
-currentSave.arrayFactionScore = arrayFactionScore
-currentSave.arrayUserSetting = arrayUserSetting
-currentSave.arrayHouseStatut = arrayHouseStatut
 currentSave.arrayPlayerItems = arrayPlayerItems
 
 
-print(#arrayAffinity)
+
+
+
+
+
+
+
+
+
 
 for i=1,#arrayAffinity do
 	local item = arrayAffinity[i]
 	local pnj = getNPCById(item.NpcId)
-	currentSave.Score[pnj.Names] = {}
-	currentSave.Score[pnj.Names]["Score"] = item.Score
 	
-end
-
-
-for i=1,#arrayQuestStatut do
-	local item = arrayQuestStatut[i]
-	
-	currentSave.Score[item.Tag] = {}
-	currentSave.Score[item.Tag]["Score"] = item.Score
-	currentSave.Score[item.Tag]["Quantity"] = item.Quantity
+	currentSave.Score["Affinity"][pnj.Names] = item.Score
 	
 end
 
 for i=1,#arrayFactionScore do
 	local item = arrayFactionScore[i]
 	
-	currentSave.Score[item.Tag] = {}
-	currentSave.Score[item.Tag]["Score"] = item.Score
+	
+	currentSave.Score["Affinity"][item.Tag] = item.Score
 	
 end
 
 
-for i=1,#arrayHouseStatut do
-	local item = arrayHouseStatut[i]
+
+end
+
+function migrateFromOldScore()
+
+for i=1,#arrayPnjDb do
+	local pnj = arrayPnjDb[i]
+	if(currentSave.Score[pnj.Names]~= nil and currentSave.Score[pnj.Names]["Score"] ~= nil) then
+		if(currentSave.Score["Affinity"] == nil) then
+		
+		currentSave.Score["Affinity"] = {}
+		
+		end
+		
+		print("Old Score Migration NPC : migrate "..pnj.Names)
+		currentSave.Score["Affinity"][pnj.Names] = currentSave.Score[pnj.Names]["Score"]
+		currentSave.Score[pnj.Names]["Score"] = nil
+	end
+end
+
+
+for k,v in pairs(arrayFaction) do
 	
-	currentSave.Score[item.Tag] = {}
-	currentSave.Score[item.Tag]["Score"] = item.Statut
-	currentSave.Score[item.Tag]["Quantity"] = item.Score
+	if(currentSave.Score[k]~= nil and currentSave.Score[k]["Score"] ~= nil) then
+		print("Old Score Migration Gang : migrate "..k)
+		currentSave.Score["Affinity"][k] = currentSave.Score[k]["Score"]
+		currentSave.Score[k]["Score"] = nil
+	end
+	
+	
+	for j=1,#arrayDistricts do 
+		
+		if(currentSave.arrayFactionDistrict ~= nil and currentSave.arrayFactionDistrict[k]~= nil and currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] ~= nil) then
+			print("Old Score Migration District : migrate "..k)
+			currentSave.Score[k][arrayDistricts[j].Tag] = currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag]
+			currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] = nil
+		end
+		
+		
+	end
+	
+	
 	
 end
+
+
+
+
+
+
 
 
 
@@ -60,18 +95,14 @@ end
 
 function initGangDistrictScore()
 	
-	if (currentSave.arrayFactionDistrict == nil) then
-	
-	currentSave.arrayFactionDistrict = {}
-	end
 	
 for k,v in pairs(arrayFaction) do
 	
 	if(arrayFaction[k].faction.haveterritory == nil or arrayFaction[k].faction.haveterritory == true) then 
 	
-	if(currentSave.arrayFactionDistrict[k] == nil) then
+	if(currentSave.Score[k] == nil) then
 	
-	currentSave.arrayFactionDistrict[k] = {}
+	currentSave.Score[k] = {}
 	
 	
 	end
@@ -84,11 +115,11 @@ for k,v in pairs(arrayFaction) do
 		
 		if(arrayFaction[k].faction.DistrictTag == arrayDistricts[j].Tag) then
 		
-		currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] = 100
+		currentSave.Score[k][arrayDistricts[j].Tag] = 100
 		 isOwner = true
 		else
 		
-		currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] = 0
+		currentSave.Score[k][arrayDistricts[j].Tag] = 0
 		
 		end
 		
@@ -96,11 +127,11 @@ for k,v in pairs(arrayFaction) do
 			for z=1,#arrayDistricts[j].SubDistrict do
 				
 				if(isOwner) then
-				currentSave.arrayFactionDistrict[k][arrayDistricts[j].SubDistrict[z]] = 100
+				currentSave.Score[k][arrayDistricts[j].SubDistrict[z]] = 100
 			
 				else
 				
-				currentSave.arrayFactionDistrict[k][arrayDistricts[j].SubDistrict[z]] = 0
+				currentSave.Score[k][arrayDistricts[j].SubDistrict[z]] = 0
 				
 				end
 			end
@@ -156,31 +187,34 @@ end
 
 
 
+function getUserSetting(tag)
+	
+	
+	return currentSave.arrayUserSetting[tag]
+	
+	
+end
 
+function getUserSettingWithDefault(tag,default)
+	
+	
+	if( currentSave.arrayUserSetting[tag] == nil) then
+		
+		currentSave.arrayUserSetting[tag] = default
+	
+	end
+	
+	return currentSave.arrayUserSetting[tag]
+	
+end
 
 
 function updateUserSetting(tag,value)
 	
-	local newdata = true
 	
-	for i=1,#currentSave.arrayUserSetting do
 	
-		if(currentSave.arrayUserSetting[i].Tag == tag) then
-			currentSave.arrayUserSetting[i].Value = value
-			debugPrint(1,"Updated "..tag.." : "..tostring(value))
-			newdata = false
-		end
 	
-	end
-	
-	if(newdata == true) then
-	
-		local data = {}
-		data.Tag = tag
-		data.Value = value
-		table.insert(currentSave.arrayUserSetting, data)
-		debugPrint(1,"Added "..tag.." : "..tostring(value))
-	end
+	currentSave.arrayUserSetting[tag] = value
 	
 	
 end
@@ -321,21 +355,21 @@ end
 function addAffinityScoreByNPCId(tag)
 	
 	
-		local scores = getScoreKey(tag,"Score")
+		local scores = getScoreKey("Affinity",tag)
 		if(scores == nil) then scores = 0 end
 	
 		scores = scores +1
-		setScore(tag,"Score",scores)
+		setScore("Affinity",tag,scores)
 	
 end
 
 function addAffinityScoreByNPCIdScore(tag,changescore)
 	
-	local scores = getScoreKey(tag,"Score")
+	local scores = getScoreKey("Affinity",tag)
 		if(scores == nil) then scores = 0 end
 	
 		scores = scores +changescore
-		setScore(tag,"Score",scores)
+		setScore("Affinity",tag,scores)
 	
 	
 end
@@ -349,7 +383,7 @@ function getNPCCallableByAffinity()
 	
 	for i=1,#arrayPnjDb do
 	
-			local score = getScoreKey(arrayPnjDb[i].Names,"Score")
+			local score = getScoreKey("Affinity",arrayPnjDb[i].Names)
 			
 			if(score ~= nil) then
 				local quest = {}
@@ -361,7 +395,7 @@ function getNPCCallableByAffinity()
 				
 				if(score >= 5)then
 					local contactdata = {}
-					contactdata.name =   "CM Affinity : "..arrayPnjDb[i].Names
+					contactdata.name =   getLang("save_phone_cmaffinity")..arrayPnjDb[i].Names
 					contactdata.id =   "cm_"..arrayPnjDb[i].Names
 					contactdata.avatarID = arrayPnjDb[i].TweakIDs
 					contactdata.phonetype = "NPC"
@@ -384,7 +418,7 @@ function getNPCCallableByAffinity()
 			if(v.interact.display == "phone_service")then
 			
 				local contactdata = {}
-				contactdata.name =  "CM Service : "..v.interact.name
+				contactdata.name =  getLang("save_phone_cmservice")..v.interact.name
 				contactdata.id =  v.interact.tag
 				contactdata.avatarID = "Character.Delamain"
 				contactdata.phonetype = "Service"
@@ -401,12 +435,13 @@ function getNPCCallableByAffinity()
 	
 	for k,v in pairs(arrayFixer) do
 			
-			if getScorebyTag(arrayFixer[k].fixer.Faction) > 50 then 
+			local score = getScoreKey("Affinity",arrayFixer[k].fixer.Faction)
+			if score ~= nil and score > 50 then 
 				
 				
 			
 				local contactdata = {}
-				contactdata.name =  "CM Fixer : Download Quest from "..arrayFixer[k].fixer.Name
+				contactdata.name =  getLang("save_phone_cmfixer")..arrayFixer[k].fixer.Name
 				contactdata.id =  k
 				contactdata.avatarID = arrayFixer[k].fixer.NPCId
 				contactdata.phonetype = "Fixer"
@@ -541,11 +576,11 @@ end
 function updateFactionScore(tag,score)
 	
 	
-	local scores = getScoreKey(tag,"Score")
+	local scores = getScoreKey("Affinity",tag)
 	if(scores == nil) then scores = 0 end
 	
 	scores = score
-	setScore(tag,"Score",scores)
+	setScore("Affinity",tag,scores)
 
 	
 	
@@ -553,11 +588,11 @@ end
 	
 function addFactionScoreByTagScore(tag,score)
 	
-	local scores = getScoreKey(tag,"Score")
+	local scores = getScoreKey("Affinity",tag)
 	if(scores == nil) then scores = 0 end
 	
 	scores = scores + score
-	setScore(tag,"Score",scores)
+	setScore("Affinity",tag,scores)
 
 	
 	
@@ -607,21 +642,6 @@ function getFactionRelation(factiontag,otherfactiontag)
 end	
 
 
-function updateHouseStatut(tag,statut)
-	
-	
-	setScore(tag,"Score",statut)
-	
-	
-	
-end		
-	
-function updateHouseScore(tag,score)
-	
-	setScore(tag,"Quantity",score)
-	
-	
-end		
 	
 
 	
@@ -653,9 +673,8 @@ function getScoreKey(tag,key)
 	
 	if(score ~= nil) then
 	
-	return currentSave.Score[tag][key]
-	else
-	return 0
+		return currentSave.Score[tag][key]
+	
 	end
 	
 	
@@ -673,9 +692,10 @@ end
 
 function setVariable(tag,key,score)
 	if(type(score) == "string") then
-		if(currentSave.Score[tag] == nil) then
+		if(currentSave.Variable[tag] == nil) then
 		
 		currentSave.Variable[tag] = {}
+		currentSave.Variable[tag][key] = ""
 		
 		end
 		
@@ -683,10 +703,10 @@ function setVariable(tag,key,score)
 	end
 	
 	if(type(score) == "boolean") then
-		if(currentSave.Score[tag] == nil) then
+		if(currentSave.Variable[tag] == nil) then
 		
 		currentSave.Variable[tag] = {}
-		
+		currentSave.Variable[tag][key] = ""
 		end
 		
 		currentSave.Variable[tag][key] = tostring(score)
@@ -698,9 +718,8 @@ function getVariableKey(tag,key)
 	
 	if(score ~= nil) then
 	
-	return currentSave.Variable[tag][key]
-	else
-	return ""
+		return currentSave.Variable[tag][key]
+	
 	end
 	
 	

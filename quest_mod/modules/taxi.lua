@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: taxi module loaded")
+debugPrint(3,"CyberScript: taxi module loaded")
 questMod.module = questMod.module +1
 
 function taxiWindows()
@@ -117,8 +117,9 @@ function startTaxiDriving()
 		
 									
 									despawnEntity("taxi_delamain")
-									local index = getIndexFromManager("taxi_delamain")
-									table.remove(questMod.EntityManager,index)
+									
+									
+									questMod.EntityManager["taxi_delamain"] = nil
 									lastcurpos = nil
 									Game.GetPlayer():SetWarningMessage("Destination is too far !")
 								end)
@@ -130,8 +131,7 @@ function startTaxiDriving()
 		
 	
 									despawnEntity("taxi_delamain")
-									local index = getIndexFromManager("taxi_delamain")
-									table.remove(questMod.EntityManager,index)
+									questMod.EntityManager["taxi_delamain"] = nil
 									lastcurpos = nil
 								end)
 								
@@ -149,8 +149,7 @@ function startTaxiDriving()
 		
 	
 									despawnEntity("taxi_delamain")
-									local index = getIndexFromManager("taxi_delamain")
-									table.remove(questMod.EntityManager,index)
+									questMod.EntityManager["taxi_delamain"] = nil
 									lastcurpos = nil
 								end)
 				end				

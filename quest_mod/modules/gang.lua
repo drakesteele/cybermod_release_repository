@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: Gang module loaded")
+debugPrint(3,"CyberScript: Gang module loaded")
 questMod.module = questMod.module +1
 
 
@@ -128,7 +128,7 @@ function checkAttitudeByGangScore(enti)
 			local group = Game.NameToString(targetAttAgent:GetAttitudeGroup())
 			local npcCurrentName = Game.NameToString(enti:GetCurrentAppearanceName())
 			
-			print(tostring(group))
+			--print(tostring(group))
 			
 			for k,v in pairs(arrayFaction) do
 				
@@ -224,11 +224,11 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 	end
 	local CanbeChanged = true
 	
-	if(#questMod.EntityManager > 0)then
-		for i = 1,#questMod.EntityManager do 
-			if(questMod.EntityManager[i].id ~= nil and questMod.EntityManager[i].id ~= 0) then
+	
+		for k,v in pairs(questMod.EntityManager) do 
+			if(v.id ~= nil and v.id ~= 0) then
 				
-				local enti = Game.FindEntityByID(questMod.EntityManager[i].id)
+				local enti = Game.FindEntityByID(v.id)
 				
 				if(enti ~= nil) then
 					if(enti:GetEntityID().hash == objlook:GetEntityID().hash) then
@@ -238,7 +238,7 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 				end
 			end
 		end	
-	end
+	
 	
 	--debugPrint(1,"isFollower "..tostring(isFollower))
 	if isFollower == false and CanbeChanged then
@@ -609,6 +609,8 @@ function displayGangScoreWidget(score, libelle,parent,top,isleader)
 	local state = lang.Neutral
 	local descText = inkText.new()
 	
+	if(score ~= nil) then
+	
 	
 	
 	local descText = inkText.new()
@@ -653,7 +655,7 @@ function displayGangScoreWidget(score, libelle,parent,top,isleader)
 	
 	descText:SetHorizontalAlignment(textHorizontalAlignment.Right)
 	
-	
+	end
 	
 end
 

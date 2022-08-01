@@ -1,20 +1,23 @@
 --[[
 	
-	_____           _                     __  __               _ 
-	/ ____|         | |                   |  \/  |             | |
-	| |       _   _  | |__     ___   _ __  | \  / |   ___     __| |
-	| |      | | | | | '_ \   / _ \ | '__| | |\/| |  / _ \   / _` |
-	| |____  | |_| | | |_) | |  __/ | |    | |  | | | (_) | | (_| |
-    \_____|  \__, | |_.__/   \___| |_|    |_|  |_|  \___/   \__,_|
-	__/ |                                               
-	|___/                                                
-	
+
+ 
+   _____      _               _____           _       _   
+  / ____|    | |             / ____|         (_)     | |  
+ | |    _   _| |__   ___ _ _| (___   ___ _ __ _ _ __ | |_ 
+ | |   | | | | '_ \ / _ \ '__\___ \ / __| '__| | '_ \| __|
+ | |___| |_| | |_) |  __/ |  ____) | (__| |  | | |_) | |_ 
+  \_____\__, |_.__/ \___|_| |_____/ \___|_|  |_| .__/ \__|
+         __/ |                                 | |        
+        |___/                                  |_|        
+
+
 	
 	
 	-- ------------------------------------------------------------------
 	-- -------------------------------How It Works-------------------------------
 	-- ------------------------------------------------------------------
-	CyberMod By RedRockStudio
+	CyberScript By RedRockStudio
 	
 	
 	How the mod works :
@@ -43,7 +46,7 @@
 -----------------------------Init and Imperative functions------------------------------
 -- -------------------------------------------------------------------------------------
 
-print("CyberMod Initialisation...")
+print("CyberScript Initialisation...")
 function file_exists(filename)
 	local f = io.open(filename,"r")
 	if f then
@@ -60,7 +63,7 @@ end
 function ModInitialisation()
 	
 	questMod = { 
-		description = "CyberMod",
+		description = "CyberScript",
 		version = "0.16000069",
 		channel = "stable",
 		changelog =""
@@ -77,6 +80,7 @@ function ModInitialisation()
 	
 	currentSave = {}
 	currentSave.Score = {}
+	currentSave.Score["Affinity"] = {}
 	currentSave.Variable = {}
 	currentSave.arrayPlayerData = {}
 	currentSave.arrayAffinity = {}
@@ -90,6 +94,7 @@ function ModInitialisation()
 	currentSave.arrayFactionDistrict = nil
 	currentSave.arrayFactionRelation = nil
 	currentSave.garage = {}
+	
 	
 	if file_exists("quest_mod.log") then
 		io.open("quest_mod.log", "w")
@@ -125,7 +130,7 @@ function ModInitialisation()
 	questMod.scripting = require('modules/scripting')
 	questMod.observer = require('modules/observer')
 	questMod.ui = require('modules/ui')
-	questMod.debug = file_exists("debug.txt")
+	
 	
 	--external library
 	QuestManager = require('external/QuestManager')
@@ -144,7 +149,41 @@ function ModInitialisation()
 	UIScroller = require('external/UIScroller')
 	UIButton = require('external/UIButton')
 	GameSession = require('external/GameSession')
-	CompiledDatapack = require('data/compiled_datapack')
+	
+	CompiledDatapack = {}
+	
+	local reader = dir("data/cache")
+	for i=1, #reader do 
+		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
+			
+			
+				local file =io.open('data/cache/'..reader[i].name)
+				local size = file:seek("end")    -- get file size
+				file:close()
+				
+				if size > 100 and size < 10000000 then
+				
+				CompiledDatapack[reader[i].name] = require('data/cache/'..reader[i].name)
+				
+				else
+				
+				local msg = " is too big. The cache file will not be loaded.."
+				
+				if(size < 100) then
+				
+				local msg = "is too small. The cache file will not be loaded.."
+				
+				end
+				
+				print("Size of the cache "..reader[i].name..msg)
+				
+				end
+	
+	
+			
+			
+		end
+	end
 	
 	-- File Checking for Init
 	if file_exists("desc.json") then
@@ -159,6 +198,12 @@ function ModInitialisation()
 		f:close()
 	end
 	
+	
+	if file_exists("net/fetcheddata.json") then
+		
+			fetcheddata = readFetchedData()
+	
+	end
 
 	
 	if file_exists("net/multienabled.txt") then
@@ -171,7 +216,7 @@ function ModInitialisation()
 		io.open("net/downloadedDatapack.json", "w"):close()
 	end
 	if file_exists("net/multi/player/connect.txt") == false then
-		print("CyberMod WARNING : Authentication at boot failed, please connect from CyberMod Multiplayer Menu")
+		print("CyberScript WARNING : Authentication at boot failed, please connect from CyberScript Multiplayer Menu")
 		
 			
 	end
@@ -212,11 +257,11 @@ function SaveLoading()
 		if file_exists("data/sessions/latest.txt") then
 			nodata = false
 			GameSession.readLatest()
-			print("CyberMod Session : data found, recover latest data")
+			print("CyberScript Session : data found, recover latest data")
 			else
 			nodata = true
 			migrateFromDB()
-			print("CyberMod Session : No session data found, migrate from DB")
+			print("CyberScript Session : No session data found, migrate from DB")
 		end
 	end
 	
@@ -238,69 +283,52 @@ function SaveLoading()
 		end
 	end
 	
+	if(currentSave.arrayUserSetting[1] ~= nil) then -- convert old setting to new
 	
-	if not getUserSetting("currentController") then
-		updateUserSetting("currentController", currentController) --initialized in var.lua
-		else
-		currentController = getUserSetting("currentController")
-	end
-	if not getUserSetting("enableLocation") then
-		updateUserSetting("enableLocation", enableLocation) --initialized in var.lua
-		else
-		enableLocation = getUserSetting("enableLocation")
-	end
+		local arrayUserSetting2 = {}
+		
+		for i,v in ipairs(currentSave.arrayUserSetting) do
+		
+		arrayUserSetting2[currentSave.arrayUserSetting[i].Tag] = currentSave.arrayUserSetting[i].Value
+			
+		
+		end
+		
+		currentSave.arrayUserSetting = arrayUserSetting2
+		
+		
+		
+		print(getLang("init_renew_setting"))
 	
-	if not getUserSetting("showFactionAffinityHud") then
-		updateUserSetting("showFactionAffinityHud", showFactionAffinityHud) --initialized in var.lua
-		else
-		showFactionAffinityHud = getUserSetting("showFactionAffinityHud")
-	end
-	
-	enableLocation = getUserSetting("enableLocation")
-	AmbushEnabled = getUserSetting("AmbushEnabled")
-	AmbushMin = getUserSetting("AmbushMin")
-	ScrollSpeed = getUserSetting("ScrollSpeed")
-	ScriptedEntityAffinity = getUserSetting("ScriptedEntityAffinity")
-	AmbushMax = getUserSetting("AmbushMax")
-	GangWarsEnabled = getUserSetting("GangWarsEnabled")
-	AlwaysShowDefaultWindows = getUserSetting("AlwaysShowDefaultWindows")
-	AutoAmbush = getUserSetting("AutoAmbush")
-	displayXYZset = getUserSetting("displayXYZ")
-	AutoRefreshDatapack = getUserSetting("AutoRefreshDatapack")
-	
-	if not ScrollSpeed then
-		ScrollSpeed = 0.002
-		updateUserSetting("ScrollSpeed", ScrollSpeed)
-	end
-	if not ScriptedEntityAffinity then
-		ScriptedEntityAffinity = 0
-		updateUserSetting("ScriptedEntityAffinity", ScriptedEntityAffinity)
-	end
-	if not AmbushMin then
-		AmbushMin = 300
-		updateUserSetting("AmbushMin", AmbushMin)
-		else
-		AmbushMin = tonumber(AmbushMin)
-	end
-	AmbushMin = AmbushMin/60
-	if not AlwaysShowDefaultWindows then
-		AlwaysShowDefaultWindows = 1
-		updateUserSetting("AlwaysShowDefaultWindows", AlwaysShowDefaultWindows)
-	end
-	if not AmbushEnabled then
-		AmbushEnabled = 1
-		updateUserSetting("AmbushEnabled", AmbushEnabled)
-	end
-	if not AutoAmbush then
-		AutoAmbush = 1
-		updateUserSetting("AutoAmbush", AutoAmbush)
-	end
-	if not displayXYZset then
-		displayXYZset = 0
-		updateUserSetting("displayXYZset", displayXYZset)
 	end
 	
 	
+	ScrollSpeed = getUserSettingWithDefault("ScrollSpeed",ScrollSpeed)
+	ScriptedEntityAffinity = getUserSettingWithDefault("ScriptedEntityAffinity",ScriptedEntityAffinity)
+	AmbushMin = getUserSettingWithDefault("AmbushMin",AmbushMin)
+	AlwaysShowDefaultWindows = getUserSettingWithDefault("AlwaysShowDefaultWindows",AlwaysShowDefaultWindows)
+	AmbushEnabled = getUserSettingWithDefault("AmbushEnabled",AmbushEnabled)
+	AutoAmbush = getUserSettingWithDefault("AutoAmbush",AutoAmbush)
+	displayXYZset = getUserSettingWithDefault("displayXYZ",displayXYZset)
+	currentController = getUserSettingWithDefault("currentController",currentController)
+	enableLocation = getUserSettingWithDefault("enableLocation",enableLocation)
+	showFactionAffinityHud = getUserSettingWithDefault("showFactionAffinityHud",showFactionAffinityHud)
+	AmbushMax = getUserSettingWithDefault("AmbushMax",AmbushMax)
+	GangWarsEnabled = getUserSettingWithDefault("GangWarsEnabled",GangWarsEnabled)
+	AutoRefreshDatapack = getUserSettingWithDefault("AutoRefreshDatapack",AutoRefreshDatapack)
+	
+	
+	InfiniteDoubleJump =  getUserSettingWithDefault("InfiniteDoubleJump",InfiniteDoubleJump)
+	DisableFallDamage =  getUserSettingWithDefault("DisableFallDamage",DisableFallDamage)
+	Player_Sprint_Multiplier = getUserSettingWithDefault("Player_Sprint_Multiplier",Player_Sprint_Multiplier)
+	Player_Run_Multiplier = getUserSettingWithDefault("Player_Run_Multiplier",Player_Run_Multiplier)
+	Jump_Height = getUserSettingWithDefault("Jump_Height",Jump_Height)
+	Double_Jump_Height = getUserSettingWithDefault("Double_Jump_Height",Double_Jump_Height)
+	
+	
+	
+	
+	SetFlatFromSetting()
 	
 	GetScriptableSystemsContainer = Game.GetScriptableSystemsContainer()
 	FastTravelSystem = GetScriptableSystemsContainer:Get('FastTravelSystem')
@@ -326,7 +354,10 @@ function SaveLoading()
 	end
 	
 	
-	if not currentSave.arrayFactionDistrict then
+	
+	
+	
+	if currentSave.Score["faction_mox"] == nil or currentSave.Score["faction_mox"]["district_westbrook"] == nil  then
 		initGangDistrictScore()
 	end
 	
@@ -337,6 +368,10 @@ function SaveLoading()
 		 initGangRelation()
 	
 	end
+	
+	
+	migrateFromOldScore()
+	
 	if (currentSave.Variable["player"] == nil) then
 		
 		 currentSave.Variable["player"]= {}
@@ -348,6 +383,8 @@ function SaveLoading()
 		 currentSave.Variable["player"]["current_gang"] = "faction_mox"
 	
 	end
+	
+	
 	makeNativeSettings()
 
 end
@@ -361,60 +398,9 @@ end
 -- -------------------------------MAIN Function-------------------------------
 -- ---------------------------------------------------------------------------
 
-function setupCore() --Setup environnement (observer, overrider)
+function setupCore() --Setup environnement (DatapackLoading, observer, overrider)
 	
-	if( file_exists("data/compiled_datapack.lua") == true ) then
-		local file =io.open("data/compiled_datapack.lua")
-		local size = file:seek("end")    -- get file size
-		file:close()
-		if size > 100 then
-	
-		print("CyberMod : Compiled datapacks Founded, Importing...")
-		
-		 
-		arrayDatapack = CompiledDatapack
-	
-		
-		if(arrayDatapack.CacheVersion ~= nil) then
-		
-		print("CyberMod : Compiled datapacks cache OK")
-		
-		
-		end
-		
-		try {
-				function()
-					if(arrayDatapack == nil or arrayDatapack.CacheVersion== nil or arrayDatapack.modVersion== nil  or arrayDatapack.CacheVersion ~= cacheVersion or arrayDatapack.modVersion ~= questMod.version) then
-		
-						ImportDataPack()
-						print("CyberMod : Version of compiled cache is outdated, generating an new...")
-					else
-						print("CyberMod : Cache is up to date")
-					end
-								
-					
-				end,
-				catch {
-					function(error)
-						print('Error during Import datatpack init: (datapack :data/compiled_datapack.lua) '..error)
-						spdlog.error(' during Import datatpack init: (file :data/compiled_datapack.lua) '..error)
-						RecoverDatapack()
-					end
-				}
-			}
-		
-		
-		
-		print("CyberMod : Compiled datapacks loaded")
-		else
-		print("CyberMod : Compiled datapacks corrupted, rebuilding...")
-			ImportDataPack()
-		end
-	else
-			ImportDataPack()
-	end
-	
-	
+	DatapackLoading()
 	
 	MasterVolume = Game.GetSettingsSystem():GetVar("/audio/volume", "MasterVolume")
 	UIPopupsManager.Inititalize()
@@ -476,6 +462,114 @@ function setupCore() --Setup environnement (observer, overrider)
 		CName.add("Available Quests")
 	end
 end
+function DatapackLoading() --handle the loading and creation of cache for datapack in json/datapack
+
+local reader = dir("data/cache")
+	
+	--if there is existing cache
+	if( #reader > 0 ) then
+		print(getLang("compilefound"))
+		
+		
+		
+		
+		local haveerror = false
+		
+		arrayDatapack = {}
+		
+		
+		local directories = {}
+	
+	
+		--we load the directories from json/datapack
+		local reader = dir("json/datapack")
+		for i=1, #reader do 
+			if(tostring(reader[i].type) == "directory") then
+				
+				table.insert(directories,reader[i].name)
+			end
+		end
+		
+		
+		--for each directories
+		for i,u in ipairs(directories) do
+		
+			-- we check if there is an existing cache
+		local v = CompiledDatapack[u..".lua"]
+		
+		
+		try {
+				function()
+					
+					--if datapack cache is not good or doesn't exist, we create an new cache and added it to arrayDatapack
+					if(v == nil or v.cachedata == nil or v.cachedata.CacheVersion== nil or v.cachedata.modVersion== nil  or v.cachedata.CacheVersion ~= cacheVersion or v.cachedata.modVersion ~= questMod.version) then
+						if(file_exists("json/datapack/"..u.."/desc.json") == true) then
+							ImportDataPackFolder(u)
+							exportCompiledDatapackFolder(u,"Created Cache")
+							print(u.." "..getLang("compileoutdated"))
+							
+						end
+						
+					else
+					--if datapack cache is good, we added it to arrayDatapack from the compiled lua cache
+							print(u.." "..getLang("compileuptodate"))
+							arrayDatapack[u] = v
+					end
+					
+					
+					--if the desc.json doesnt exist
+					if(file_exists("json/datapack/"..u.."/desc.json") == false) then
+					
+					
+						--if there is no desc json but an cache,
+						if(file_exists('data/cache/'..u..'.lua') == true) then
+							 --we delete the cache (means no datapack in the datapack folder)
+								os.remove('data/cache/'..u..'.lua')
+								print(u.." datapack no longer exist, deleting cache...")
+							
+						end
+					
+					end
+					
+					
+					
+						
+					
+					
+					end,
+				catch {
+					function(error)
+						print(getLang("datatpackimporterror").."("..u..")"..error)
+						spdlog.error(getLang("datatpackimporterror").."("..u..")"..error)
+					
+						haveerror = true
+					end
+				}
+			}
+		
+		
+	
+		
+		
+		end
+		
+		--if an error occur, we only load the default datapack
+		if(haveerror == true) then
+		
+			RecoverDatapack()
+		
+		end
+		
+		print(getLang("compileloaded"))
+		
+	else
+			--if there is no cache, we create an new cache for each directories in json/datapack
+			ImportDataPack()
+	end
+	
+	
+
+end
 function initCore() --Setup session, external observer and trigger mod core loading
 	isGameLoaded = Game.GetPlayer() and Game.GetPlayer():IsAttached() and not GetSingleton('inkMenuScenario'):GetSystemRequestsHandler():IsPreGame()
 	
@@ -483,7 +577,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	
 
 	
-	if GetMod('nativeSettings') then nativeSettings =  GetMod("nativeSettings") else print("!!!!!!!!!!!!!!!!!!!!! CyberMod : No nativeSettings Mod detected, the mod will be broken !!!!!!!!!!!!!!!!!!!!! ") error("!!!!!!!!!!!!!!!!!!!!! CyberMod : No nativeSettings Mod detected, the mod will be broken !!!!!!!!!!!!!!!!!!!!! ") end
+	if GetMod('nativeSettings') then nativeSettings =  GetMod("nativeSettings") else print(getLang("nonattivesetting")) error(getLang("nonattivesetting")) end
 	
 	
 	if GetMod('AppearanceMenuMod') then 
@@ -492,24 +586,24 @@ function initCore() --Setup session, external observer and trigger mod core load
 			AMMversion = AMM.API.version
 		else
 			AMM = nil
-			print("CyberMod : AMM doesn't have the require version for work with CyberMod, some props and appearance will not be handled")
+			print(getLang("ammoutdated"))
 		end
 	else 
-		print("CyberMod : No AMM Mod detected, some props and appearance will not be handled")
+		print(getLang("ammnotfound"))
 	
 	end
 	
 	
-	if GetMod('ImmersiveFirstPerson') then GetMod('ImmersiveFirstPerson').api.Disable() print("CyberMod : ImmersiveFirstPerson Mod detected, CyberMod will disable it for avoid some conflicts") end
+	if GetMod('ImmersiveFirstPerson') then GetMod('ImmersiveFirstPerson').api.Disable() print(getLang("immersivepersonenabled")) end
 	
 	
-	if GetMod('CPStyling') then CPS =  GetMod("CPStyling"):New("questMod") else print("!!!!!!!!!!!!!!!!!!!!! CyberMod : No CPStyling Mod detected, the mod will be broken !!!!!!!!!!!!!!!!!!!!! ") error("!!!!!!!!!!!!!!!!!!!!! CyberMod : No CPStyling Mod detected, the mod will be broken !!!!!!!!!!!!!!!!!!!!! ") end
+	if GetMod('CPStyling') then CPS =  GetMod("CPStyling"):New("questMod") else print(getLang("cpstylingnotfound")) error(getLang("cpstylingnotfound")) end
 	
 	
 	if(nativeSettings ~= nil and nativeSettings.data["CMDT"] ~= nil  ) then
 		nativeSettings.data["CMDT"].options = {}
 		else
-		nativeSettings.addTab("/CMDT", "CyberMod Datapack Manager") -- Add our mods tab (path, label)
+		nativeSettings.addTab("/CMDT", "CyberScript Datapack Manager") -- Add our mods tab (path, label)
 		nativeSettings.data["CMDT"].options = {}
 	end
 	
@@ -537,7 +631,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	
 	
 	debugPrint(1,"Mod version "..questMod.version..questMod.channel)
-	debugPrint(1,"CyberMod Initialisation...")
+	debugPrint(1,"CyberScript Initialisation...")
 	
 	
 	
@@ -589,7 +683,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	LoadDataPackCache()
 	SaveLoading()
 	initEditor()
-	print("CyberMod Initialized")
+	print(getLang("CyberScriptinit"))
 	tick = 0
 end
 function refresh(delta) -- update event (include thread refresh action and QuestThreadManager)
@@ -610,7 +704,7 @@ function refresh(delta) -- update event (include thread refresh action and Quest
 					if(file_exists("success.txt"))then
 						updatefinished = true
 						updateinprogress = false
-						debugPrint(1,"The Mod is updated, GO BACK TO MAIN MENU and reload CET")
+						
 						os.remove("success.txt")
 					end
 					
@@ -633,7 +727,7 @@ function refresh(delta) -- update event (include thread refresh action and Quest
 					end
 					eventCatcher = sampleStyleManagerGameController.new()
 					
-					debugPrint(1,"INIT Core finished")
+				
 					initFinished = true
 					draw = true
 				end	
@@ -684,10 +778,21 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	if(objLook ~= nil) then
 		if(objLook ~= nil) then
 			tarName = objLook:ToString()
+		--	print(tostring(objLook:GetHighLevelStateFromBlackboard()))
 			if(string.match(tarName, "NPCPuppet"))then
+				
 				appName = Game.NameToString(objLook:GetCurrentAppearanceName())
 				targName = tostring(objLook:GetTweakDBDisplayName(true))
 				openCompanion, gangscore, lookatgang = checkAttitudeByGangScore(objLook)
+				
+				local obj = getEntityFromManagerById(objLook:GetEntityID())
+				if(obj.id == nil) then
+					
+					questMod.EntityManager["lookatnpc"].id = objLook:GetEntityID()
+					
+				end
+				
+				
 				
 				-- end
 			end
@@ -713,6 +818,12 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		end
 		else
 		multiName = ""
+		
+	
+	
+		questMod.EntityManager["lookatnpc"].id = nil
+		questMod.EntityManager["lookatnpc"].tweak = "None"
+	
 		
 		openCompanion = false
 		objLookIsVehicule = false
@@ -779,10 +890,10 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				UnsetSeat("player",false, AVseat)
 				AVseat = nil
 				Cron.After(1, function()
-					local index =getIndexFromGroupManager("AV")
-					debugPrint(1,#questMod.GroupManager[index].entities)
-					for i=1, #questMod.GroupManager[index].entities do 
-						local entityTag = questMod.GroupManager[index].entities[i]
+				
+					debugPrint(1,#questMod.GroupManager["AV"].entities)
+					for i=1, #questMod.GroupManager["AV"].entities do 
+						local entityTag = questMod.GroupManager["AV"].entities[i]
 						debugPrint(1,entityTag)
 						local obj = getEntityFromManager(entityTag)
 						local enti = Game.FindEntityByID(obj.id)
@@ -790,7 +901,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 							despawnEntity(entityTag)
 						end
 					end
-					questMod.GroupManager[index].entities = {}	
+					questMod.GroupManager["AV"].entities = {}	
 					CurrentAVEntity = nil
 					AVisIn = false
 					AVinput.exit = false							
@@ -883,15 +994,12 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		
 		
 		if(ActiveMenu == "PauseMenu" ) then
-			if(ExecPauseMenu == false) then
+			if(ExecPauseMenu == false and getUserSetting("AutoRefreshDatapack") == true) then
 				ExecPauseMenu =  true
 				
 				CheckandUpdateDatapack()
 				LoadDataPackCache()
-				if cacheupdate == true then
-				  exportCompiledDatapack('From Cache Update')
-				  cacheupdate = false
-				end
+				
 			end
 		else
 			if(ExecPauseMenu == true) then
@@ -904,16 +1012,12 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		end
 		
 		
-		local Ambu = getUserSetting("AmbushMin")	
-		
-		if(Ambu == nil) then
-			Ambu = 300
-		end
-		
-		local ambusec = Ambu*60
+
+		local ambusec = AmbushMin*60*60
 	
 		if (tick % ambusec == 0) then --every X second
 			checkAmbush()
+			print("check ambush")
 		end
 	end
 	
@@ -980,7 +1084,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 						districtState = "loading"
 					end	
 					
-					if(#currentDistricts2.districtLabels > 0) then
+					if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 0) then
 					
 						local districttext = ""
 						for i, test in ipairs(currentDistricts2.districtLabels) do
@@ -1014,9 +1118,9 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 					
 						roomwidget:SetVisible(true)
 						
-						local test = "Place : "..currentHouse.name
+						local test = getLang("ui_hud_place")..currentHouse.name
 						if(currentRoom ~= nil) then
-							test = test.." ".." | Room : "..currentRoom.name
+							test = test.." ".." | "..getLang("ui_hud_room")..currentRoom.name
 						end
 						roomwidget:SetText(test)
 						roomwidget:SetTintColor(gamecolor(255,255,255,1))
@@ -1034,31 +1138,41 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 							
 							
 							if(#currentDistricts2.districtLabels > 0) then
+								local gangslist = {}
 								if(#currentDistricts2.districtLabels > 1) then
 										local gangs = getGangfromDistrict(currentDistricts2.districtLabels[2],20)
 										for i=1,#gangs do
-											local gang = getFactionByTag(gangs[i].tag)
+										if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
+											table.insert(gangslist,gangs[i])
+										end
+										end
+									else
+										local gangs = getGangfromDistrict(currentDistricts2.districtLabels[1],20)
+										for i=1,#gangs do
+										if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
+											table.insert(gangslist,gangs[i])
+										
+										end
+										end
+								
+								end
+								
+								for i,v in ipairs(gangslist) do
+								
+								
+											local gang = getFactionByTag(v.tag)
 											local top = (i*50)
 											locationWidgetPlace_top = locationWidgetFactionDisctrict_top + (i*50) + 50
 											
 											local isleader = (i==1)
 											
-											displayGangScoreWidget(getScorebyTag(gangs[i].tag),gang.Name,factionwidget,top,isleader)
-										end
-									else
-										local gangs = getGangfromDistrict(currentDistricts2.districtLabels[1],20)
-										for i=1,#gangs do
-											local gang = getFactionByTag(gangs[i].tag)
-											local top =  (i*10)
-											locationWidgetPlace_top = locationWidgetFactionDisctrict_top + (i*50) + 50
-											
-											local isleader = (i==1)
-											
-											displayGangScoreWidget(getScorebyTag(gangs[i].tag),gang.Name,factionwidget,top,isleader)
-										
-										end
+											displayGangScoreWidget(getScoreKey("Affinity",v.tag),gang.Name,factionwidget,top,isleader)
+								
 								
 								end
+								
+								
+								
 							else
 							factionwidget:SetVisible(false)
 							end
@@ -1071,7 +1185,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				
 				if(ActualPlayerMultiData ~= nil and ActualPlayerMultiData.currentPlaces[1] ~= nil) then
 				
-					local test = "Multiplayer Place : "..ActualPlayerMultiData.currentPlaces[1].name
+					local test = getLang("ui_hud_multi_place")..ActualPlayerMultiData.currentPlaces[1].name
 					placemultiwidget:SetText(test)
 					placemultiwidget:SetTintColor(gamecolor(255,130,0,1))
 					placemultiwidget:SetVisible(true)
@@ -1087,21 +1201,21 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 			
 				
 				
-				local state = "CyberMod Service : Disconnected"
+				local state = getLang("ui_hud_place")
 				
-				if(multiEnabled == false and multiReady == false) then
+				if(NetServiceOn == false and MultiplayerOn == false) then
 					
-					state = "CyberMod Service : Disconnected"
+					state = getLang("ui_hud_place")
 					multistatewidget:SetTintColor(gamecolor(255,10,10,1))
 					
-					elseif (multiEnabled == true and multiReady == false) then
+					elseif (NetServiceOn == true and MultiplayerOn == false) then
 					
-					state = "CyberMod Service : Connected"
+					state = getLang("ui_hud_place")
 					multistatewidget:SetTintColor(gamecolor(255,204,29,1))
 					
 					else
 					
-					state = "CyberMod Service : Multiplayer enabled"
+					state = getLang("ui_hud_place")
 					multistatewidget:SetTintColor(gamecolor(0,212,45,1))
 				end
 					
@@ -1142,7 +1256,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		end
 		
 		
-		if (multiReady == true) then
+		if (MultiplayerOn == true) then
 			--debugPrint(1,"syncpos")
 			syncPosition(curPos,curRot)
 			--testFriend(curPos,curRot)
@@ -1177,7 +1291,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 			local action = {}
 			action.name = "phone_notification"
 			action.title = "Online"
-			action.desc = "You got "..#CurrentOnlineMessage.." online messages."
+			action.desc = getLang("multi_phone_notification_01")..#CurrentOnlineMessage..getLang("multi_phone_notification_02")
 			action.duration = 3
 			local actionlist = {}
 			table.insert(actionlist,action)
@@ -1240,28 +1354,28 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	end
 	if (tick % 3600 == 0) then --every 3 second
 		if(BraindanceGameController == nil or TutorialPopupGameController== nil or incomingCallGameController==nil or currentChattersGameController==nil or currentSubtitlesGameController == nil or MessengerGameController==nil or LinkController==nil) then
-			Game.GetPlayer():SetWarningMessage("Some controllers are missing after CET reload, reload an save to fix it.")
+			Game.GetPlayer():SetWarningMessage(getLang("missingcontroller"))
 			if(BraindanceGameController == nil)then
-				print("CyberMod : BraindanceGameController is missing !")
+				print("CyberScript : BraindanceGameController is missing !")
 			end
 			if(TutorialPopupGameController == nil)then
-				print("CyberMod : TutorialPopupGameController is missing !")
+				print("CyberScript : TutorialPopupGameController is missing !")
 			end
 			if(incomingCallGameController == nil)then
-				print("CyberMod : incomingCallGameController is missing !")
+				print("CyberScript : incomingCallGameController is missing !")
 			end
 			if(currentShardNotificationController == nil)then
-				print("CyberMod : currentShardNotificationController is missing !")
+				print("CyberScript : currentShardNotificationController is missing !")
 			end
 			if(currentChattersGameController == nil)then
-				print("CyberMod : currentChattersGameController is missing !")
+				print("CyberScript : currentChattersGameController is missing !")
 			end
 			
 			if(MessengerGameController == nil)then
-				print("CyberMod : MessengerGameController is missing !")
+				print("CyberScript : MessengerGameController is missing !")
 			end
 			if(LinkController == nil)then
-				print("CyberMod : LinkController is missing !")
+				print("CyberScript : LinkController is missing !")
 			end
 			
 		end
@@ -1291,41 +1405,41 @@ function inGameInit() -- init some function after save loaded
 	questMod.GroupManager = {}
 	questMod.EntityManager = {}
 	Game.SetTimeDilation(0)
-	if(questMod.debug == true) then
-		despawnAll()
-	end
+	
 	doInitEvent()
 	setScore("cinematic01","Score",0)
+	
+	
 	local entity = {}
 	entity.id = Game.GetPlayer():GetEntityID()
 	entity.tag = "player"
 	entity.tweak = "player"
-	table.insert(questMod.EntityManager,entity)
+	questMod.EntityManager[entity.tag] = entity
 	local entity1 = {}
 	entity1.id = 0
 	entity1.tag = "selection1"
 	entity1.tweak = "selection1"
-	table.insert(questMod.EntityManager,entity1)
+	questMod.EntityManager[entity1.tag] = entity1
 	local entity2 = {}
 	entity2.id = 0
 	entity2.tag = "selection2"
 	entity2.tweak = "selection2" 
-	table.insert(questMod.EntityManager,entity2)
+	questMod.EntityManager[entity2.tag] = entity2
 	local entity3 = {}
 	entity3.id = 0
 	entity3.tag = "selection3"
 	entity3.tweak = "selection3"
-	table.insert(questMod.EntityManager,entity3)
+	questMod.EntityManager[entity3.tag] = entity3
 	local entity4 = {}
 	entity4.id = 0
 	entity4.tag = "selection4"
 	entity4.tweak = "selection4"
-	table.insert(questMod.EntityManager,entity4)
+	questMod.EntityManager[entity4.tag] = entity4
 	local entity5 = {}
 	entity5.id = 0
 	entity5.tag = "selection5"
 	entity5.tweak = "selection5"
-	table.insert(questMod.EntityManager,entity5)
+	questMod.EntityManager[entity5.tag] = entity5
 	
 	
 
@@ -1333,15 +1447,15 @@ function inGameInit() -- init some function after save loaded
 	draw = true
 	
 	if file_exists("net/multi/player/connect.txt") == false then
-		Game.GetPlayer():SetWarningMessage("Authentication at mod boot failed, please connect from CyberMod Multiplayer Menu")
+		Game.GetPlayer():SetWarningMessage(getLang("authfailed"))
 		else
-		Game.GetPlayer():SetWarningMessage(lang.ImmersiveRoleplayModLoaded)
+		Game.GetPlayer():SetWarningMessage(getLang("ImmersiveRoleplayModLoaded"))
 		
 		
 			openNetContract = false
 			io.open("net/multienabled.txt","w"):close()
-			multiReady = false
-			multiEnabled = true
+			MultiplayerOn = false
+			NetServiceOn = true
 		
 			tokenIsValid = tokenIsValidate()
 			openNetContract = false
@@ -1366,7 +1480,7 @@ function inGameInit() -- init some function after save loaded
 	local blackboardPSM = Game.GetBlackboardSystem():GetLocalInstanced(Game.GetPlayer():GetEntityID(), blackboardDefs.PlayerStateMachine)
 	blackboardPSM:SetInt(blackboardDefs.PlayerStateMachine.SceneTier, 1, true) -- GameplayTier.Tier1_FullGameplay 
 	Game.SetTimeDilation(0)
-	print("CyberMod Script Engine Started")
+	print(getLang("seestarted"))
 end
 function windowsManager() -- manage and toggle UI windows
 	if(updatefinished == true) then --update Finished windows
@@ -1419,7 +1533,7 @@ function windowsManager() -- manage and toggle UI windows
 		
 		if(overlayOpen ) then
 			--or (ActiveMenu == "Hub")
-			if questMod.debug then
+			if debugOptions == true then
 				debugWindows()
 			end	
 		newWindows()
@@ -1502,6 +1616,12 @@ function windowsManager() -- manage and toggle UI windows
 			if openNewSceneStep then
 				SceneStepNewWindows()
 			end
+			if openEditHousingTemplate then
+			
+				EditTemplatePositionWindows()
+			end
+		
+		
 		end
 		
 		if openNetContract then
@@ -1512,7 +1632,7 @@ function windowsManager() -- manage and toggle UI windows
 		if(openColorPicker) then
 			colorPicker() 
 		end
-		if(onlineMessagePopup or (ActiveSubMenu == "Phone")) then
+		if((onlineMessagePopup or (ActiveSubMenu == "Phone")) and MultiplayerOn == true) then
 			if(onlineReceiver == nil) then
 				onlineReceiver = "Instance"
 			end
@@ -1587,7 +1707,7 @@ function windowsManager() -- manage and toggle UI windows
 		if enableEntitySelection then
 			entitySelection()
 		end
-		if multiReady then
+		if MultiplayerOn then
 			MultiNicknameWindows()
 		end
 		if openInterface then
@@ -1607,7 +1727,51 @@ function shutdownManager() -- setup some function at shutdown
 	resetVar()
 	collectgarbage()
 end
+function TweakManager() -- Load vehicles and change some TweakDB
+	
+	local f = assert(io.open("data/db/vehicles.json"))
+	local lines = f:read("*a")
+	local encdo = lines
+	local tableDis = {}
+	tableDis =json.decode(lines)
+	--debugPrint(1,"District Imported")
+	f:close()
+	
+	local unlockableVehicles = TweakDB:GetFlat(TweakDBID.new('	'))
+		
+		for _, vehiclePath in ipairs(tableDis) do
+		
+			local targetVehicleTweakDbId = TweakDBID.new(vehiclePath)
+			local isVehicleUnlockable = false
+			
+			for _, unlockableVehicleTweakDbId in ipairs(unlockableVehicles) do
+				if tostring(unlockableVehicleTweakDbId) == tostring(targetVehicleTweakDbId) then
+					isVehicleUnlockable = true
+					break
+				end
+			end
+			
+			if not isVehicleUnlockable then
+				table.insert(unlockableVehicles, targetVehicleTweakDbId)
+			end
+		end
+		
+		TweakDB:SetFlat('Vehicle.vehicle_list.list', unlockableVehicles)
+		print(getLang("vehicleunlocked"))	
+		
+		TweakDB:SetFlat("PreventionSystem.setup.totalEntitiesLimit", npcpreventionlimit)
+		SetFlatFromSetting()
+end
 
+
+function SetFlatFromSetting()
+	
+	
+	TweakDB:SetFlat("PlayerLocomotion.player_locomotion_data_Sprint_inline1.value", 6.5 * Player_Sprint_Multiplier)
+	TweakDB:SetFlat("PlayerLocomotion.player_locomotion_data_Stand_inline1.value", 3.5 * Player_Run_Multiplier)
+	TweakDB:SetFlat("PlayerLocomotion.JumpJumpHeightModifier.value", 1 * Jump_Height)
+	TweakDB:SetFlat("PlayerLocomotion.DoubleJumpJumpHeightModifier.value", 2.6 * Double_Jump_Height)
+end
 -- ------------------------------------------------------------------
 -- -------------------------------Event-------------------------------
 -- ------------------------------------------------------------------
@@ -1640,38 +1804,7 @@ registerForEvent("onOverlayClose", function()
 end)
 registerForEvent("onTweak", function()
 
-	local f = assert(io.open("data/db/vehicles.json"))
-	local lines = f:read("*a")
-	local encdo = lines
-	local tableDis = {}
-	tableDis =json.decode(lines)
-	--debugPrint(1,"District Imported")
-	f:close()
-	
-	local unlockableVehicles = TweakDB:GetFlat(TweakDBID.new('	'))
-		
-		for _, vehiclePath in ipairs(tableDis) do
-		
-			local targetVehicleTweakDbId = TweakDBID.new(vehiclePath)
-			local isVehicleUnlockable = false
-			
-			for _, unlockableVehicleTweakDbId in ipairs(unlockableVehicles) do
-				if tostring(unlockableVehicleTweakDbId) == tostring(targetVehicleTweakDbId) then
-					isVehicleUnlockable = true
-					break
-				end
-			end
-			
-			if not isVehicleUnlockable then
-				table.insert(unlockableVehicles, targetVehicleTweakDbId)
-			end
-		end
-		
-		TweakDB:SetFlat('Vehicle.vehicle_list.list', unlockableVehicles)
-		print("CyberMod : Vehicles unlocked")	
-		
-
-	TweakDB:SetFlat("PreventionSystem.setup.totalEntitiesLimit", 50)
+	TweakManager()
 	
 end)
 
@@ -1681,8 +1814,8 @@ registerHotkey("cycleCustomInteract", "Cycle Custom Interact", function()
 	cycleInteract()
 end
 )
-registerHotkey("onlineSendPopup", "Show Online Message Popup", function()
-	if(multiEnabled and multiReady) then
+registerHotkey("onlineSendPopup", "Cycle Custom Interact", function()
+	if(NetServiceOn and MultiplayerOn) then
 		if onlineMessagePopup then
 			onlineMessagePopup = false
 			else
@@ -1693,8 +1826,8 @@ registerHotkey("onlineSendPopup", "Show Online Message Popup", function()
 	end
 end
 )
-registerHotkey("onlineSendMessage", "Send an Message to Current Selected Player", function()
-	if(multiEnabled and multiReady) then
+registerHotkey("onlineSendMessage", "Cycle Custom Interact", function()
+	if(NetServiceOn and MultiplayerOn) then
 		MessageSenderController()
 	end
 end
@@ -1709,7 +1842,7 @@ registerHotkey("pull", "pull", function()
 	debugPrint(1,objectDist)
 end
 )
-registerHotkey("openRadioPopup", "Open Radio Popup", function()
+registerHotkey("openRadioPopup", "Cycle Custom Interact", function()
 	openRadio()
 end
 )
@@ -1738,10 +1871,7 @@ registerHotkey("selectcurrentInteractGroup5", "Select 5 Interact Group", functio
 	cycleInteractgroup()
 end
 )
-registerHotkey("openRadioPopup", "Open Radio Popup", function()
-	openRadio()
-end
-)
+
 registerHotkey("housingXp", "Housing : X+", function()
 	if(cetkeyused == false)then
 		if(selectedItem ~= nil) then
@@ -2052,9 +2182,7 @@ registerHotkey("saveLocationInput", "Save location to file in json/report", func
 end
 )
 
-registerHotkey('radioPopup', 'Open Radio', function()
-	openRadio()
-end)
+
 registerHotkey("toogleview", 'Toggle View', function()
 	if lastView == nil or lastView == 1 then--Normal View
 		local fppComp = Game.GetPlayer():GetFPPCameraComponent()

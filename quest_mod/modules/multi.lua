@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: multi module loaded")
+debugPrint(3,"CyberScript: multi module loaded")
 questMod.module = questMod.module +1
 
 
@@ -35,7 +35,7 @@ function MultiWindows()
 		
 		ImGui.Text("Statut : ")
 		ImGui.SameLine()
-		ImGui.Text(tostring(multiReady))
+		ImGui.Text(tostring(MultiplayerOn))
 		ImGui.Spacing()
 		ImGui.Text("My Tag :")
 		myTag = ImGui.InputText("myTag", myTag, 100, ImGuiInputTextFlags.AutoSelectAll)
@@ -80,7 +80,7 @@ function MultiWindows()
 			lastFriendPos = {}
 			Game.GetPreventionSpawnSystem():RequestDespawnPreventionLevel(-13)
 			
-			multiReady = false
+			MultiplayerOn = false
 			
 			friendIsSpaned = false
 			
@@ -499,9 +499,9 @@ function connectUser()
 			errormessage = "Player Connected !"
 			openNetContract = false
 			io.open("net/multienabled.txt","w"):close()
-			multiReady = false
-			multiEnabled = true
-			Game.GetPlayer():SetWarningMessage("Welcome to Cyberpunk Multiverse Server!")
+			MultiplayerOn = false
+			NetServiceOn = true
+			Game.GetPlayer():SetWarningMessage(getLang("multi_welcome"))
 			tokenIsValid = tokenIsValidate()
 			openNetContract = false
 			
@@ -526,8 +526,8 @@ function connectUser()
 		function()
 			errormessage = "Error during connection"
 			tokenIsValid = false
-			multiEnabled =false
-			multiReady = false
+			NetServiceOn =false
+			MultiplayerOn = false
 			disconnectUser()
 			
 		end)
@@ -772,7 +772,7 @@ function getFriendPos()
 			else
 			--When a player spawn
 				table.insert(previousConnectedPlayersList, ActualPlayersList[i])
-				table.insert(questMod.GroupManager[getIndexFromGroupManager("Multi")].entities,ActualPlayersList[i].pseudo)
+				table.insert(questMod.GroupManager["Multi"].entities,ActualPlayersList[i].pseudo)
 				
 				spawnOtherPlayer(ActualPlayersList[i].avatar, ActualPlayersList[i].pseudo, ActualPlayersList[i].x, ActualPlayersList[i].y ,ActualPlayersList[i].z,13)
 			end

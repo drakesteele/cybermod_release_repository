@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: modpack module loaded")
+debugPrint(3,"CyberScript: modpack module loaded")
 questMod.module = questMod.module +1
 
 
@@ -34,10 +34,10 @@ local function exportDatapackArray(t, max, depth, result)
 				if not sessionDataRelaxed then
 					--vtype = vstr:match('^sol%.(.+):')
 					if ktype == 'string' then
-						raiseError(('Cannot store userdata in the %q field.'):format(k))
+						print(('Cannot store userdata in the %q field.'):format(k))
 						--raiseError(('Cannot store userdata of type %q in the %q field.'):format(vtype, k))
 						else
-						raiseError(('Cannot store userdata in the list.'))
+						print(('Cannot store userdata in the list.'))
 						--raiseError(('Cannot store userdata of type %q.'):format(vtype))
 					end
 					else
@@ -47,9 +47,9 @@ local function exportDatapackArray(t, max, depth, result)
 			elseif vtype == 'function' or vtype == 'thread' then
 			if not sessionDataRelaxed then
 				if ktype == 'string' then
-					raiseError(('Cannot store %s in the %q field.'):format(vtype, k))
+					print(('Cannot store %s in the %q field.'):format(vtype, k))
 					else
-					raiseError(('Cannot store %s.'):format(vtype))
+					print(('Cannot store %s.'):format(vtype))
 				end
 			end
 			else
@@ -70,18 +70,70 @@ end
 
 function exportCompiledDatapack(msg)
 	
+	local directories = {}
+	local reader = dir("json/datapack")
+	for i=1, #reader do 
+		if(tostring(reader[i].type) == "directory") then
+			
+			table.insert(directories,reader[i].name)
+		end
+	end
 	
-	local file = io.open("data/compiled_datapack.lua", "w")	
-	file:write('return ')
-	file:write(exportDatapackArray(arrayDatapack))
-	file:close()
 	
-	
-	print("CyberMod : Compiled datapacks created "..msg)
+	for i=1, #directories do
+		exportCompiledDatapackFolder(k,msg)
+	end
 end
 
 
+function exportCompiledDatapackFolder(directories,msg)
+	
+		local k = directories
+		local file = io.open("data/cache/"..k..".lua", "w")	
+		--file:write('print('..k..' Cache Loaded) return ')
+		file:write('return ')
+		file:write(exportDatapackArray(arrayDatapack[k]))
+		file:close()
+		
+		print(k)
+		print(getLang("datapack_datapack_created")..msg)
+	
+end
 
+function ImportDataPackFolder(directories)
+
+		local path = "json/datapack/"..directories.."/desc.json"
+		local flo = io.open(path)
+		local lines = flo:read("*a")
+		local jsonf = trydecodeJSOn(lines,flo,path)
+		flo:close()
+		arrayDatapack[directories] = {}
+		arrayDatapack[directories].metadata=jsonf
+		
+		arrayDatapack[directories].cachedata={}
+		arrayDatapack[directories].cachedata.CacheVersion=cacheVersion
+		arrayDatapack[directories].cachedata.modVersion=questMod.version
+		
+		if(DatapackChecker(jsonf) == true) then
+			try {
+				function()
+					loadDatapackObject(directories)
+					print("Creating cache for "..directories)
+					
+					
+					
+				end,
+				catch {
+					function(error)
+						print(getLang("datapack_error_import")..directories..') '..error)
+						spdlog.error(getLang("datapack_error_import")..directories..') '..error)
+						arrayDatapack[directories] = nil
+					end
+				}
+			}
+		end
+
+end
 
 
 
@@ -104,51 +156,20 @@ function ImportDataPack()
 	
 	arrayDatapack = {}
 	
-	arrayDatapack.CacheVersion = cacheVersion
-	arrayDatapack.modVersion = questMod.version
+	
 	
 	
 	for i = 1, #directories do
 		
-		local path = "json/datapack/"..directories[i].."/desc.json"
-		local flo = io.open(path)
-		local lines = flo:read("*a")
-		local jsonf = trydecodeJSOn(lines,flo,path)
-		flo:close()
-		arrayDatapack[directories[i]] = {}
-		arrayDatapack[directories[i]].metadata=jsonf
-		
-		if(DatapackChecker(jsonf) == true) then
-			try {
-				function()
-					loadDatapackObject(directories[i])
-					
-					
-					
-					
-				end,
-				catch {
-					function(error)
-						print('Error during Import datatpack: (datapack :'..directories[i]..') '..error)
-						spdlog.error(' during Import datatpack: (file :'..directories[i]..') '..error)
-						arrayDatapack[directories[i]] = nil
-					end
-				}
-			}
-		end
+		ImportDataPackFolder(directories[i])
+		exportCompiledDatapackFolder(directories[i],"From Create")
 		
 	end
 	
 	arrayDatapack["default"].enabled =  true
 	
-	exportCompiledDatapack("From Create")
-	
-	local file =io.open("data/compiled_datapack.lua")
-	local size = file:seek("end")    -- get file size
-	file:close()
-	if size < 100 then
-		RecoverDatapack()
-	end
+
+
 end
 
 function RecoverDatapack()
@@ -180,23 +201,23 @@ function RecoverDatapack()
 			LoadDataPackCache()
 			
 			
-			print('Recover datapack cache, all datapack excepted default have been deleted. an new cache have been created')
-			spdlog.error('Recover datapack cache, all datapack excepted default have been deleted. an new cache have been created ')
+			print(getLang("datapack_recover"))
+			spdlog.error(getLang("datapack_recover"))
 			
 			
 		end,
 		catch {
 			function(error)
-				print('Recovery : Error during Import datatpack: (datapack :default) '..error)
-				spdlog.error('Recovery : Error during Import datatpack: (file :default) '..error)
+				print(getLang("datapack_recover_fail")..error)
+				spdlog.error(getLang("datapack_recover_fail")..error)
 				
 			end
 		}
 	}
 	else
-	print('Wrong default datapack, contact discord ADMIN and send this sentence. object : '..tostring(lines))
-	error('Wrong default datapack, contact discord ADMIN and send this sentence. object : '..tostring(lines))
-	spdlog.error('Wrong default datapack, contact discord and send this sentence. object : '..tostring(lines))
+	print(getLang("datapack_wrong_default")..tostring(lines))
+	error(getLang("datapack_wrong_default")..tostring(lines))
+	spdlog.error(getLang("datapack_wrong_default")..tostring(lines))
 	
 	end
 	
@@ -209,11 +230,11 @@ end
 function CheckandUpdateDatapack()
 	
 	local directories = {}
-	
+	arrayDatapack["default"].enabled = true
 	if(nativeSettings ~= nil and nativeSettings.data["CMDT"] ~= nil  ) then
 		nativeSettings.data["CMDT"].options = {}
 		else
-		nativeSettings.addTab("/CMDT", "CyberMod Datapack Manager") -- Add our mods tab (path, label)
+		nativeSettings.addTab("/CMDT", "CyberScript Datapack Manager") -- Add our mods tab (path, label)
 		nativeSettings.data["CMDT"].options = {}
 	end
 	
@@ -243,9 +264,6 @@ function CheckandUpdateDatapack()
 		
 		if(arrayDatapack[k] == nil)then
 			arrayDatapack[k] = {}
-			arrayDatapack[k].state = "new"
-			print("new datapack : "..k)
-			
 		end
 		
 		
@@ -258,9 +276,7 @@ function CheckandUpdateDatapack()
 			
 			desc:close()
 			arrayDatapack[k].metadata=jsondesc
-			print("Datapack founded : "..k)
-			print(dump(arrayDatapack[k].metadata))
-			print(tostring(arrayDatapack[k].state))
+			
 			
 			else
 			
@@ -315,14 +331,17 @@ function CheckandUpdateDatapack()
 						loadDatapackObject(k)
 						arrayDatapack[k].enabled = isenabled
 						arrayDatapack[k].state = nil
-						print("Updated datapack "..k.." to the cache")
-						
+						print(getLang("datapack_updated_01")..k..getLang("datapack_updated_02"))
+						arrayDatapack[k].cachedata={}
+						arrayDatapack[k].cachedata.CacheVersion=cacheVersion
+						arrayDatapack[k].cachedata.modVersion=questMod.version
+						exportCompiledDatapackFolder(k,"Updated cache")
 						
 					end,
 					catch {
 						function(error)
-							print('Error during Import datatpack: (datapack :'..k..') '..error)
-							spdlog.error(' during Import datatpack: (file :'..k..') '..error)
+							print(getLang("datapack_error_import")..k..') '..error)
+							spdlog.error(getLang("datapack_error_import")..k..') '..error)
 							arrayDatapack[k] = nil
 						end
 					}
@@ -358,17 +377,21 @@ function CheckandUpdateDatapack()
 				end)
 			end
 			i = i +1
+			else
+			
+			if('table' == type(v) and k == "default") then
+			EnableDatapack(k)
+			
+			end
 		end
 	end
 	
-	if(haveupdate == true) then
-		
-		
-		exportCompiledDatapack("From Update")
-	end
+	
+	
+
 end
 function loadDatapackObject(namespace)
-	print(namespace)
+	
 	arrayDatapack[namespace].enabled = false
 	
 	if(namespace == "default") then
@@ -467,6 +490,14 @@ function DeleteDatapackFromCache(tag)
 			arrayDatapack[tag] = nil
 		end
 	end
+	
+	
+	if(file_exists('data/cache/'..tag..'.lua') == true) then
+						
+			os.remove('data/cache/'..tag..'.lua')
+			print(tag.." datapack no longer exist, deleting cache...")
+		
+	end
 end
 
 function DatapackChecker(desc)
@@ -534,7 +565,7 @@ function DatapackChecker(desc)
 	
 	
 	
-	--print(desc.tag.." checked : "..tostring(result))
+	
 	
 	return result
 end
@@ -697,7 +728,7 @@ function flagChecker(myflag)
 		
 	end
 	
-	--print(flag.." checked : "..tostring(result))
+	
 	
 	return result
 end
@@ -733,7 +764,9 @@ end
 	arrayRadio = {}
 	arraySound = {}
 	arrayTexture = {}
+	arrayCorpo = {}
 	
+	arrayHousingTemplate = {}
 	
 	try {
 		function()
@@ -747,19 +780,26 @@ end
 							if(arrayDatapack[k][objtype] ~= nil) then
 								
 								FillList(objtype,arrayDatapack[k][objtype],k)
+								
+								else
+							--	print("can't find "..objtype.." for "..k)
+								
 							end
+							
 						end
 					else
 					print("Output : "..tostring(DatapackChecker(v.metadata)))
 					print("can't load : "..k.." data :"..tostring(dump(v.metadata)))
+					spdlog.error("Output : "..tostring(DatapackChecker(v.metadata)))
+					spdlog.error("can't load : "..k.." data :"..tostring(dump(v.metadata)))
 					end
 				end
 			end
 		end,
 		catch {
 			function(error)
-				print('Error during creating cache for datatpack: '..error)
-				spdlog.error(' during creating cache for datatpack: '..error)
+				print('Error during loading cache for datatpack: '..error)
+				spdlog.error(' during loading cache for datatpack: '..error)
 				RecoverDatapack()
 			end
 		}
@@ -789,13 +829,13 @@ end
 	addNewCustomNPC()
 	loadQuestsToUI()
 	getInteractGroup()
-	--updateHotKeyInteract()
-	debugPrint(1,"loaded")
+	FillCorpo()
 	
 	
 	
 	
 	end
+	
 	function FillList(objtype,tabl, datapackname)
 		local rootpath = ""
 		try {
@@ -893,6 +933,7 @@ end
 						for key, value in pairs(tabl) do 
 							local path = "json/datapack/"..datapackname.."/"..objtype.."/"..key
 							rootpath = path
+							
 							arrayInteract[value.tag] = {}
 							arrayInteract[value.tag].interact = value
 							arrayInteract[value.tag].interact.group = datapackname
@@ -975,31 +1016,31 @@ end
 							arrayPhoneConversation[value.tag].file = path
 							arrayPhoneConversation[value.tag].datapack = datapackname
 							if(arrayPhoneConversation[tostring(value.tag)].conv.unlock == false ) then
-								if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == 0 ) then
+								if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == nil ) then
 									setScore(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked",0)
 								end
 								else
-								if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == 0 ) then
+								if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked") == nil ) then
 									setScore(arrayPhoneConversation[tostring(value.tag)].conv.tag,"unlocked",1)
 								end
 							end
 							for z =1, #arrayPhoneConversation[tostring(value.tag)].conv.conversation do
 								if(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].unlock == false ) then
-									if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == 0 ) then
+									if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == nil ) then
 										setScore(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked",0)
 									end
 									else
-									if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == 0 ) then
+									if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked") == nil) then
 										setScore(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].tag,"unlocked",1)
 									end
 								end
 								for y=1, #arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message do
 									if(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].unlock == false ) then
-										if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == 0 ) then
+										if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == nil ) then
 											setScore(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked",0)
 										end
 										else
-										if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == 0 ) then
+										if(getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == 0 or getScoreKey(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked") == nil) then
 											setScore(arrayPhoneConversation[tostring(value.tag)].conv.conversation[z].message[y].tag,"unlocked",1)
 										end
 									end
@@ -1074,6 +1115,16 @@ end
 							arrayScene[value.tag].file = path
 							arrayScene[value.tag].datapack = datapackname
 						end
+						elseif(objtype == "housing_template") then
+						for key, value in pairs(tabl) do 
+							local path = "json/datapack/"..datapackname.."/"..objtype.."/"..key
+							rootpath = path
+							
+							arrayHousingTemplate[value.tag] = {}
+							arrayHousingTemplate[value.tag].template = value
+							arrayHousingTemplate[value.tag].file = path
+							arrayHousingTemplate[value.tag].datapack = datapackname
+						end
 					end
 				end
 			end,
@@ -1091,19 +1142,54 @@ end
 		
 		if(name ~= "default") then
 			arrayDatapack[name].enabled = false
-			cacheupdate = true
+			exportCompiledDatapackFolder(name,name.." datapack : Update Disable state to cache")
 		end
 		
 	end
 	function EnableDatapack(name)
 		
 		arrayDatapack[name].enabled = true
-		cacheupdate = true
+		exportCompiledDatapackFolder(name,name.." datapack : Update Enable state to cache")
 	end
 	
 	
+	function FillCorpo()
+	
+	if file_exists("data/db/corpolist.json") then
+		local f = io.open("data/db/corpolist.json")
+		lines = f:read("*a")
+		if lines ~= "" then
+			local json = json.decode(lines)
+			for i,v in ipairs(json) do
+			
+				arrayCorpo[v.tag] = v
+				
+				if(v.owner == 1) then
+				
+					arrayCorpo[v.tag].faction = "faction_arasaka"
+				
+				end
+				
+				if(v.owner == 2) then
+				
+					arrayCorpo[v.tag].faction = "faction_militech"
+				
+				end
+				
+				if(v.owner == 3) then
+				
+					arrayCorpo[v.tag].faction = "faction_kangtao"
+				
+				end
+				
+				
+			
+			end
+		end
+	end
 	
 	
+	end
 	
 	
 	
@@ -1111,9 +1197,32 @@ end
 		for k,v in pairs(arrayQuest2) do
 			local questos = arrayQuest2[k].quest
 			local data = {}
+			
+			if(questos.context ~= nil) then
+			
+				if(isArray(questos.context))then
+					for i,v in ipairs(questos.context) do
+						
+						if(checkTriggerRequirement(v.requirement,v.trigger))then
+							for k,u in pairs(v.prop) do
+								questos[k] = GeneratefromContext(u)
+							end
+						end
+					end
+					else
+					if(checkTriggerRequirement(questos.context.requirement,questos.context.trigger))then
+						for k,u in pairs(trigger.context.prop) do
+							questos[k] = GeneratefromContext(u)
+						end
+					end
+				end
+				
+			end
+			
+			
 			data.id = questos.tag
-			data.title = questos.title
-			data.description = questos.content
+			data.title = getLang(questos.title)
+			data.description = getLang(questos.content)
 			data.metadata = {}
 			data.metadata.level = questos.recommandedlevel
 			data.metadata.questType = questos.questtype
@@ -1121,9 +1230,31 @@ end
 			data.objectives = {}
 			for i=1,#questos.objectives do 
 				local irpobj = questos.objectives[i]
+				
+				if(irpobj.context ~= nil) then
+					
+				if(isArray(irpobj.context))then
+					for i,v in ipairs(irpobj.context) do
+						
+						if(checkTriggerRequirement(v.requirement,v.trigger))then
+							for k,u in pairs(v.prop) do
+								irpobj[k] = GeneratefromContext(u)
+							end
+						end
+					end
+					else
+					if(checkTriggerRequirement(irpobj.context.requirement,irpobj.context.trigger))then
+						for k,u in pairs(trigger.context.prop) do
+							irpobj[k] = GeneratefromContext(u)
+						end
+					end
+				end
+				
+			end
+				
 				local obj = {}
 				obj.id = irpobj.tag
-				obj.title = irpobj.title
+				obj.title = getLang(irpobj.title)
 				obj.isOptional = irpobj.isoptionnal
 				obj.state = irpobj.state
 				table.insert(data.objectives,obj)
@@ -1140,8 +1271,8 @@ end
 		local questos = quest
 		local data = {}
 		data.id = questos.tag
-		data.title = questos.title
-		data.description = questos.content
+		data.title = getLang(questos.title)
+		data.description = getLang(questos.content)
 		data.metadata = {}
 		data.metadata.level = questos.recommandedlevel
 		data.metadata.questType = questos.questtype
@@ -1151,7 +1282,7 @@ end
 			local irpobj = questos.objectives[i]
 			local obj = {}
 			obj.id = irpobj.tag
-			obj.title = irpobj.title
+			obj.title = getLang(irpobj.title)
 			obj.isOptional = irpobj.isoptionnal
 			obj.state = irpobj.state
 			table.insert(data.objectives,obj)

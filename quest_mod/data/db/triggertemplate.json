@@ -23,6 +23,13 @@
 		"helper": "This trigger will be triggered when player is online",
 		"helperTitle": "Multi : Player is online"
 	},
+
+	{
+		"name": "interact_is_forceloaded",
+		"tag": "myinteract",
+		"helper": "This trigger will be triggered when an interact is forceloaded",
+		"helperTitle": "Interact : Is Force Loaded"
+	},
 	{
 		"name": "entity_at_relative_player_position",
 		"x": 0,
@@ -42,6 +49,11 @@
 		"tag": "judy01",
 		"helper": "This trigger will be triggered when a custom entity is at position",
 		"helperTitle": "Entity : At position"
+	},
+	{
+		"name": "can_use_preventionsystemspawn",
+		"helper": "This trigger will be triggered when the current amount of spawned entity with prevention system is under 50",
+		"helperTitle": "Entity : Can use Prevention System"
 	},
 	{
 		"name": "entity_is_at_mappin_position",
@@ -448,7 +460,7 @@
 		"type": 1,
 		"uselocationtag":false,
 		"range":5,
-		"help": "1= All|| 2 = Hostile || 3 = Friendly|| 4 = Special. tag is useful if you want select an poi who have tag and an specifc location in this poi, leave it to empty is not needed. Same for district,subdistrict. if you want an specific location, use uselocationtag",
+		"help": "tag is useful if you want select an poi who have tag and an specifc location in this poi, leave it to empty is not needed. Same for district,subdistrict. if you want an specific location, use uselocationtag. If you put current in district or subdisttrict it will take the current district or subdistrict",
 		"helper": "This trigger will be triggered when a player is in custom Point Of Interest",
 		"helperTitle": "Player : in POI"
 	},
@@ -699,5 +711,32 @@
 		"score":5,
 		"helper": "his trigger will check if last killed entity is in a gang with affinity ",
 		"helperTitle": "Entity : last killed entity is in a gang with affinity"
+	},
+	{
+		"name": "if_entities_around_you",
+		"filter":["mox","npc"],
+		"range":5,
+		"helper": "this trigger will check for if there is an entity founded in the player's view in an determined range and filter. \n The filter will check in the name, display name and appearance of the entity \n leave filter at [] for take all. ",
+		"helperTitle": "Entity : Entities around you"
+	},
+	
+	{
+		"name": "check_scannerdata_for_entity",
+		"tag":"judy01",
+		"prop":"reward",
+		"operator":"=",
+		"value":5,
+		"helper": "this trigger will check for an existing scanner data for an existing entity, an field. operator is for numerical field, value can be an text or an number depending of the tested field",
+		"helperTitle": "Scanner : Check Custom Scanner Data for Entity"
+	},
+	
+	{
+		"name": "check_current_scannerdata",
+		
+		"prop":"reward",
+		"operator":"=",
+		"value":5,
+		"helper": "this trigger will check, for an current scanner data when scanner is active, an field. operator is for numerical field, value can be an text or an number depending of the tested field",
+		"helperTitle": "Scanner : Check Active Scanner Data"
 	}
 ]

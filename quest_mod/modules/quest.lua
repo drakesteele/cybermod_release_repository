@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: quest module loaded")
+debugPrint(3,"CyberScript: quest module loaded")
 questMod.module = questMod.module +1
 
 
@@ -57,7 +57,7 @@ function QuestThreadManager()
 				
 					
 					if(QuestManager.GetObjectiveState(objectif.tag).isActive == true) then
-					--debugPrint(1,objectif.tag.." active "..tostring(QuestManager.GetObjectiveState(objectif.tag).isActive))
+					--print(objectif.tag.." active "..tostring(QuestManager.GetObjectiveState(objectif.tag).isActive))
 						
 						local result = false
 						result = checkTriggerRequirement(objectif.requirement,objectif.trigger)
@@ -66,6 +66,14 @@ function QuestThreadManager()
 						
 						if(result == true and workerTable[objectif.tag.."_action"] == nil) then
 					--	debugPrint(1,objectif.tag.." ACtion")
+					
+							local action ={}
+							action.name = "quest_notification"
+							action.title =  currentQuest.title
+							action.desc = objectif.title
+							action.duration = 4
+							action.type = "update"
+							executeAction(action,"update_mission","",0,"see","")
 							
 							runActionList(objectif.action,objectif.tag.."_action","quest",true,"see_engine")
 							
@@ -109,9 +117,12 @@ function QuestThreadManager()
 					DoedEndAction = false
 						
 						local action = {}
-						action.name = "simple_message"
-						action.value =  "Quest Finished : "..currentQuest.title
-						table.insert(currentQuest.end_action,action)
+						action.name = "quest_notification"
+						action.title =  currentQuest.title
+						action.desc = currentQuest.content
+						action.duration = 4
+						action.type = "success"
+						executeAction(action,"success_mission","",0,"see","")
 						debugPrint(1,"mark5")
 						if(currentQuest.isNCPD ~= nil and currentQuest.isNCPD == true ) then
 							local action = {}
@@ -145,6 +156,12 @@ function QuestThreadManager()
 			
 					if(DoedFailAction == false) then
 						DoedFailAction = true
+						action.name = "quest_notification"
+						action.title =  currentQuest.title
+						action.desc = currentQuest.content
+						action.duration = 4
+						action.type = "fail"
+						executeAction(action,"fail_mission","",0,"see","")
 						doFailAction(currentQuest)
 						setScore(currentQuest.tag,"Score",0)
 						canDoFailAction = false
@@ -186,8 +203,8 @@ end
 --Quest States
 function startQuest(quest)
 	
-	print(tostring(QuestManager.GetQuestState(quest.tag).isActive))
-	print(tostring(getScoreKey(quest.tag,"Score")))
+	-- print(tostring(QuestManager.GetQuestState(quest.tag).isActive))
+	-- print("is null "..tostring(getScoreKey(quest.tag,"Score") == nil))
 	
 	
 	if(QuestManager.GetQuestState(quest.tag).isActive == true) then
@@ -230,9 +247,12 @@ function startQuest(quest)
 		
 		
 			local action = {}
-			action.name = "simple_message"
-			action.value =  "Starting Quest : "..currentQuest.title
-			table.insert(currentQuest.trigger_action,action)
+			action.name = "quest_notification"
+			action.title =  currentQuest.title
+			action.desc = currentQuest.content..getLang("mission_start_look_map")
+			action.duration = 4
+			action.type = "new"
+			executeAction(action,"start_mission","",0,"see","")
 		
 			setScore(currentQuest.tag,"Score",0)
 	
@@ -263,7 +283,7 @@ function TriggerQuest(unlockTagQuest)
 			
 			startQuest(quest)
 			
-			Game.GetPlayer():SetWarningMessage("Mission : " .. quest.Title)
+			--Game.GetPlayer():SetWarningMessage(getLang("quest_trigger") .. quest.Title)
 			------debugPrint(1,"Forced Contract" .. quest.Title)
 			
 			

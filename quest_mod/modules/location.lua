@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: location module loaded")
+debugPrint(3,"CyberScript: location module loaded")
 questMod.module = questMod.module +1
 
 function openLocation()

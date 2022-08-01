@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: utils module loaded")
+debugPrint(3,"CyberScript: utils module loaded")
 questMod.module = questMod.module +1
 
 --This file contains several functions that are used everywhere
@@ -52,6 +52,14 @@ function checkVersionNumber(current,new) --true means the current is outdated
 	end
     
 end
+
+function tonullstring(value)
+	
+	if(value == nil) then tostring("nil") else tostring(value) end
+	
+end
+
+
 
 
 function table_contains(tables,value,checkkey)
@@ -887,7 +895,9 @@ mappinData.variant = Enum.new('gamedataMappinVariant', typemap)
 mappinData.visibleThroughWalls = wall or true
 
 local posZ = posz or 200
-
+print(posx)
+print(posy)
+print(posZ)
 local position  = ToVector4{ x = posx, y = posy, z = posZ , w = 1}
 
 local mapId = Game.GetMappinSystem():RegisterMappin(mappinData, position)
@@ -906,8 +916,8 @@ obj.id = mapId
 obj.tag = tag
 obj.position = position
 obj.variant =  Enum.new('gamedataMappinVariant', typemap)
-obj.title = title
-obj.desc = desc
+obj.title = getLang(title)
+obj.desc = getLang(desc)
 
 if(mapgroup) then
 obj.group = mapgroup
@@ -920,7 +930,7 @@ mappinManager[tag] = obj
 
 
 
-debugPrint(1,"set mappin"..tag)
+print("set mappin"..tag)
 
 end
 
@@ -1497,6 +1507,16 @@ printf('(%s)=(%s)\n', tostring(key), tostring(value))
 end
 end
 
+
+function table.contains(table,value)
+	for i, element in ipairs(table) do
+	 if(value == element) then
+		return true
+	 end
+	end
+	return false
+end
+
 function diffVector(from, to)
 	print(dump(from))
 	print(dump(to))
@@ -1527,6 +1547,69 @@ return Game.FindEntityByID(stashId)
 
 end
 
+function tostringorempty(value)
+	if value == nil then value = "" end
+	
+	return tostring(value)
+end
+
+
+function getTransgressionFromTweakId(trans)
+	
+	for i,value in ipairs(transgressionsTweakList) do
+		
+		if(trans == TweakDBID.new("Transgression."..value)) then
+		
+		return value
+		
+		end
+	
+	
+	end
+	
+	return nil
+	
+end
+
+function getAffiliationsFromTweakId(aff)
+	
+	for i,value in ipairs(affiliationTweakList ) do
+		
+		if(aff == TweakDBID.new("Factions."..value)) then
+		
+		return value
+		
+		end
+	
+	
+	end
+	
+	return nil
+	
+end
 
 
 
+
+function getRandomPairfromTable(myTable)
+	
+	
+	local keyset = {}
+	for k in pairs(myTable) do
+		table.insert(keyset, k)
+	end
+-- now you can reliably return a random key
+random_elem = {}
+random_elem.key = keyset[math.random(#keyset)]
+random_elem.value = myTable[random_elem.key]
+	return random_elem
+end
+
+function isArray(t)
+  local i = 0
+  for _ in pairs(t) do
+    i = i + 1
+    if t[i] == nil then return false end
+  end
+  return true
+end

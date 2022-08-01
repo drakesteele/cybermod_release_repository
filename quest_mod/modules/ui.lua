@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: UI module loaded")
+debugPrint(3,"CyberScript: UI module loaded")
 questMod.module = questMod.module + 1
 
 ---Misc Function---
@@ -10,7 +10,7 @@ function showInputHint(key, text, prio, holdAnimation, tag)
 	
 	local data = InputHintData.new()
 	data.action = key
-	data.source = "CyberMod"
+	data.source = "CyberScript"
 	data.
 	localizedLabel = text
 	data.enableHoldAnimation = hold
@@ -26,7 +26,7 @@ end
 function hideCustomHints(tag)
 	
 	local evt = DeleteInputHintBySourceEvent.new()
-	evt.source = "CyberMod"
+	evt.source = "CyberScript"
 	evt.targetHintContainer = "GameplayInputHelper"
 	Game.GetUISystem():QueueEvent(evt)
 end
@@ -71,23 +71,27 @@ end
 
 function makeNativeSettings()
 	
-	nativeSettings.addTab("/CM", "CyberMod Settings") -- Add our mods tab (path, label)
+	nativeSettings.addTab("/CM", getLang("ui_setting_main")) -- Add our mods tab (path, label)
 	
 	
 	
 	
-	nativeSettings.addSubcategory("/CM/gameplay", "Gameplay") -- Optional: Add a subcategory (path, label), you can add as many as you want
+	nativeSettings.addSubcategory("/CM/gameplay", getLang("ui_setting_gameplay")) -- Optional: Add a subcategory (path, label), you can add as many as you want
+	
 	settingsTables["gamepad"] =  
-	nativeSettings.addSwitch("/CM/gameplay", "Use Gamepad Configuration Controller mode", "Use Gamepad Configuration Controller mode", currentController == "gamepad", false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+	nativeSettings.addSwitch("/CM/gameplay",  getLang("ui_setting_gameplay_controller"),  getLang("ui_setting_gameplay_controller"), currentController == "gamepad", false, function(state) -- path, label, desc, currentValue, defaultValue, callback
 		currentController = state == false and "mouse" or "gamepad"
 		updateUserSetting("currentController", state)
 	end)
+	
+	
 	settingsTables["radio"] = 
-	nativeSettings.addRangeInt("/CM/gameplay", "Custom Radio Volume", "Custom Radio Volume", 0, 100, 1, currentRadioVolume, currentRadioVolume, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+	nativeSettings.addRangeInt("/CM/gameplay",  getLang("ui_setting_gameplay_radio"),  getLang("ui_setting_gameplay_radio"), 0, 100, 1, currentRadioVolume, currentRadioVolume, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
 		currentRadioVolume = value
 	end)
 	
-	nativeSettings.addRangeFloat("/CM/gameplay", getLang("CyberMod UI Scroll Speed"), getLang("Custom UI Scroll Speed"), 0.001, 0.02, 0.001, "%.3f", ScrollSpeed, ScrollSpeed, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+	
+	nativeSettings.addRangeFloat("/CM/gameplay", getLang("ui_setting_gameplay_scroll"),  getLang("ui_setting_gameplay_scroll"), 0.001, 0.1, 0.001, "%.3f", ScrollSpeed, ScrollSpeed, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
 		pcall(function() 
 		ScrollSpeed = tonumber(string.format("%.3f", value))
 		updateUserSetting("ScrollSpeed", ScrollSpeed)
@@ -95,71 +99,79 @@ function makeNativeSettings()
 	end)
 	
 	
+	print("ScriptedEntityAffinity "..tostring(ScriptedEntityAffinity))
+	print("AutoAmbush "..tostring(AutoAmbush))
+	print("AmbushEnabled "..tostring(AmbushEnabled))
+	print("AmbushMin "..tostring(AmbushMin))
+	print("enableLocation "..tostring(enableLocation))
+	print("showFactionAffinityHud "..tostring(showFactionAffinityHud))
+	print("displayXYZset "..tostring(displayXYZset))
 	
 	nativeSettings.addSubcategory("/CM/script", "Script Engine Settings")
 	
-	nativeSettings.addSwitch("/CM/script", "Scripted Entity Affinity", "Gang Affinity affect Scripted Entities From Script Engine", ScriptedEntityAffinity == 1, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
-		ScriptedEntityAffinity = state and 1 or 0
+	nativeSettings.addSwitch("/CM/script", getLang("Scripted Entity Affinity"), getLang("Gang Affinity affect Scripted Entities From Script Engine"), ScriptedEntityAffinity, ScriptedEntityAffinity, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		ScriptedEntityAffinity = state
 		updateUserSetting("ScriptedEntityAffinity", ScriptedEntityAffinity)
 	end)
 	
-	nativeSettings.addSwitch("/CM/script", getLang("AutoAmbushToggle"), getLang("AutoAmbushToggle"), AutoAmbush == 1, AutoAmbush == 1, function(state) -- path, label, desc, currentValue, defaultValue, callback
-		AutoAmbush = state and 1 or 0
+	nativeSettings.addSwitch("/CM/script", getLang("AutoAmbushToggle"), getLang("AutoAmbushToggle"), AutoAmbush, true, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		AutoAmbush = state
 		updateUserSetting("AutoAmbush", AutoAmbush)
 	end)
 	
-	nativeSettings.addSwitch("/CM/script", getLang("EnableDisableAmbush"), getLang("EnableDisableAmbush"), AmbushEnabled == 0, AmbushEnabled == 0, function(state) -- path, label, desc, currentValue, defaultValue, callback
-		AmbushEnabled = state and 1 or 0
+	nativeSettings.addSwitch("/CM/script", getLang("EnableDisableAmbush"), getLang("EnableDisableAmbush"), AmbushEnabled, true, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		AmbushEnabled = state
 		updateUserSetting("AmbushEnabled", AmbushEnabled)
 	end)
 	
-	nativeSettings.addRangeInt("/CM/script", getLang("SetAmbushMinTime"), getLang("SetAmbushMinTime"), 1, 180, 1, AmbushMin, AmbushMin, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
-		updateUserSetting("AmbushMin", value*60)
+	nativeSettings.addRangeInt("/CM/script", getLang("SetAmbushMinTime"), getLang("SetAmbushMinTime"), 1, 120, 1, AmbushMin, 5, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		AmbushMin = value
+		updateUserSetting("AmbushMin", value)
 	end)
 	
 	
-	nativeSettings.addSubcategory("/CM/hud", "Display")
+	nativeSettings.addSubcategory("/CM/hud",getLang("ui_setting_display"))
 	
-	nativeSettings.addSwitch("/CM/hud", "Show CyberMod HUD", "Show CyberMod HUD", enableLocation, enableLocation, function(state) -- path, label, desc, currentValue, defaultValue, callback
+	nativeSettings.addSwitch("/CM/hud", getLang("ui_setting_display_hud"), getLang("ui_setting_display_hud"), enableLocation, true, function(state) -- path, label, desc, currentValue, defaultValue, callback
 		enableLocation = state
 		updateUserSetting("enableLocation", state)
 	end)
 	
-	nativeSettings.addSwitch("/CM/hud", "Show Gang Affinity on HUD", "Show Gang Affinity on HUD", showFactionAffinityHud, showFactionAffinityHud, function(state) -- path, label, desc, currentValue, defaultValue, callback
+	nativeSettings.addSwitch("/CM/hud", getLang("ui_setting_display_hud_gang"), getLang("ui_setting_display_hud_gang"), showFactionAffinityHud, true, function(state) -- path, label, desc, currentValue, defaultValue, callback
 		showFactionAffinityHud = state
 		updateUserSetting("showFactionAffinityHud", state)
 	end)
 	
-	nativeSettings.addSwitch("/CM/hud", "Display XYZ on Map when you hover an point", "Display XYZ on Map when you hover an point", displayXYZset == 1, displayXYZset == 1, function(state) -- path, label, desc, currentValue, defaultValue, callback
-		displayXYZset = state and 1 or 0
+	nativeSettings.addSwitch("/CM/hud", getLang("ui_setting_display_hud_xyz"), getLang("ui_setting_display_hud_xyz"), displayXYZset, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		displayXYZset = state
 		updateUserSetting("displayXYZ", displayXYZset)
 	end)
 	
 	
 	
 	
-	nativeSettings.addSubcategory("/CM/actions", "Actions")
+	nativeSettings.addSubcategory("/CM/actions",getLang("ui_setting_actions"))
 	
-	nativeSettings.addButton("/CM/actions", "Untrack Game Quest", "Untrack Game Quest","Untrack", 45, function()
+	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_untrackquest"), getLang("ui_setting_actions_untrackquest"),"Untrack", 45, function()
  	Game.untrack()
  	
  end)
 	
-	nativeSettings.addButton("/CM/actions",  "Reset CyberMod Quest",  "Reset CM Quest", "Reset CM Quest", 45, function()
+	nativeSettings.addButton("/CM/actions",  getLang("ui_setting_actions_resetquest"),  getLang("ui_setting_actions_resetquest"), "Reset CM Quest", 45, function()
  		if currentQuest then
 			closeQuest(currentQuest)
 		end
  	
  end)
  
-	nativeSettings.addButton("/CM/actions", "Clean the mess (need to be out of an car)", "Clean the mess (need to be out of an car)", "Clean the mess", 45, function()
+	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_cleanthemess"), getLang("ui_setting_actions_cleanthemess"), "Clean the mess", 45, function()
  		
 		despawnAll()
 		workerTable = {}
  	
  end)
 	
-	nativeSettings.addButton("/CM/actions", "Recalculate All Affinity (Gang and NPC)", "Recalculate All Affinity (Gang and NPC), it will recalculate it from the quests you already finished and your choices","Recalculate", 45, function()
+	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_recalculateaffinity"), getLang("ui_setting_actions_recalculateaffinity_msg"),"Recalculate", 45, function()
 		
 		
 		for k,v in pairs(arrayFaction) do
@@ -177,47 +189,146 @@ function makeNativeSettings()
  
  end)
  
- nativeSettings.addButton("/CM/actions", "Clear All Affinity (Gang and NPC)", "Clear All Affinity (Gang and NPC), it will put all to 0","Clear", 45, function()
+ nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_cleareaffinity"), getLang("ui_setting_actions_recalculateaffinity_msg"),"Clear", 45, function()
 		for k,v in pairs(arrayFaction) do
-			setScore(k, "Score", 0)
+			setScore("Affinity",k, 0)
 		end
 		for i=1, #arrayPnjDb do
-			setScore(arrayPnjDb[i].Names, "Score", 0)
+			setScore("Affinity",arrayPnjDb[i].Names, 0)
 		end
 	
  	
  end)
-	nativeSettings.addSwitch("/CM/actions", getLang("Auto Refresh Datapack cache at Pause Menu"), getLang("Auto Refresh Datapack cache at Pause Menu"), AutoRefreshDatapack, AutoRefreshDatapack, function(state) -- path, label, desc, currentValue, defaultValue, callback
+	nativeSettings.addSwitch("/CM/actions", getLang("ui_setting_actions_auto_refresh"), getLang("ui_setting_actions_auto_refresh"), AutoRefreshDatapack, AutoRefreshDatapack, function(state) -- path, label, desc, currentValue, defaultValue, callback
 		AutoRefreshDatapack = state
 		updateUserSetting("AutoRefreshDatapack", AutoRefreshDatapack)
 	end)
 	
-	nativeSettings.addButton("/CM/actions", getLang("Refresh Datapack Cache"), getLang("Refresh Datapack Cache"), "Refresh", 45, function()
- 	LoadDataPackCache()
-	print("CyberMod : Datapack Cache refreshed")
+	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_refresh"), getLang("ui_setting_actions_refresh"), "Refresh", 45, function()
+	CheckandUpdateDatapack()
+	LoadDataPackCache()
+	print("CyberScript : Datapack Cache refreshed")
  	
  end)
  
-	nativeSettings.addButton("/CM/actions", getLang("Rebuild Datapack Cache"), getLang("Rebuild Datapack Cache"), "Rebuild", 45, function()
-	os.remove("data/compiled_datapack.lua")
+	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_rebuild"), getLang("ui_setting_actions_rebuild"), "Rebuild", 45, function()
+	
+	local reader = dir("data/cache")
+	
+	for i=1, #reader do 
+		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
+			
+				os.remove('data/cache/'..reader[i].name)
+	
+	
+			
+			
+		end
+	end
+	
+	
  	ImportDataPack()
 	LoadDataPackCache()
-	print("CyberMod : Datapack Cache rebuild")
+	print( getLang("ui_setting_actions_rebuild_done"))
  	
  end)
  
  
  
- 
+	nativeSettings.addTab("/CMCHEAT", getLang("ui_setting_cheat")) -- Add our mods tab (path, label)
 	
+	nativeSettings.addSubcategory("/CMCHEAT/player", getLang("ui_setting_cheat")) -- Optional: Add a subcategory (path, label), you can add as many as you want
+	
+	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_infinite_doublejump"),  getLang("ui_setting_cheat_infinite_doublejump"), InfiniteDoubleJump, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		InfiniteDoubleJump = state
+		updateUserSetting("InfiniteDoubleJump", InfiniteDoubleJump)
+	end)
+	
+	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_disable_fall_damage"),  getLang("ui_setting_cheat_disable_fall_damage"), InfiniteDoubleJump, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		DisableFallDamage = state
+		updateUserSetting("DisableFallDamage", DisableFallDamage)
+	end)
+	
+	nativeSettings.addRangeFloat("/CMCHEAT/player", getLang("ui_setting_cheat_player_sprint"),  getLang("ui_setting_cheat_player_sprint"), 1, 10, 0.1, "%.1f", Player_Sprint_Multiplier, 1, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		pcall(function() 
+		Player_Sprint_Multiplier = tonumber(string.format("%.1f", value))
+		updateUserSetting("Player_Sprint_Multiplier", Player_Sprint_Multiplier)
+		TweakDB:SetFlat("PlayerLocomotion.player_locomotion_data_Sprint_inline1.value", 6.5 * Player_Sprint_Multiplier)
+		TweakDB:Update("PlayerLocomotion.player_locomotion_data_Sprint_inline1.value")
+		
+		-- local newMod = gameConstantStatModifierData.new()
+		-- newMod.statType = 619
+		-- newMod.modifierType = 2
+		-- newMod.value = Player_Sprint_Multiplier
+		
+		-- Game.GetStatsSystem():AddModifier(Game.GetPlayer():GetEntityID(),newmod)
+		
+		end)
+	end)
+	
+	nativeSettings.addRangeFloat("/CMCHEAT/player", getLang("ui_setting_cheat_player_run"),  getLang("ui_setting_cheat_player_run"), 1, 10, 0.1, "%.1f", Player_Run_Multiplier, 1, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		pcall(function() 
+		Player_Run_Multiplier = tonumber(string.format("%.1f", value))
+		updateUserSetting("Player_Run_Multiplier", Player_Run_Multiplier)
+		TweakDB:SetFlat("PlayerLocomotion.player_locomotion_data_Stand_inline1.value", 3.5 * Player_Run_Multiplier)
+		TweakDB:Update("PlayerLocomotion.player_locomotion_data_Stand_inline1.value")
+		
+		-- local newMod = gameConstantStatModifierData.new()
+		-- newMod.statType = 619
+		-- newMod.modifierType = 2
+		-- newMod.value = Player_Run_Multiplier
+		
+		-- Game.GetStatsSystem():AddModifier(Game.GetPlayer():GetEntityID(),newmod)
+		end)
+	end)
 
+	
+	nativeSettings.addRangeFloat("/CMCHEAT/player", getLang("ui_setting_cheat_jump_height"),  getLang("ui_setting_cheat_jump_height"), 1, 10, 0.1, "%.1f", Jump_Height, 1, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		pcall(function() 
+		Jump_Height = tonumber(string.format("%.1f", value))
+		updateUserSetting("Jump_Height", Jump_Height)
+		TweakDB:SetFlat("PlayerLocomotion.JumpJumpHeightModifier.value", 1 * Jump_Height)
+		TweakDB:Update("PlayerLocomotion.JumpJumpHeightModifier.value")
+		
+		-- local newMod = gameConstantStatModifierData.new()
+		-- newMod.statType = 596
+		-- newMod.modifierType = 2
+		-- newMod.value = Jump_Height
+		
+		-- Game.GetStatsSystem():AddModifier(Game.GetPlayer():GetEntityID(),newmod)
+		
+		end)
+	end)
+	
+	nativeSettings.addRangeFloat("/CMCHEAT/player", getLang("ui_setting_cheat_doublejump_height"),  getLang("ui_setting_cheat_doublejump_height"), 1, 10, 0.1, "%.1f", Double_Jump_Height, 1, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		pcall(function() 
+		Double_Jump_Height = tonumber(string.format("%.1f", value))
+		updateUserSetting("Double_Jump_Height", Double_Jump_Height)
+		TweakDB:SetFlat("PlayerLocomotion.DoubleJumpJumpHeightModifier.value", 2.6 * Double_Jump_Height)
+		TweakDB:Update("PlayerLocomotion.DoubleJumpJumpHeightModifier.value")
+		
+		-- local newMod = gameConstantStatModifierData.new()
+		-- newMod.statType = 596
+		-- newMod.modifierType = 2
+		-- newMod.value = Jump_Height
+		
+		-- Game.GetStatsSystem():AddModifier(Game.GetPlayer():GetEntityID(),newmod)
+		end)
+	end)
+
+	
+	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_debug_options"),  getLang("ui_setting_cheat_debug_options"), debugOptions, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		debugOptions = state
+		
+	end)
+	
 	end
 
 
 ---IMGUI UI---
 function newWindows()
 	
-	if not ImGui.Begin("CM menu") then return end
+	if not ImGui.Begin(getLang("ui_menu")) then return end
 	ImGui.SetNextWindowPos(800, 800, ImGuiCond.Appearing) -- set window position x, y
 	ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 	ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
@@ -252,7 +363,7 @@ function newWindows()
 			end
 		end
 		
-		if ImGui.Button(getLang("Online Service"), menuBTNX, menuBTNY) then
+		if ImGui.Button(getLang("ui_menu_online"), menuBTNX, menuBTNY) then
 			openanpage("multi")
 		end
 		ImGui.SameLine()
@@ -347,10 +458,13 @@ function debugWindows()
 		CPS:setThemeEnd()
 		return
 	end
+	
+	
+	
 	CPS.styleBegin("TabRounding", 0)
 	
 	if ImGui.BeginTabItem("Command") then
-		pcall(function()
+		local status, result =  pcall(function()
 			ImGui.TextColored(0.79, 0.40, 0.29, 1, "Enable Console : "..tostring(showLog))
 			if CPS:CPButton("Toggle Console Log") then
 				showLog = not showLog
@@ -473,9 +587,14 @@ function debugWindows()
 					updateFactionScore(k, 0)
 					reloadDB()
 				end
-				for i=1, #currentSave.arrayAffinity do
-					updateFactionScore(currentSave.arrayAffinity[i].Tag, 0)
-					reloadDB()
+				
+				for i=1,#arrayPnjDb do
+					local pnj = arrayPnjDb[i]
+					if(currentSave.Score["Affinity"][pnj.Names] ~= nil) then
+						
+						currentSave.Score["Affinity"][pnj.Names] = nil
+						
+					end
 				end
 			end
 			ImGui.Spacing()
@@ -483,6 +602,8 @@ function debugWindows()
 			if CPS:CPButton("Spawn Ambush") then
 				checkAmbush()
 			end
+			
+			
 			ImGui.Spacing()
 			for i=1, #arrayPhoneNPC do
 				
@@ -546,20 +667,28 @@ function debugWindows()
 				debugPrint(1,testTriggerRequirement(qu.failure_condition_requirement,qu.failure_condition))
 			end
 			ImGui.Spacing()
-			inputkey = ImGui.InputText("Score/Variable Key", inputkey, 100, ImGuiInputTextFlags.AutoSelectAll)
-			ImGui.Spacing()
-			inputscore = ImGui.InputText("Score Tag", inputscore, 100, ImGuiInputTextFlags.AutoSelectAll)
-			ImGui.Text("For the Score :"..inputscore.." for the key "..inputkey.." the value is "..tostring(getScoreKey(inputscore,inputkey)))
-			ImGui.Text("For the Score :"..inputscore.." for the default score the value is "..tostring(getScoreKey(inputscore,"Score")))
-			ImGui.Spacing()
-			inputvariable = ImGui.InputText("Variable Tag", inputvariable, 100, ImGuiInputTextFlags.AutoSelectAll)
-			ImGui.Text("For the Variable :"..inputvariable.." for the key "..inputkey.." the value is "..tostring(getVariableKey(inputvariable,inputkey)))
-		end)
+			-- inputkey = ImGui.InputText("Score/Variable Key", inputkey, 100, ImGuiInputTextFlags.AutoSelectAll)
+			-- ImGui.Spacing()
+			-- inputscore = ImGui.InputText("Score Tag", inputscore, 100, ImGuiInputTextFlags.AutoSelectAll)
+			-- ImGui.Text("For the Score :"..inputscore.." for the key "..inputkey.." the value is "..tonullstring(getScoreKey(inputscore,inputkey)))
+			-- ImGui.Text("For the Score :"..inputscore.." for the default score the value is "..tonullstring(getScoreKey(inputscore,"Score")))
+			-- ImGui.Spacing()
+			-- inputvariable = ImGui.InputText("Variable Tag", inputvariable, 100, ImGuiInputTextFlags.AutoSelectAll)
+			-- ImGui.Text("For the Variable :"..inputvariable.." for the key "..inputkey.." the value is "..tonullstring(getVariableKey(inputvariable,inputkey)))
+		 end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
 	
 	if ImGui.BeginTabItem("Entity Inspector") then
-		
+		local status, result =  pcall(function()
 		if objLook ~= nil then
 			ImGui.Indent()
 			
@@ -599,7 +728,7 @@ function debugWindows()
 			local obj = getEntityFromManagerById(entity:GetEntityID())
 			
 			if obj.id ~= nil then
-				ImGui.Text("This entity has been registered as Entity in CyberMod with tag "..obj.tag)
+				ImGui.Text("This entity has been registered as Entity in CyberScript with tag "..obj.tag)
 				ImGui.Spacing()
 				
 				ImGui.Text("This entity has been registered as AV ?"..tostring(obj.isAV))
@@ -616,6 +745,7 @@ function debugWindows()
 		
 			CNameDraw("GetCurrentAppearanceName", entity:GetCurrentAppearanceName())
 			CNameDraw("GetCurrentContext", entity:GetCurrentContext())
+			CNameDraw("GetDisplayName", entity:GetDisplayName())
 			
 			IGE.DisplayVector4("GetWorldPosition", entity:GetWorldPosition())
 			IGE.ObjectToText("GetWorldOrientation", entity:GetWorldOrientation())
@@ -716,6 +846,16 @@ function debugWindows()
 				
 			
 		end
+		
+		end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
 	
@@ -737,7 +877,8 @@ function debugWindows()
 			CompileCachedThread()
 			ScriptExecutionEngine()
 		end
-		pcall(function()
+		
+		local status, result =  pcall(function()
 			for k,v in pairs(workerTable) do 
 				
 				if ImGui.TreeNode(k) then
@@ -771,16 +912,27 @@ function debugWindows()
 						ImGui.Text("quest : "..tostring(quest))
 					end
 					ImGui.Text("Executor Tag : "..executortag)
+					if(list[index] ~= nil) then
 					ImGui.Text("Current Action : "..list[index].name)
+					end
 					ImGui.TreePop()
 				end
 			end
 		end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
 	
 	if ImGui.BeginTabItem("Dev Playground") then
 		
+		local status, result =  pcall(function()
 		if ImGui.Button("Stance Cover") then
 			changeStance("test",1)
 		end
@@ -805,30 +957,40 @@ function debugWindows()
 			changeStance("test",6)
 		end
 		
+		end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
 	
 	if ImGui.BeginTabItem("Mod Data") then
-		ImGui.Text("Group : "..#questMod.GroupManager)
-		for i=1, #questMod.GroupManager do
+		local status, result =  pcall(function()
+		ImGui.Text("Group : ")
+		for k,v in pairs(questMod.GroupManager) do
 			
-			local group = questMod.GroupManager[i]
+			local group = v
 			ImGui.Text("Tag : "..group.tag)
-			ImGui.Text("Index : "..i)
+
 			ImGui.Text("Entities : "..#group.entities)
 			ImGui.Separator()
 		end
 		ImGui.Separator()
 		ImGui.Text("Entities")
-		for i=1,#questMod.EntityManager do
+		for k,v in pairs(questMod.EntityManager) do
 			
-			local enti = questMod.EntityManager[i]
+			local enti = v
 			ImGui.Text("Tag : "..enti.tag)
-			ImGui.Text("Index : "..i)
+			
 			ImGui.Text("Tweak : "..tostring(enti.tweak))
 			ImGui.Text("NPC : "..tostring(enti.id))
 		end
-		ImGui.Text("Entities")
+		ImGui.Text("Items Spawned")
 		for i=1, #currentItemSpawned do
 			
 			local enti = currentItemSpawned[i]
@@ -837,11 +999,11 @@ function debugWindows()
 			ImGui.Text("Id : "..tostring(enti.entityId))
 		end
 		ImGui.Text("Setting")
-		for i=1, #currentSave.arrayUserSetting do
+		for k,v in pairs(currentSave.arrayUserSetting) do
 			
-			local enti = currentSave.arrayUserSetting[i]
-			ImGui.Text("Tag : "..enti.Tag)
-			ImGui.Text("Value : "..tostring(enti.Value))
+			local enti = v
+			ImGui.Text("Tag : "..k)
+			ImGui.Text("Value : "..tostring(v))
 		end
 		
 		if currentQuest ~= nil then
@@ -860,7 +1022,19 @@ function debugWindows()
 				ImGui.Text("isoptionnal : "..tostring(currentQuest.isoptionnal))
 			end
 		end
-	
+		ImGui.Separator()
+		ImGui.Text("Interact Group : ")
+		if(currentInteractGroup ~= nil and #currentInteractGroup > 0) then
+			for i=1,#currentInteractGroup do
+				ImGui.Text(currentInteractGroup[i])
+			end
+		end
+		
+		if CPS:CPButton("Refresh Interact Group")  then
+			
+			getInteractGroup()
+		end
+		
 		ImGui.Separator()
 		ImGui.Text("possibleInteract : "..#possibleInteract)
 		ImGui.Text("possibleInteractDisplay : "..#possibleInteractDisplay)
@@ -872,11 +1046,30 @@ function debugWindows()
 			sessionFile:write(JSON:encode_pretty(currentSave))
 			sessionFile:close()
 		end
+		
+		
+		if CPS:CPButton("print arrayDatapack data")  then
+			
+			local sessionFile = io.open('arrayDatapack.lua', 'w')
+			sessionFile:write(dump(arrayDatapack))
+			sessionFile:close()
+		end
+		
+		
+	end)
+	
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
 	
 	if ImGui.BeginTabItem("Current Quest") then
-		pcall(function()
+		local status, result = pcall(function()
 			
 			if currentQuest ~= nil then
 				ImGui.Text("title : "..currentQuest.title)
@@ -919,8 +1112,19 @@ function debugWindows()
 				ImGui.Text("No current Quest")
 			end
 		end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
 		ImGui.EndTabItem()
 	end
+	
+	
+	
 	CPS.styleEnd(1)
 	ImGui.EndTabBar()
 	ImGui.End()
@@ -1027,7 +1231,7 @@ end
 
 function SendMessage()
 	
-	if onlineReceiver ~= nil and ImGui.Begin("Send an Message To "..onlineReceiver) then
+	if onlineReceiver ~= nil and ImGui.Begin(getLang("ui_multi_msg_tellto")..onlineReceiver) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
@@ -1039,13 +1243,13 @@ function SendMessage()
 		end
 		onlineMessageContent =  ImGui.InputText("##onlineMessageContent", onlineMessageContent, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		if ImGui.Button("Send") then
+		if ImGui.Button(getLang("ui_multi_msg_send")) then
 			MessageSenderController()
 			onlineMessagePopup = false
 			onlineMessagePopupFirstUse = true
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_msg_close")) then
 			onlineMessagePopup = false
 			onlineMessagePopupFirstUse = true
 		end	
@@ -1054,7 +1258,7 @@ end
 
 function WhisperMessage()
 	
-	if multiName ~= nil and ImGui.Begin("Whisper To "..multiName) then
+	if multiName ~= nil and ImGui.Begin(getLang("ui_multi_msg_talkto")..multiName) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
@@ -1066,7 +1270,7 @@ function WhisperMessage()
 		end
 		onlineMessageContent =  ImGui.InputText("##onlineMessageContent", onlineMessageContent, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		if ImGui.Button("Send") then
+		if ImGui.Button(getLang("ui_multi_msg_send")) then
 			talkTo(multiName, onlineMessageContent)
 			onlineMessageContent = ""
 		end
@@ -1075,7 +1279,7 @@ end
 
 function ShootMessage()
 	
-	if ImGui.Begin("Shoot Message") then
+	if ImGui.Begin(getLang("ui_multi_msg_shooto")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
@@ -1087,13 +1291,13 @@ function ShootMessage()
 		end
 		onlineMessageContent =  ImGui.InputText("##onlineMessageContent", onlineMessageContent, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		if ImGui.Button("Send") then
+		if ImGui.Button(getLang("ui_multi_msg_send")) then
 			ShootTalk(onlineMessageContent)
 			onlineMessageContent = ""
 			onlineShootMessage =  false
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_msg_close")) then
 			
 			onlineMessageContent = ""
 			onlineShootMessage =  false
@@ -1103,12 +1307,12 @@ end
 
 function InstancePassword()
 	
-	if onlineReceiver ~= nil and ImGui.Begin("Set Instance Password") then
+	if onlineReceiver ~= nil and ImGui.Begin(getLang("ui_multi_instance_password")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
-		ImGui.Text("Write the password of the Instance that you try to connect  :")
+		ImGui.Text(getLang("ui_multi_instance_password_msg"))
 		ImGui.SetKeyboardFocusHere()
 		selectedInstancePassword =  ImGui.InputText("##onlineMessageContent", selectedInstancePassword, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
@@ -1120,18 +1324,18 @@ end
 
 function Multi_InstanceCreate()
 	
-	if ImGui.Begin("Instance Creation") then
+	if ImGui.Begin(getLang("ui_multi_instance_password")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
 		
 		
-		CreateInstance.title =  ImGui.InputText("Title", CreateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		CreateInstance.isreadonly =ImGui.Checkbox("Read Only (only the owner can edit and build)", CreateInstance.isreadonly)
-		CreateInstance.nsfw =ImGui.Checkbox("NSFW (Explicit Content)", CreateInstance.nsfw)
+		CreateInstance.title =  ImGui.InputText(getLang("ui_multi_instance_password"), CreateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		CreateInstance.isreadonly =ImGui.Checkbox(getLang("ui_multi_instance_password"), CreateInstance.isreadonly)
+		CreateInstance.nsfw =ImGui.Checkbox(getLang("ui_multi_instance_password"), CreateInstance.nsfw)
 		
-		if ImGui.BeginCombo("Privacy", defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("ui_multi_instance_password"), defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
 			for i,v in ipairs(instancePrivacy) do
 				
 				if ImGui.Selectable(v, (CreateInstance.privacy == i)) then
@@ -1144,16 +1348,16 @@ function Multi_InstanceCreate()
 		end
 		
 		if(CreateInstance.privacy == 2) then
-			CreateInstance.password =  ImGui.InputText("Password", CreateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
+			CreateInstance.password =  ImGui.InputText(getLang("ui_multi_instance_password"), CreateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
 			else
 			CreateInstance.password =  "nothing"
 		end
 		
-		if ImGui.Button("Create") then
+		if ImGui.Button(getLang("ui_multi_instance_password")) then
 			createInstance()
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_instance_password")) then
 			onlineInstanceCreation = false
 		end		
 	end
@@ -1161,18 +1365,18 @@ end
 
 function Multi_InstanceEdit()
 	
-	if ImGui.Begin("Instance Edit") then
+	if ImGui.Begin(getLang("ui_multi_instance_edit")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
 		
 		
-		UpdateInstance.title =  ImGui.InputText("Title", UpdateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		UpdateInstance.readOnly =ImGui.Checkbox("Read Only (only the owner can edit and build)", UpdateInstance.readOnly)
-		UpdateInstance.nsfw =ImGui.Checkbox("NSFW (Explicit Content)", UpdateInstance.nsfw)
+		UpdateInstance.title =  ImGui.InputText(getLang("ui_multi_instance_edit_title"), UpdateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		UpdateInstance.readOnly =ImGui.Checkbox(getLang("ui_multi_instance_edit_isreadonly"), UpdateInstance.readOnly)
+		UpdateInstance.nsfw =ImGui.Checkbox(getLang("ui_multi_instance_edit_nsfw"), UpdateInstance.nsfw)
 		
-		if ImGui.BeginCombo("Privacy", defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("ui_multi_instance_edit_privacy"), defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
 			for i,v in ipairs(instancePrivacy) do
 				
 				if ImGui.Selectable(v, (UpdateInstance.private == i)) then
@@ -1185,16 +1389,16 @@ function Multi_InstanceEdit()
 		end
 		
 		if(UpdateInstance.privacy == 2) then
-			UpdateInstance.password =  ImGui.InputText("Password", UpdateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
+			UpdateInstance.password =  ImGui.InputText(getLang("ui_multi_instance_edit_password"), UpdateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
 			else
 			UpdateInstance.password =  "nothing"
 		end
 		
-		if ImGui.Button("Update") then
+		if ImGui.Button(getLang("ui_multi_instance_edit_valid")) then
 			updateInstance()
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_instance_edit_close")) then
 			onlineInstanceUpdate = false
 		end	
 	end
@@ -1202,7 +1406,7 @@ end
 
 function Multi_InstanceCreatePlace()
 	
-	if ImGui.Begin("Instance Place Creation") then
+	if ImGui.Begin(getLang("ui_multi_instance_place_creation")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowFontScale(1)
@@ -1233,14 +1437,14 @@ function Multi_InstanceCreatePlace()
 			CreateInstancePlace.rent = 0
 			CreateInstancePlace["rooms"] = {}
 		end
-		CreateInstancePlace.name = ImGui.InputText("Name", CreateInstancePlace.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		CreateInstancePlace.tag = ImGui.InputText("Tag", CreateInstancePlace.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		CreateInstancePlace.posX = ImGui.InputFloat("X", CreateInstancePlace.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		CreateInstancePlace.posY = ImGui.InputFloat("Y", CreateInstancePlace.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		CreateInstancePlace.posZ = ImGui.InputFloat("Z", CreateInstancePlace.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.name = ImGui.InputText(getLang("ui_multi_instance_place_creation_name"), CreateInstancePlace.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		CreateInstancePlace.tag = ImGui.InputText(getLang("ui_multi_instance_place_creation_tag"), CreateInstancePlace.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		CreateInstancePlace.posX = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_x"), CreateInstancePlace.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.posY = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_y"), CreateInstancePlace.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.posZ = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_z"), CreateInstancePlace.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		ImGui.Spacing()
 		
-		if ImGui.Button("Copy Player's XYZ", 300, 0) then
+		if ImGui.Button(getLang("ui_multi_instance_place_creation_copy"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			CreateInstancePlace.posX = vec4.x
@@ -1248,21 +1452,21 @@ function Multi_InstanceCreatePlace()
 			CreateInstancePlace.posZ = vec4.z
 		end
 		ImGui.Spacing()
-		CreateInstancePlace.range = ImGui.InputFloat("Area (range)", CreateInstancePlace.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		CreateInstancePlace.Zrange = ImGui.InputFloat("Z area (vertical range)", CreateInstancePlace.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		CreateInstancePlace.SpawnRange = ImGui.InputFloat("Spawn Area (spawn range)", CreateInstancePlace.SpawnRange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.range = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_range"), CreateInstancePlace.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.Zrange = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_zrange"), CreateInstancePlace.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		CreateInstancePlace.SpawnRange = ImGui.InputFloat(getLang("ui_multi_instance_place_creation_spawnrange"), CreateInstancePlace.SpawnRange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
 		if(CreateInstancePlace.tag ~= "" or CreateInstancePlace.tag ~= nil) then
 			
-			if ImGui.Button("Save") then
+			if ImGui.Button(getLang("ui_multi_instance_place_creation_save")) then
 				createInstancePlace()
 				onlineInstancePlaceCreation = false
 			end
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("ui_multi_instance_place_creation_msg"))
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_instance_place_creation_close")) then
 			onlineInstancePlaceCreation = false
 		end
 	end
@@ -1275,7 +1479,7 @@ function Multi_EditItemsWindows()
 	ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 8)
 	ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 8, 7)
 	
-	if ImGui.Begin("Edit Items Position") then
+	if ImGui.Begin(getLang("ui_multi_instance_place_items")) then
 		posstep =  ImGui.DragFloat("##post", posstep, 0.1, 0.1, 10, "%.3f Position Step")
 		rotstep =  ImGui.DragFloat("##rost", rotstep, 0.1, 0.1, 10, "%.3f Rotation Step")
 		selectedItemMulti.X,change =  ImGui.DragFloat("##x", selectedItemMulti.X, posstep, -9999, 9999, "%.3f X")
@@ -1333,7 +1537,7 @@ function Multi_EditItemsWindows()
 			updateItemPositionMulti(selectedItemMulti, poss, angless, true)
 		end
 		
-		if ImGui.Button("Copy Player's XYZ", 300, 0) then
+		if ImGui.Button(getLang("ui_multi_instance_place_creation_copy"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			selectedItemMulti.X = vec4.x
@@ -1348,7 +1552,7 @@ function Multi_EditItemsWindows()
 		
 		if(selectedItemMulti.Tag ~= nil) then
 			
-			if ImGui.Button("Delete", 300, 0) then
+			if ImGui.Button(getLang("ui_menu_delete"), 300, 0) then
 				
 				if selectedItemMulti ~= nil then
 					
@@ -1375,13 +1579,13 @@ function Multi_EditItemsWindows()
 				openEditItemsMulti = false
 			end
 			
-			if ImGui.Button("Update to server and close", 300, 0) then
+			if ImGui.Button(getLang("ui_multi_instance_edit_valid"), 300, 0) then
 				UpdateItem(selectedItemMulti.Tag, selectedItemMulti.X, selectedItemMulti.Y, selectedItemMulti.Z, selectedItemMulti.Roll, selectedItemMulti.Pitch ,selectedItemMulti.Yaw )
 				selectedItemMultiBackup = selectedItemMulti
 				openEditItemsMulti = false
 			end
 			
-			if ImGui.Button("Cancel and close", 300, 0) then
+			if ImGui.Button(getLang("ui_multi_instance_edit_close"), 300, 0) then
 				
 				local poss = Vector4.new( selectedItemMultiBackup.X, selectedItemMultiBackup.Y,  selectedItemMultiBackup.Z,1)
 				
@@ -1398,17 +1602,17 @@ end
 
 function Multi_GuildCreate()
 	
-	if ImGui.Begin("Guild Creation") then
+	if ImGui.Begin(getLang("ui_multi_instance_guild_create")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
 		
 		
-		CreateGuild.Title =  ImGui.InputText("Title", CreateGuild.Title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		CreateGuild.Title =  ImGui.InputText(getLang("ui_multi_instance_create_title"), CreateGuild.Title, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
-		if ImGui.BeginCombo("Faction", defaultfaction) then
+		if ImGui.BeginCombo(getLang("ui_multi_instance_guild_faction"), defaultfaction) then
 			
 			
 			for k,v in pairs(arrayFaction) do
@@ -1428,11 +1632,11 @@ function Multi_GuildCreate()
 		
 		
 		
-		if ImGui.Button("Create") then
+		if ImGui.Button(getLang("ui_multi_instance_create_valid")) then
 			createGuild()
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_instance_create_close")) then
 			onlineGuildCreation = false
 		end		
 	end
@@ -1440,17 +1644,17 @@ end
 
 function Multi_GuildEdit()
 	
-	if ImGui.Begin("Guild Update") then
+	if ImGui.Begin(getLang("ui_multi_instance_guild_update")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
 		
 		
-		UpdateGuild.Title =  ImGui.InputText("Title", UpdateGuild.Title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		UpdateGuild.Description =  ImGui.InputText("Description", UpdateGuild.Description, 100, ImGuiInputTextFlags.AutoSelectAll)
+		UpdateGuild.Title =  ImGui.InputText(getLang("ui_multi_instance_create_title"), UpdateGuild.Title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		UpdateGuild.Description =  ImGui.InputText(getLang("ui_multi_instance_guild_update_desc"), UpdateGuild.Description, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		if ImGui.BeginCombo("Faction", defaultfaction) then
+		if ImGui.BeginCombo(getLang("ui_multi_instance_guild_faction"), defaultfaction) then
 			
 			
 			for k,v in pairs(arrayFaction) do
@@ -1470,11 +1674,11 @@ function Multi_GuildEdit()
 		
 		
 		
-		if ImGui.Button("Update") then
+		if ImGui.Button(getLang("ui_multi_instance_edit_valid")) then
 			updateGuild()
 		end
 		
-		if ImGui.Button("Close") then
+		if ImGui.Button(getLang("ui_multi_instance_edit_close")) then
 			onlineGuildCreation = false
 		end		
 	end
@@ -1823,7 +2027,7 @@ function BuyedItemsUI()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Place Buyed Items"
+	ui.title = getLang("ui_buyed_items")
 	ui.tag = "buyed_items_ui"
 	ui.controls = {}
 	
@@ -1930,7 +2134,7 @@ function BuyedItemsUIMulti()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Place Buyed Items (Multi)"
+	ui.title = getLang("ui_multi_buyed_items")
 	ui.tag = "buyed_items_ui_multi"
 	ui.controls = {}
 	
@@ -2037,7 +2241,7 @@ function ActivatedGroup()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose current datapack Interaction"
+	ui.title = getLang("ui_datapack_choice")
 	ui.tag = "datapack_current"
 	ui.controls = {}
 	
@@ -2155,7 +2359,7 @@ function PlacedItemsUI()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Manage Placed Items"
+	ui.title = getLang("ui_manage_placed_item")
 	ui.tag = "placed_items_ui"
 	ui.controls = {}
 	
@@ -2306,7 +2510,7 @@ function PlacedItemsUIMulti()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Manage Placed Items (Multi)"
+	ui.title =  getLang("ui_multi_manage_placed_item")
 	ui.tag = "placed_items_ui_multi"
 	ui.controls = {}
 	
@@ -2459,7 +2663,7 @@ function Keystone_Load()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "CyberMod Loading"
+	ui.title = getLang("ui_keystone_loading")
 	ui.tag = "keystone_load"
 	ui.controls = {}
 	
@@ -2508,20 +2712,50 @@ function Keystone_Load()
 		table.insert( actif.if_action,act)
 		
 		local act = {}
-		act.name = "fetch_data"
-		table.insert( actif.if_action,act)
-		act = {}
-		act.name = "change_interface_label_text"
-		act.tag = "processing"
-		act.value = "Get Data  (3 seconds remaning)"
-		table.insert( actif.if_action,act)
-		act = {}
-		act.name = "wait_for_framework" 
-		table.insert( actif.if_action,act)
-		act = {}
+		
+		if(fetcheddata ~= nil) then
+		
+			local timestamp = (fetcheddata.updatetime+5)-fetcheddata.updatetime
+			
+			if(timestamp>5) then
+			
+				act.name = "fetch_data"
+				table.insert( actif.if_action,act)
+				
+				act = {}
+				act.name = "change_interface_label_text"
+				act.tag = "processing"
+				act.value = "Get Data  (3 seconds remaning)"
+				table.insert( actif.if_action,act)
+				
+				act = {}
+				act.name = "wait_for_framework" 
+				table.insert( actif.if_action,act)
+				
+				act = {}
+			end
+			else
+			act.name = "fetch_data"
+				table.insert( actif.if_action,act)
+				
+				act = {}
+				act.name = "change_interface_label_text"
+				act.tag = "processing"
+				act.value = "Get Data  (3 seconds remaning)"
+				table.insert( actif.if_action,act)
+				
+				act = {}
+				act.name = "wait_for_framework" 
+				table.insert( actif.if_action,act)
+				
+				act = {}
+			
+		end
+		
 		act.name = "wait_second"
-		act.value = 3
+		act.value = 1
 		table.insert( actif.if_action,act)
+		
 		act = {}
 		act.name = "close_interface"
 		table.insert( actif.if_action,act)
@@ -2551,13 +2785,13 @@ function Keystone_Warning()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "CyberMod Update"
+	ui.title = getLang("ui_keystone_update_title")
 	ui.tag = "keystone_warning"
 	ui.controls = {}
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_update_msg")
 	buttons.tag =	"keystone_upd_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -2602,7 +2836,7 @@ function Keystone_Warning()
 	table.insert(label.requirement,requirement)
 	label.value = {}
 	label.value.type = "text"
-	label.value.value =  "!!! Save your game before update !!!\n (backup your files is good too :P )"
+	label.value.value =  getLang("ui_multi_manage_placed_item")
 	table.insert(ui.controls,label)
 	
 	local area = {}
@@ -2715,13 +2949,13 @@ function Keystone_Changelog()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "CyberMod Changelog"
+	ui.title = getLang("ui_keystone_changelog_title")
 	ui.tag = "keystone_changleog"
 	ui.controls = {}
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_upd_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -2828,7 +3062,7 @@ function Keystone_Main()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "CyberMod"
+	ui.title = getLang("ui_keystone_main_title")
 	ui.tag = "keystone_main"
 	ui.controls = {}
 	
@@ -2849,7 +3083,7 @@ function Keystone_Main()
 	table.insert(label.requirement,requirement)
 	label.value = {}
 	label.value.type = "text"
-	label.value.value =  "CyberMod : local version :"..questMod.version.." Server version :"..CurrentServerModVersion.version
+	label.value.value =  "CyberScript : local version :"..questMod.version.." Server version :"..CurrentServerModVersion.version
 	table.insert(ui.controls,label)
 	
 	local area = {}
@@ -2899,7 +3133,7 @@ function Keystone_Main()
 			
 			local buttons = {}
 			buttons.type = "button"
-			buttons.title = "New version available, Click here for Update CyberMod !"
+			buttons.title = getLang("ui_keystone_main_update_available")
 			buttons.tag =	"keystone_main_btn_00"
 			buttons.trigger = {}
 			buttons.trigger.auto = {}
@@ -2928,7 +3162,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Datapacks"
+		buttons.title = getLang("ui_keystone_main_datapack")
 		buttons.tag =	"keystone_main_btn_01"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -2956,7 +3190,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Downloaded Datapacks"
+		buttons.title = getLang("ui_keystone_main_downloaded_datapack")
 		buttons.tag =	"keystone_main_btn_mydatapack"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -2984,7 +3218,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Corpo Wars Network"
+		buttons.title = getLang("ui_keystone_main_corpowars")
 		buttons.tag =	"keystone_main_btn_02"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3005,18 +3239,8 @@ function Keystone_Main()
 		local close_action = {}
 		close_action.name = "change_interface_label_text"
 		close_action.tag = "loadinglb"
-		close_action.value = "LOADING...(5 second remaning)"
+		close_action.value = "Fetching data..."
 		table.insert(buttons.action,close_action)
-		close_action = {}
-		close_action.name = "refresh_market" 
-		table.insert(buttons.action,close_action)
-		close_action = {}
-		close_action.name = "wait_for_framework" 
-		table.insert(buttons.action,action)
-		close_action.name = "wait_second"
-		close_action.value = 2
-		table.insert(buttons.action,close_action)
-		close_action = {}
 		close_action.name = "close_interface" 
 		table.insert(buttons.action,close_action)
 		close_action = {}
@@ -3026,7 +3250,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Stock Market"
+		buttons.title = getLang("ui_keystone_main_stocks")
 		buttons.tag =	"keystone_main_btn_03"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3047,7 +3271,7 @@ function Keystone_Main()
 		local close_action = {}
 		close_action.name = "change_interface_label_text"
 		close_action.tag = "loadinglb"
-		close_action.value = "LOADING...(2 second remaning)"
+		close_action.value = "Fetching data..."
 		table.insert(buttons.action,close_action)
 		close_action = {}
 		close_action.name = "refresh_market" 
@@ -3057,7 +3281,7 @@ function Keystone_Main()
 		table.insert(buttons.action,action)
 		close_action = {}
 		close_action.name = "wait_second"
-		close_action.value = 5
+		close_action.value = 1
 		table.insert(buttons.action,close_action)
 		close_action = {}
 		close_action.name = "close_interface" 
@@ -3069,7 +3293,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Item market"
+		buttons.title = getLang("ui_keystone_main_items")
 		buttons.tag =	"keystone_main_btn_04"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3090,14 +3314,17 @@ function Keystone_Main()
 		local close_action = {}
 		close_action.name = "change_interface_label_text"
 		close_action.tag = "loadinglb"
-		close_action.value = "LOADING...(5 second remaning)"
+		close_action.value = "Fetching data..."
 		table.insert(buttons.action,close_action)
 		close_action = {}
 		close_action.name = "get_itemlist" 
 		table.insert(buttons.action,close_action)
 		close_action = {}
+		close_action.name = "wait_for_framework" 
+		table.insert(buttons.action,action)
+		close_action = {}
 		close_action.name = "wait_second" 
-		close_action.value =  5
+		close_action.value =  1
 		table.insert(buttons.action,close_action)
 		close_action = {}
 		close_action.name = "close_interface" 
@@ -3109,7 +3336,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Multi Info"
+		buttons.title = getLang("ui_keystone_main_multiinfos")
 		buttons.tag =	"keystone_main_btn_05"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3137,7 +3364,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "CyberMod Changelog"
+		buttons.title = getLang("ui_keystone_main_changelog")
 		buttons.tag =	"keystone_main_btn_06"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3166,7 +3393,7 @@ function Keystone_Main()
 		
 		local buttons = {}
 		buttons.type = "button"
-		buttons.title = "Error, close and retry"
+		buttons.title = getLang("ui_keystone_main_error")
 		buttons.tag =	"keystone_main_btn_01"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -3192,20 +3419,26 @@ function Keystone_Main()
 	
 	local action = {}
 	
-	local act = {}
 	
+	
+	local act = {}
+	act.name = "fetch_data"
+	table.insert( action,act)
+	act = {}
+	act.name = "wait_for_framework" 
+	table.insert(action,act)
 	act = {}
 	act.name = "wait_second"
-	act.value = 2
-	table.insert(action,act)
+	act.value = 1
+	table.insert( action,act)
 	act = {}
-	act.name = "get_modversion"
-	table.insert(action,act)
+	act.name = "close_interface"
+	table.insert( action,act)
 	act = {}
-	act.name = "wait_second"
-	act.value = 2
-	table.insert(action,act)
-	RefreshButton("Search for Update","nothing","open_keystone_main",ui,4,action)
+	act.name = "open_keystone_main"
+	table.insert( action,act)	
+	
+	RefreshButton("Fetching Data...","nothing","open_keystone_main",ui,4,action)
 	currentInterface = ui
 	
 	if UIPopupsManager.IsReady() then
@@ -3235,13 +3468,13 @@ function Keystone_corpoWars()
 			descc = descc.."\n"..corpoNews[i]
 		end
 	end
-	ui.title = "Corpo Wars Network"
+	ui.title = getLang("ui_keystone_corpo_title")
 	ui.tag = "keystone_corpo"
 	ui.controls = {}
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3334,16 +3567,10 @@ function Keystone_corpoWars()
 	local actionlist = {}
 	
 	local action = {}
-	action.name = "refresh_market"
-	table.insert(actionlist,action)
-	action = {}
-	action.name = "wait_for_framework"
-	table.insert(actionlist,action)
-	action = {}
 	action.name = "wait_second"
-	action.value = 2
+	action.value = 1
 	table.insert(actionlist,action)
-	RefreshButton("Refresh","refresh_news","open_keystone_corpowars",ui, 3,actionlist)
+	RefreshButton(getLang("ui_keystone_refresh"),"refresh_news","open_keystone_corpowars",ui, 3,actionlist)
 	currentInterface = ui
 	
 	if UIPopupsManager.IsReady() then
@@ -3364,17 +3591,17 @@ function Keystone_MultiInfo()
 	
 	local ui = {}
 	
-	local descc = "Connected to CyberMod Service: "..tostring(multiEnabled)
-	descc = descc.."\n".."Multiplayer enabled :"..tostring(multiReady)
-	descc = descc.."\n".."Your Corpo :"..tostring(currentFaction.."(Rank : "..currentFactionRank.." )")
-	descc = descc.."\n".."Cannot be changed on your own, contact an admin for ask an change."
-	ui.title = "Multiplayer Info"
+	local descc = getLang("ui_keystone_multiinfos_msg01")..tostring(NetServiceOn)
+	descc = descc.."\n"..getLang("ui_keystone_multiinfos_msg02")..tostring(MultiplayerOn)
+	descc = descc.."\n"..getLang("ui_keystone_multiinfos_msg03")..tostring(currentFaction.."("..getLang("ui_keystone_multiinfos_msg04")..currentFactionRank.." )")
+	descc = descc.."\n"..getLang("ui_keystone_multiinfos_msg05")
+	ui.title = getLang("ui_keystone_multiinfos_title")
 	ui.tag = "keystone_multi"
 	ui.controls = {}
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3482,7 +3709,7 @@ function Keystone_stock()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Stock Market"
+	ui.title = getLang("ui_keystone_stocks_title")
 	ui.tag = "keystone_stock"
 	ui.controls = {}
 	
@@ -3508,7 +3735,7 @@ function Keystone_stock()
 	label.value.type = "text"
 	
 	local money = Game.GetTransactionSystem():GetItemQuantity(Game.GetPlayer(), ItemID.new(TweakDBID.new("Items.money")))
-	label.value.value = "Your Money : "..money
+	label.value.value = getLang("ui_keystone_stocks_msg01")..money
 	table.insert(ui.controls,label)
 	
 	local label = {}
@@ -3557,7 +3784,7 @@ function Keystone_stock()
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3664,10 +3891,10 @@ function Keystone_stock()
 				table.insert(buttons.onenter_action,close_action)
 				
 				local descc = score.title
-				descc= descc.."\n".."Price : "..score.price.."\n".."Inflate : "..score.inflate.."\n".."Quantity : "..score.quantity
+				descc= descc.."\n"..getLang("ui_keystone_stocks_msg02")..score.price.."\n"..getLang("ui_keystone_stocks_msg03")..score.inflate.."\n"..getLang("ui_keystone_stocks_msg04")..score.quantity
 				
 				if(score.userQuantity ~= nil and score.statut ~= 0) then
-					descc = descc.."\n".."Buyed Quantity : "..score.userQuantity
+					descc = descc.."\n"..getLang("ui_keystone_stocks_msg05")..score.userQuantity
 				end
 				close_action = {}
 				close_action.name = "change_interface_label_text" 
@@ -3681,7 +3908,7 @@ function Keystone_stock()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Buy"
+	buttons.title = getLang("ui_keystone_stocks_buy")
 	buttons.tag =	"keystone_stock_btn_buy"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3705,34 +3932,43 @@ function Keystone_stock()
 	action.tag = "loadinglb"
 	action.value = "LOADING..."
 	table.insert(buttons.action,action)
+	
 	action = {}
 	action.name = "buy_score" 
 	table.insert(buttons.action,action)
-	action = {}
-	action.name = "remove_money" 
 	
-	local price = 0
-	
-	if CurrentStock ~= nil and CurrentStock.price ~= nil and checkStackableItemAmount("Items.money",CurrentStock.price) then price = CurrentStock.price end
-	action.value = price
-	table.insert(buttons.action,action)
 	action = {}
 	action.name = "wait_for_framework" 
 	table.insert(buttons.action,action)
+	
 	action = {}
 	action.name = "wait_second" 
 	action.value = 1
 	table.insert(buttons.action,action)
+	
+	action = {}
+	action.name = "remove_money_current_stock" 
+	table.insert(buttons.action,action)
+	
+	action = {}
+	action.name = "clean_current_stock" 
+	table.insert(buttons.action,action)
+	
+	
 	action = {}
 	action.name = "close_interface" 
 	table.insert(buttons.action,action)
+	
 	action = {}
 	action.name = "open_keystone_stock"
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
-	buttons= {}
+	
+	
+	
+	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Sell"
+	buttons.title = getLang("ui_keystone_stocks_sell")
 	buttons.tag =	"keystone_stock_btn_sell"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3756,33 +3992,49 @@ function Keystone_stock()
 	action.tag = "loadinglb"
 	action.value = "LOADING..."
 	table.insert(buttons.action,action)
+	
+
+	
+	
 	action = {}
 	action.name = "sell_score" 
 	table.insert(buttons.action,action)
 	
-	local action = {}
-	action.name = "give_money" 
 	
-	local price = 0
 	
-	if CurrentStock ~= nil and CurrentStock.price ~= nil and CurrentStock.userQuantity ~= nil and CurrentStock.statut ~= 0 and CurrentStock.userQuantity ~= nil and CurrentStock.userQuantity > 0 then price = CurrentStock.price end
-	action.value = price
-	table.insert(buttons.action,action)
+
+	
 	action = {}
 	action.name = "wait_for_framework" 
 	table.insert(buttons.action,action)
+	
+	
+	
 	action = {}
 	action.name = "wait_second" 
 	action.value = 1
 	table.insert(buttons.action,action)
+	
+	action = {}
+	action.name = "give_money_current_stock" 
+	table.insert(buttons.action,action)
+	
+	action = {}
+	action.name = "clean_current_stock" 
+	table.insert(buttons.action,action)
+	
 	action = {}
 	action.name = "close_interface" 
 	table.insert(buttons.action,action)
+	
 	action = {}
 	action.name = "open_keystone_stock"
 	table.insert(buttons.action,action)
+	
 	table.insert(ui.controls,buttons)
-	RefreshButton("Refresh","refresh_market","open_keystone_stock",ui)
+	
+	
+	RefreshButton(getLang("ui_keystone_refresh"),"refresh_market","open_keystone_stock",ui)
 	
 	if(#arrayMarket > 0 ) then
 		currentInterface = ui
@@ -3805,13 +4057,13 @@ function Keystone_item_category()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an Item Category"
+	ui.title = getLang("ui_keystone_items_category_title")
 	ui.tag = "keystone_item_cateogry"
 	ui.controls = {}
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -3935,7 +4187,7 @@ function Keystone_item()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Item Market"
+	ui.title = getLang("ui_keystone_items_title")
 	ui.tag = "keystone_item"
 	ui.controls = {}
 	
@@ -3961,7 +4213,7 @@ function Keystone_item()
 	label.value.type = "text"
 	
 	local money = Game.GetTransactionSystem():GetItemQuantity(Game.GetPlayer(), ItemID.new(TweakDBID.new("Items.money")))
-	label.value.value = "Your Money : "..money
+	label.value.value = getLang("ui_keystone_items_msg01")..money
 	table.insert(ui.controls,label)
 	label = {}
 	label.type = "label"
@@ -4002,7 +4254,7 @@ function Keystone_item()
 	table.insert(label.requirement,requirement)
 	label.value = {}
 	label.value.type = "text"
-	label.value.value = "Cart Total : "..CartPrice
+	label.value.value = getLang("ui_keystone_items_msg02")..CartPrice
 	table.insert(ui.controls,label)
 	label = {}
 	label.type = "label"
@@ -4026,7 +4278,7 @@ function Keystone_item()
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Categories"
+	buttons.title = getLang("ui_keystone_items_backcat")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -4151,15 +4403,17 @@ function Keystone_item()
 						table.insert(buttons.onenter_action,close_action)
 						
 						local descc = items.Title
-						descc= descc.."\n".."Category : "..items.parentCategory.."\n".."Sub Category : "..items.childCategory.."\n".."Flag : "..items.flag
-						descc = descc.."\n".."Price : "..items.Price
-						descc = descc.."\n".."Inflate : "..items.Inflate
-						descc = descc.."\n".."Quantity : "..items.Quantity
+						descc= descc.."\n"..getLang("ui_keystone_items_msg03")..items.parentCategory
+						descc= descc.."\n"..getLang("ui_keystone_items_msg04")..items.childCategory
+						descc= descc.."\n"..getLang("ui_keystone_items_msg05")..items.flag
+						descc= descc.."\n"..getLang("ui_keystone_items_msg06")..items.Price
+						descc= descc.."\n"..getLang("ui_keystone_items_msg07")..items.Inflate
+						descc= descc.."\n"..getLang("ui_keystone_items_msg08")..items.Quantity
 						
 						local playerItems = getPlayerItemsbyTag(items.Tag)
 						
 						if(playerItems ~= nil) then
-							descc = descc.."\n".."Buyed Quantity : "..playerItems.Quantity
+							descc = descc.."\n"..getLang("ui_keystone_items_msg09")..playerItems.Quantity
 						end
 						close_action = {}
 						close_action.name = "change_interface_label_text" 
@@ -4175,7 +4429,7 @@ function Keystone_item()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Add to Cart"
+	buttons.title = getLang("ui_keystone_items_msg10")
 	buttons.tag =	"keystone_item_btn_addcart"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -4202,9 +4456,11 @@ function Keystone_item()
 	action.tag = "keystone_item_cart"
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
+	
+	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Remove from Cart"
+	buttons.title = getLang("ui_keystone_items_msg11")
 	buttons.tag =	"keystone_item_btn_addcart"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -4271,7 +4527,7 @@ function Keystone_item()
 	action.name = "open_keystone_item" 
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
-	RefreshButton("Refresh","refresh_item_market","open_keystone_item",ui)
+	RefreshButton(getLang("ui_keystone_refresh"),"refresh_item_market","open_keystone_item",ui)
 	currentInterface = ui
 	
 	if UIPopupsManager.IsReady() then
@@ -4366,11 +4622,14 @@ function RefreshButton(title,action,redirectui, ui, count,actionlist)
 	table.insert(ui.controls,buttons)
 end
 
+
+
+
 function Keystone_Datapack()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Datapacks"
+	ui.title = getLang("ui_keystone_datapack")
 	ui.tag = "keystone_datapack"
 	ui.controls = {}
 	
@@ -4392,7 +4651,7 @@ function Keystone_Datapack()
 	table.insert(label.requirement,requirement)
 	label.value = {}
 	label.value.type = "text"
-	label.value.value = "Hover an datapack for description, click on it to manage datapack"
+	label.value.value = getLang("ui_keystone_datapack_msg01")
 	table.insert(ui.controls,label)
 	
 	local label = {}
@@ -4421,7 +4680,7 @@ function Keystone_Datapack()
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -4539,30 +4798,33 @@ function Keystone_Datapack()
 			for y=1,#desctab do
 				descc = descc.."\n"..desctab[y]
 			end
-			descc= descc.."\n".."Author : "..datapack.author.."\n".."Version : "..datapack.version
+			descc= descc.."\n"..getLang("ui_keystone_datapack_msg02")..datapack.author.."\n"..getLang("ui_keystone_datapack_msg03")..datapack.version
 			
 			if(isDatapackDownloaded(datapack.tag)) then
 				
 				local 
 				localversion = CurrentDownloadedVersion(datapack.tag)
-				descc = descc.."\n".."Downloaded version : "..localversion
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg04")..localversion
 				
-				if(checkVersionNumber(localversion,datapack.version) == true) then
-				descc = descc.."\n".."!!! UPDATE IS AVAILABLE !!!"
-				buttons.title = datapack.name.." (Update Available)"
+				print(localversion)
+				print(datapack.version)
+				
+				if(localversion~=datapack.version and checkVersionNumber(localversion,datapack.version) == true) then
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg05")
+				buttons.title = datapack.name..getLang("ui_keystone_datapack_msg06")
 				end
 			end
 			
 			if(datapack.requirement ~= nil) then
-				descc = descc.."\n".."Require IRP version : "..datapack.requirement
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg07")..datapack.requirement
 			end
 			
 			
 			
 			
-			if(#datapack.flags > 0)then
+			if(datapack.flags ~= nil and #datapack.flags > 0)then
 			
-				descc = descc.."\n".."Flags : "
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg08")
 			
 				for i,v in ipairs(datapack.flags) do
 				
@@ -4574,7 +4836,7 @@ function Keystone_Datapack()
 			
 			
 			if(datapack.faction ~= nil) then
-				descc = descc.."\n".."Exclusive to your faction !"
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg09")
 			end
 			close_action = {}
 			close_action.name = "change_interface_label_text" 
@@ -4584,7 +4846,7 @@ function Keystone_Datapack()
 			table.insert(ui.controls,buttons)
 		end
 	end
-	RefreshButton("Refresh","get_datapacklist","open_keystone_datapack_main",ui)
+	RefreshButton(getLang("ui_keystone_refresh"),"get_datapacklist","open_keystone_datapack_main",ui)
 	
 	if(#arrayDatapack3 > 0 ) then
 		
@@ -4608,7 +4870,7 @@ function Keystone_myDatapack()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Downloaded Datapacks"
+	ui.title = getLang("ui_keystone_mydatapack")
 	ui.tag = "keystone_mydatapack"
 	ui.controls = {}
 	
@@ -4630,7 +4892,7 @@ function Keystone_myDatapack()
 	table.insert(label.requirement,requirement)
 	label.value = {}
 	label.value.type = "text"
-	label.value.value = "Hover an datapack for description, click on it to manage datapack"
+	label.value.value = getLang("ui_keystone_datapack_msg01")
 	table.insert(ui.controls,label)
 	
 	local label = {}
@@ -4659,7 +4921,7 @@ function Keystone_myDatapack()
 	
 	local buttons = {}
 	buttons.type = "button"
-	buttons.title = "Back to Menu"
+	buttons.title = getLang("ui_keystone_backmenu")
 	buttons.tag =	"keystone_main_btn_01"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -4728,15 +4990,15 @@ function Keystone_myDatapack()
 	table.insert(ui.controls,area)
 	
 	local count = 15
-	for i = 1,#arrayDatapack3  do
+	for k,v in pairs(arrayDatapack)  do
 		
-		local datapack = arrayDatapack3[i]
-		
-		if(isDatapackDownloaded(datapack.tag)) then
+		local datapack = v
+			
+		if('table' == type(v)) then
 			buttons = {}
 			buttons.type = "button"
-			buttons.title = datapack.name
-			buttons.tag =	datapack.tag
+			buttons.title = datapack.metadata.name
+			buttons.tag =	datapack.metadata.tag
 			buttons.trigger = {}
 			buttons.trigger.auto = {}
 			buttons.trigger.auto.name = "auto"
@@ -4762,7 +5024,7 @@ function Keystone_myDatapack()
 			table.insert(buttons.action,close_action)
 			close_action = {}
 			close_action.name = "set_selected_keystone_datapack" 
-			close_action.value = arrayDatapack3[i]
+			close_action.value = v.metadata
 			table.insert(buttons.action,close_action)
 			close_action = {}
 			close_action.name = "open_datapack_detail_ui" 
@@ -4771,35 +5033,53 @@ function Keystone_myDatapack()
 			
 			local descc = ""
 			
-			local desctab = splitByChunk(datapack.desc, 50)
+			local desctab = splitByChunk(datapack.metadata.desc, 50)
 			
 			local resultstr = ""
 			for y=1,#desctab do
 				descc = descc.."\n"..desctab[y]
 			end
-			descc= descc.."\n".."Author : "..datapack.author.."\n".."Version : "..datapack.version
+			
+			local serverversion = 0
+				
+			serverversion = GetDatapackOnlineVersion(datapack.metadata.tag)
+			descc= descc.."\n"..getLang("ui_keystone_datapack_msg02")..datapack.metadata.author.."\n"..getLang("ui_keystone_datapack_msg03")..serverversion
 			
 			
 				
-				local 
-				localversion = CurrentDownloadedVersion(datapack.tag)
-				descc = descc.."\n".."Downloaded version : "..localversion
+				local localversion = datapack.metadata.version
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg04")..localversion
 				
-				if(checkVersionNumber(localversion,datapack.version) == true) then
-				descc = descc.."\n".."!!! UPDATE IS AVAILABLE !!!"
-				buttons.title = datapack.name.." (Update Available)"
+				
+				
+				
+			
+				
+				
+				if(serverversion == 0) then
+				
+					serverversion = localversion
+					descc = descc.."\n"..getLang("ui_keystone_datapack_msg10")
 				end
+				
+				
+				if(localversion~=serverversion and checkVersionNumber(localversion,serverversion) == true) then
+					descc = descc.."\n"..getLang("ui_keystone_datapack_msg05")
+					buttons.title = datapack.metadata.name..getLang("ui_keystone_datapack_msg06")
+				end
+				
+				
 			
 			
 			if(datapack.requirement ~= nil) then
-				descc = descc.."\n".."Require IRP version : "..datapack.requirement
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg07")..datapack.metadata.requirement
 			end
 			
-			if(#datapack.flags > 0)then
+			if(datapack.metadata.flags ~= nil and #datapack.metadata.flags > 0)then
 			
-				descc = descc.."\n".."Flags : "
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg08")
 			
-				for i,v in ipairs(datapack.flags) do
+				for i,v in ipairs(datapack.metadata.flags) do
 				
 				descc = descc.."\n"..v
 				
@@ -4807,8 +5087,8 @@ function Keystone_myDatapack()
 			
 			end
 			
-			if(datapack.faction ~= nil) then
-				descc = descc.."\n".."Exclusive to your faction !"
+			if(datapack.metadata.faction ~= nil) then
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg09")
 			end
 			close_action = {}
 			close_action.name = "change_interface_label_text" 
@@ -4816,26 +5096,26 @@ function Keystone_myDatapack()
 			close_action.value = descc
 			table.insert(buttons.onenter_action,close_action)
 			table.insert(ui.controls,buttons)
-		end
+			end
 	end
-	RefreshButton("Refresh","get_datapacklist","open_keystone_datapack_mine",ui)
+	RefreshButton(getLang("ui_keystone_refresh"),"get_datapacklist","open_keystone_datapack_mine",ui)
 	
-	if(#arrayDatapack3 > 0 ) then
+	
 		
-		currentInterface = ui
+	currentInterface = ui
+	
+	if UIPopupsManager.IsReady() then
 		
-		if UIPopupsManager.IsReady() then
-			
-			local notificationData = inkGameNotificationData.new()
-			notificationData.notificationName = 'base\\gameplay\\gui\\widgets\\notifications\\shard_notification.inkwidget'
-			notificationData.queueName = 'modal_popup'
-			notificationData.isBlocking = true
-			notificationData.useCursor = true
-			UIPopupsManager.ShowPopup(notificationData)
-			else
-			Game.GetPlayer():SetWarningMessage("Open and close Main menu before call an popup.")
-		end
+		local notificationData = inkGameNotificationData.new()
+		notificationData.notificationName = 'base\\gameplay\\gui\\widgets\\notifications\\shard_notification.inkwidget'
+		notificationData.queueName = 'modal_popup'
+		notificationData.isBlocking = true
+		notificationData.useCursor = true
+		UIPopupsManager.ShowPopup(notificationData)
+		else
+		Game.GetPlayer():SetWarningMessage("Open and close Main menu before call an popup.")
 	end
+	
 end
 
 function Keystone_Datapack_details(redirect)
@@ -4844,7 +5124,7 @@ function Keystone_Datapack_details(redirect)
 		currentInterface = nil
 		
 		local ui = {}
-		ui.title = "Datapack Details"
+		ui.title = getLang("ui_keystone_datapack_detail")
 		ui.tag = "keystone_datapack_detail"
 		ui.controls = {}
 		
@@ -4896,33 +5176,49 @@ function Keystone_Datapack_details(redirect)
 		
 		local resultstr = ""
 		for y=1,#desctab do
+		
+		
 			descc = descc.."\n"..desctab[y]
 		end
-		descc= descc.."\n".."Author : "..Keystone_currentSelectedDatapack.author.."\n".."Version : "..Keystone_currentSelectedDatapack.version
 		
+		local serverversion = 0
+				
+		serverversion = GetDatapackOnlineVersion(Keystone_currentSelectedDatapack.tag)
+		local localversion = CurrentDownloadedVersion(Keystone_currentSelectedDatapack.tag)
+		
+		descc= descc.."\n"..getLang("ui_keystone_datapack_msg02")..Keystone_currentSelectedDatapack.author.."\n"..getLang("ui_keystone_datapack_msg03")..serverversion
+	
 		if(isDatapackDownloaded(Keystone_currentSelectedDatapack.tag)) then
 			
-			local 
-			localversion = CurrentDownloadedVersion(Keystone_currentSelectedDatapack.tag)
-			descc = descc.."\n".."Downloaded version : "..localversion
 			
+			descc = descc.."\n"..getLang("ui_keystone_datapack_msg04")..localversion
+			
+		
+			
+			if(serverversion == 0) then
+			
+			serverversion = localversion
+			descc = descc.."\n"..getLang("ui_keystone_datapack_msg10")
+			end
 			
 				
-			if(checkVersionNumber(localversion,Keystone_currentSelectedDatapack.version) == true) then
+			if(localversion~=serverversion and checkVersionNumber(localversion,serverversion) == true) then
 			
 			
-			descc = descc.."\n".."!!! UPDATE IS AVAILABLE !!!"
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg05")
 			
 			end
+			
+			
 		end
 		
 		if(Keystone_currentSelectedDatapack.requirement ~= nil) then
-			descc = descc.."\n".."Require IRP version : "..Keystone_currentSelectedDatapack.requirement
+			descc = descc.."\n"..getLang("ui_keystone_datapack_msg07")..Keystone_currentSelectedDatapack.requirement
 		end
 		
-		if(#Keystone_currentSelectedDatapack.flags > 0)then
+		if(Keystone_currentSelectedDatapack.flags ~= nil and #Keystone_currentSelectedDatapack.flags > 0)then
 			
-				descc = descc.."\n".."Flags : "
+				descc = descc.."\n"..getLang("ui_keystone_datapack_msg08")
 			
 				for i,v in ipairs(Keystone_currentSelectedDatapack.flags) do
 				
@@ -4933,7 +5229,7 @@ function Keystone_Datapack_details(redirect)
 		end
 		
 		if(Keystone_currentSelectedDatapack.faction ~= nil) then
-			descc = descc.."\n".."Exclusive to your faction !"
+			descc = descc.."\n"..getLang("ui_keystone_datapack_msg09")
 		end
 		label.value.value = descc
 		table.insert(ui.controls,label)
@@ -4942,10 +5238,8 @@ function Keystone_Datapack_details(redirect)
 		
 		if(isDatapackDownloaded(Keystone_currentSelectedDatapack.tag)) then
 			
-			local 
-			localversion = CurrentDownloadedVersion(Keystone_currentSelectedDatapack.tag)
 			
-			if(checkVersionNumber(localversion,Keystone_currentSelectedDatapack.version) == true) then
+			if(localversion~=serverversion and checkVersionNumber(localversion,serverversion) == true) then
 			buttons = {}
 			buttons.type = "button"
 			buttons.title = "Update"
@@ -4987,7 +5281,7 @@ function Keystone_Datapack_details(redirect)
 			table.insert(buttons.action,action)
 			action = {}
 			action.name = "wait_second" 
-			action.value = 3
+			action.value = 2
 			table.insert(buttons.action,action)
 			action = {}
 			action.name = "close_interface" 
@@ -5045,7 +5339,7 @@ function Keystone_Datapack_details(redirect)
 				table.insert(buttons.action,action)
 				action = {}
 				action.name = "wait_second" 
-				action.value = 2
+				action.value = 1
 				table.insert(buttons.action,action)
 				action = {}
 				action.name = "close_interface" 
@@ -5114,32 +5408,32 @@ function Keystone_Datapack_details(redirect)
 				table.insert(buttons.action,action)
 				end
 				table.insert(ui.controls,buttons)
-				else
-				buttons = {}
-				buttons.type = "button"
-				buttons.title = "Need to update CyberMod first"
-				buttons.tag =	"keystone_detail_btn_download_nope"
-				buttons.trigger = {}
-				buttons.trigger.auto = {}
-				buttons.trigger.auto.name = "auto"
-				buttons.requirement = {}
+				-- else
+				-- buttons = {}
+				-- buttons.type = "button"
+				-- buttons.title = getLang("ui_multi_manage_placed_item")
+				-- buttons.tag =	"keystone_detail_btn_download_nope"
+				-- buttons.trigger = {}
+				-- buttons.trigger.auto = {}
+				-- buttons.trigger.auto.name = "auto"
+				-- buttons.requirement = {}
 				
-				local requirement = {}
-				table.insert(requirement,"auto")
-				table.insert(buttons.requirement,requirement)
-				buttons.action = {}
-				buttons.margin = {}
-				buttons.style = {}
-				buttons.margin.top = 100
-				buttons.margin.left = 360
-				buttons.style.fontsize = 35
-				buttons.style.width = 700
-				buttons.style.height = 100
+				-- local requirement = {}
+				-- table.insert(requirement,"auto")
+				-- table.insert(buttons.requirement,requirement)
+				-- buttons.action = {}
+				-- buttons.margin = {}
+				-- buttons.style = {}
+				-- buttons.margin.top = 100
+				-- buttons.margin.left = 360
+				-- buttons.style.fontsize = 35
+				-- buttons.style.width = 700
+				-- buttons.style.height = 100
 			end
 		end
 		buttons = {}
 		buttons.type = "button"
-		buttons.title = "Back to Datapacks"
+		buttons.title = getLang("ui_keystone_datapack_msg12")
 		buttons.tag =	"keystone_detail_btn_back"
 		buttons.trigger = {}
 		buttons.trigger.auto = {}
@@ -5213,7 +5507,7 @@ function Multi_InstanceList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an Instance"
+	ui.title = getLang("ui_keystone_instance")
 	ui.tag = "multi_instance_list"
 	ui.controls = {}
 	
@@ -5346,38 +5640,38 @@ function Multi_InstanceList()
 				
 				local descc = score.title
 				descc= descc..
-				"\n".."Connected Players : "..score.connectedPlayer..
-				"\n".."Owner : "..score.owner..
-				"\n".."readOnly : "..tostring(score.readOnly)
+				"\n"..getLang("ui_keystone_instance_msg01")..score.connectedPlayer..
+				"\n"..getLang("ui_keystone_instance_msg02")..score.owner..
+				"\n"..getLang("ui_keystone_instance_msg03")..tostring(score.readOnly)
 				
 				
 				if(score.isNSFW == true) then
 				
 				
 				descc= descc..
-				"\n".."This instance contains EXPLICIT CONTENT"..
-				"\n".."If you join it, we dont't take any responsabilities about "..
-				"\n".."what you will see inside. You must respect the community rules."..
-				"\n".."Check them on Discord. Also, by going inside it, You certify that You are an adult  "..
-				"\n".."and aware of the explicit content."
+				"\n"..getLang("ui_keystone_instance_msg04")..
+				"\n"..getLang("ui_keystone_instance_msg05")..
+				"\n"..getLang("ui_keystone_instance_msg06")..
+				"\n"..getLang("ui_keystone_instance_msg07")..
+				"\n"..getLang("ui_keystone_instance_msg08")
 				
 				label.style.fontsize = 25
 				end
 				
 				if(score.private == 1) then
-					descc = descc.."\n".."Privacy : Open"
+					descc = descc.."\n"..getLang("ui_keystone_instance_msg09")
 				end
 				
 				if(score.private == 2) then
-					descc = descc.."\n".."Privacy : Private"
+					descc = descc.."\n"..getLang("ui_keystone_instance_msg10")
 				end
 				
 				if(score.private == 3) then
-					descc = descc.."\n".."Privacy : Secret (Password Required)"
+					descc = descc.."\n"..getLang("ui_keystone_instance_msg11")
 				end
 				
 				if(score.private == 4) then
-					descc = descc.."\n".."Privacy : Special"
+					descc = descc.."\n"..getLang("ui_keystone_instance_msg12")
 				end
 				
 				close_action = {}
@@ -5394,7 +5688,7 @@ function Multi_InstanceList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Connect"
+	buttons.title = getLang("ui_keystone_instance_msg14")
 	buttons.tag =	"multi_instance_btn_connect"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5425,7 +5719,7 @@ function Multi_InstanceList()
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "wait_second" 
-	action.value = 1
+	action.value = 2
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "notify_instance"
@@ -5433,7 +5727,7 @@ function Multi_InstanceList()
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Open Password Popup"
+	buttons.title = getLang("ui_keystone_instance_msg13")
 	buttons.tag =	"multi_instance_btn_password"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5482,7 +5776,7 @@ function Multi_GuildList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an Guild"
+	ui.title = getLang("ui_keystone_guild")
 	ui.tag = "multi_guild_list"
 	ui.controls = {}
 	
@@ -5614,9 +5908,9 @@ function Multi_GuildList()
 				
 				local descc = score.Title
 				descc= descc..
-				"\n".."Description : "..tostring(score.Description)..
-				"\n".."Total Players : "..score.TotalMember..
-				"\n".."Owner : "..score.Owner
+				"\n"..getLang("ui_keystone_guild_msg01")..tostring(score.Description)..
+				"\n"..getLang("ui_keystone_guild_msg02")..score.TotalMember..
+				"\n"..getLang("ui_keystone_guild_msg03")..score.Owner
 				close_action = {}
 				close_action.name = "change_interface_label_text" 
 				close_action.tag = "multi_instance_desc" 
@@ -5629,7 +5923,7 @@ function Multi_GuildList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Ask for Join"
+	buttons.title =getLang("ui_keystone_guild_msg04")
 	buttons.tag =	"multi_instance_btn_join"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5664,12 +5958,12 @@ function Multi_GuildList()
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "notify"
-	action.value = "Your request is pending, wait for the owner of the Guild to handle it"
+	action.value = getLang("ui_keystone_guild_msg05")
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Leave Guild"
+	buttons.title = getLang("ui_keystone_guild_msg06")
 	buttons.tag =	"multi_instance_btn_leave"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5704,12 +5998,12 @@ function Multi_GuildList()
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "notify"
-	action.value = "You leave the guild"
+	action.value = getLang("ui_keystone_guild_msg07")
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Create Guild"
+	buttons.title = getLang("ui_keystone_guild_msg08")
 	buttons.tag =	"multi_instance_btn_create"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5735,7 +6029,7 @@ function Multi_GuildList()
 	action.name = "close_interface" 
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
-	RefreshButton("Refresh","get_instance_list","open_instance_list",ui)
+	RefreshButton(getLang("ui_keystone_refresh"),"get_instance_list","open_instance_list",ui)
 	
 	if(#arrayInstanceList > 0 ) then
 		currentInterface = ui
@@ -5758,7 +6052,7 @@ function Multi_GuildPendingList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Manage the new members"
+	ui.title = getLang("ui_keystone_guild_management_pending")
 	ui.tag = "multi_guild_list"
 	ui.controls = {}
 	
@@ -5894,7 +6188,7 @@ function Multi_GuildPendingList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Accept"
+	buttons.title = getLang("ui_keystone_guild_management_pending_msg01")
 	buttons.tag =	"multi_instance_btn_join"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5930,7 +6224,7 @@ function Multi_GuildPendingList()
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Refuse"
+	buttons.title = getLang("ui_keystone_guild_management_pending_msg02")
 	buttons.tag =	"multi_instance_btn_leave"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -5986,7 +6280,7 @@ function Multi_GuildUserList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Manage the members"
+	ui.title = getLang("ui_keystone_guild_management")
 	ui.tag = "multi_guild_list"
 	ui.controls = {}
 	
@@ -6122,8 +6416,8 @@ function Multi_GuildUserList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Remove"
-	buttons.tag =	"multi_instance_btn_join"
+	buttons.title = getLang("ui_keystone_guild_management_msg04")
+	buttons.tag =	"multi_instance_btn_remove"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
 	buttons.trigger.auto.name = "auto"
@@ -6178,7 +6472,7 @@ function Multi_AvatarList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an Avatar"
+	ui.title = getLang("ui_keystone_avatar")
 	ui.tag = "multi_avatar_list"
 	ui.controls = {}
 	
@@ -6336,7 +6630,7 @@ function Multi_InstanceUserList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an User"
+	ui.title =getLang("ui_keystone_instance_user")
 	ui.tag = "multi_instance_list"
 	ui.controls = {}
 	
@@ -6467,9 +6761,9 @@ function Multi_InstanceUserList()
 				close_action.value = score
 				table.insert(buttons.onenter_action,close_action)
 				
-				local descc = "Selected : "..score.pseudo
+				local descc = getLang("ui_keystone_instance_user_msg01")..score.pseudo
 				descc= descc..
-				"\n".."Avatar : "..tostring(score.avatar)..
+				"\n"..getLang("ui_keystone_instance_user_msg02")..tostring(score.avatar)..
 				"\n".."X : "..tostring(score.x)..
 				"\n".."Y : "..tostring(score.y)..
 				"\n".."Z : "..tostring(score.z)
@@ -6485,7 +6779,7 @@ function Multi_InstanceUserList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "TP to User"
+	buttons.title = getLang("ui_keystone_instance_user_msg03")
 	buttons.tag =	"multi_instance_btn_tp"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6512,7 +6806,7 @@ function Multi_InstanceUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Friend Request"
+	buttons.title = getLang("ui_keystone_instance_user_msg04")
 	buttons.tag =	"multi_instance_btn_connect"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6539,7 +6833,7 @@ function Multi_InstanceUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Delete Friend"
+	buttons.title =getLang("ui_keystone_friend_delete")
 	buttons.tag =	"multi_instance_btn_delete"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6566,7 +6860,7 @@ function Multi_InstanceUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Block User"
+	buttons.title = getLang("ui_keystone_instance_user_msg09")
 	buttons.tag =	"multi_instance_btn_block"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6594,7 +6888,7 @@ function Multi_InstanceUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Unblock User"
+	buttons.title =getLang("ui_keystone_instance_user_msg07")
 	buttons.tag =	"multi_instance_btn_unblock"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6621,7 +6915,7 @@ function Multi_InstanceUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Send Message"
+	buttons.title = getLang("ui_keystone_instance_user_msg08")
 	buttons.tag =	"multi_instance_btn_msg"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6675,7 +6969,7 @@ function Multi_InstanceOwnerUserList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Manage Player in Instance"
+	ui.title = getLang("ui_keystone_instance_owner")
 	ui.tag = "multi_instance_owner_player_list"
 	ui.controls = {}
 	
@@ -6806,9 +7100,9 @@ function Multi_InstanceOwnerUserList()
 				close_action.value = score
 				table.insert(buttons.onenter_action,close_action)
 				
-				local descc = "Selected : "..score.pseudo
+				local descc = getLang("ui_keystone_instance_user_msg01")..score.pseudo
 				descc= descc..
-				"\n".."Avatar : "..tostring(score.avatar)..
+				"\n"..getLang("ui_keystone_instance_user_msg02")..tostring(score.avatar)..
 				"\n".."X : "..tostring(score.x)..
 				"\n".."Y : "..tostring(score.y)..
 				"\n".."Z : "..tostring(score.z)
@@ -6824,7 +7118,7 @@ function Multi_InstanceOwnerUserList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "TP to User"
+	buttons.title = getLang("ui_keystone_instance_user_msg03")
 	buttons.tag =	"multi_instance_btn_tp"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6851,7 +7145,7 @@ function Multi_InstanceOwnerUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Kick User"
+	buttons.title = getLang("ui_keystone_instance_owner_msg01")
 	buttons.tag =	"multi_instance_btn_kick"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6878,7 +7172,7 @@ function Multi_InstanceOwnerUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Block User"
+	buttons.title = getLang("ui_keystone_instance_user_msg09")
 	buttons.tag =	"multi_instance_btn_block"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6903,37 +7197,10 @@ function Multi_InstanceOwnerUserList()
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
 	
-	buttons= {}
-	buttons.type = "button"
-	buttons.title = "unblock User"
-	buttons.tag =	"multi_instance_btn_block"
-	buttons.trigger = {}
-	buttons.trigger.auto = {}
-	buttons.trigger.auto.name = "auto"
-	buttons.requirement = {}
-	
-	local requirement = {}
-	table.insert(requirement,"auto")
-	table.insert(buttons.requirement,requirement)
-	buttons.action = {}
-	buttons.margin = {}
-	buttons.style = {}
-	buttons.margin.top = 350
-	buttons.margin.left = 1250
-	buttons.style.fontsize = 35
-	buttons.style.width = 700
-	buttons.style.height = 100
-	
-	local action = {}
-	action = {}
-	action = {}
-	action.name = "block_instance_user" 
-	table.insert(buttons.action,action)
-	table.insert(ui.controls,buttons)
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Unblock User"
+	buttons.title = getLang("ui_keystone_instance_user_msg07")
 	buttons.tag =	"multi_instance_btn_unblock"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -6960,7 +7227,7 @@ function Multi_InstanceOwnerUserList()
 	
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Send Message"
+	buttons.title = getLang("ui_keystone_instance_user_msg08")
 	buttons.tag =	"multi_instance_btn_msg"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -7014,7 +7281,7 @@ function Multi_FriendList()
 	currentInterface = nil
 	
 	local ui = {}
-	ui.title = "Choose an Friend"
+	ui.title = getLang("ui_keystone_friend")
 	ui.tag = "multi_instance_list"
 	ui.controls = {}
 	
@@ -7145,7 +7412,7 @@ function Multi_FriendList()
 			close_action.value = score
 			table.insert(buttons.onenter_action,close_action)
 			
-			local descc = "Selected : "..score.name
+			local descc = getLang("ui_keystone_instance_user_msg01")..score.name
 			close_action = {}
 			close_action.name = "change_interface_label_text" 
 			close_action.tag = "multi_instance_desc" 
@@ -7157,7 +7424,7 @@ function Multi_FriendList()
 	
 	local buttons= {}
 	buttons.type = "button"
-	buttons.title = "Join Friend Instance"
+	buttons.title = getLang("ui_keystone_friend_join")
 	buttons.tag =	"multi_instance_btn_tp"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -7200,7 +7467,7 @@ function Multi_FriendList()
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Delete Friend"
+	buttons.title = getLang("ui_keystone_friend_delete")
 	buttons.tag =	"multi_instance_btn_delete"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -7226,7 +7493,7 @@ function Multi_FriendList()
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Block Friend"
+	buttons.title = getLang("ui_keystone_friend_block")
 	buttons.tag =	"multi_instance_btn_block"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -7253,7 +7520,7 @@ function Multi_FriendList()
 	table.insert(ui.controls,buttons)
 	buttons= {}
 	buttons.type = "button"
-	buttons.title = "Send Message"
+	buttons.title =getLang("ui_keystone_instance_user_msg08")
 	buttons.tag =	"multi_instance_btn_msg"
 	buttons.trigger = {}
 	buttons.trigger.auto = {}
@@ -7303,6 +7570,9 @@ function Multi_FriendList()
 	end
 end
 
+
+
+--interact--
 function cycleInteract()
 	--inputcount = inputcount +1
 	
@@ -7814,23 +8084,86 @@ function createInteractionHub(active)
 	
 	if(active == true) then
 		
-		if possibleInteractDisplay ~= nil and currentPossibleInteractChunkIndex ~= nil and #possibleInteractDisplay > 0  and possibleInteractDisplay[currentPossibleInteractChunkIndex] ~= nil then
-			for z=1,#possibleInteractDisplay[currentPossibleInteractChunkIndex] do 
-				
-				if(possibleInteractDisplay[currentPossibleInteractChunkIndex][z].type == nil or possibleInteractDisplay[currentPossibleInteractChunkIndex][z].type == "interact") then
-					possibleInteractDisplay[currentPossibleInteractChunkIndex][z].input = z
-					table.insert(choices, createInteractionChoice('Choice'..z, getLang(possibleInteractDisplay[currentPossibleInteractChunkIndex][z].name)))
-					else
-					showInputHint(possibleInteractDisplay[currentPossibleInteractChunkIndex][z].key, possibleInteractDisplay[currentPossibleInteractChunkIndex][z].name, 1, possibleInteractDisplay[currentPossibleInteractChunkIndex][z].hold, possibleInteractDisplay[currentPossibleInteractChunkIndex][z].tag)
+		if(#loadInteract > 0) then
+			for z=1,#loadInteract do 
+				local interact = arrayInteract[loadInteract[z]].interact
+					if(interact.type == nil or interact.type == "interact") then
+					
+						if(interact.context ~= nil) then
+								
+							if(isArray(interact.context))then
+								for i,v in ipairs(interact.context) do
+									
+									if(checkTriggerRequirement(v.requirement,v.trigger))then
+										for k,u in pairs(v.prop) do
+											
+											interact[k] = GeneratefromContext(u)
+										end
+									end
+								end
+								else
+								if(checkTriggerRequirement(interact.context.requirement,interact.context.trigger))then
+									for k,u in pairs(action.context.prop) do
+										
+										interact[k] = GeneratefromContext(u)
+									end
+								end
+							end
+							
+						end
+					
+					
+						table.insert(choices, createInteractionChoice('Choice'..z, getLang(interact.name)))
+					end
 				end
+		else
+		
+			if possibleInteractDisplay ~= nil and currentPossibleInteractChunkIndex ~= nil and #possibleInteractDisplay > 0  and possibleInteractDisplay[currentPossibleInteractChunkIndex] ~= nil then
+				for z=1,#possibleInteractDisplay[currentPossibleInteractChunkIndex] do 
+				
+					local interact = possibleInteractDisplay[currentPossibleInteractChunkIndex][z]
+					
+					if(interact.context ~= nil) then
+								
+							if(isArray(interact.context))then
+								for i,v in ipairs(interact.context) do
+									
+									if(checkTriggerRequirement(v.requirement,v.trigger))then
+										for k,u in pairs(v.prop) do
+											
+											interact[k] = GeneratefromContext(u)
+										end
+									end
+								end
+								else
+								if(checkTriggerRequirement(interact.context.requirement,interact.context.trigger))then
+									for k,u in pairs(action.context.prop) do
+										
+										interact[k] = GeneratefromContext(u)
+									end
+								end
+							end
+							
+						end
+					
+					if(interact.type == nil or interact.type == "interact") then
+						interact.input = z
+						table.insert(choices, createInteractionChoice('Choice'..z, getLang(interact.name)))
+					else
+						showInputHint(interact.key, getLang(interact.name), 1, interact.hold, interact.tag)
+					end
+				end
+				
 			end
-			--table.insert(choices, createInteractionChoice('Choice'..1, possibleInteract[currentPossibleInteractChunkIndex][1].name))
 		end
 		else
 		choiceHubData.id = 0 - math.random(50,1000)
 	end
 	choiceHubData.choices = choices
 end
+
+
+
 
 function prepareVisualizersInfo(hub)
 	

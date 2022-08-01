@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: db module loaded")
+debugPrint(3,"CyberScript: db module loaded")
 questMod.module = questMod.module +1
 
 
@@ -135,16 +135,16 @@ function loadUserSetting(arrayUseqrSetting)
 
 	for row in db:nrows(stat) do
 		local querys = {}
-		querys.Tag= row.Tag
-		querys.Value= row.Value
 		
+		arrayUseqrSetting[row.Tag] = row.Value
 		
-		
-		table.insert(arrayUseqrSetting,querys )
+	
 		
 		
 		
 	end
+	return arrayUseqrSetting
+	
 	
 end
 
@@ -500,7 +500,7 @@ function reloadDB()
 	loadPlayerData(arrayPlayerData)
 	loadQuestStatut(arrayQuestStatut)
 	loadSettingData(arraySettingData)
-	loadUserSetting(arrayUserSetting)
+	--arrayUserSetting = loadUserSetting(arrayUserSetting)
 	
 	loadHouseStatut(arrayHouseStatut)
 	--loadHousing(arrayHousing)

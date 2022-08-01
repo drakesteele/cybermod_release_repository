@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: scripting module loaded")
+debugPrint(3,"CyberScript: scripting module loaded")
 questMod.module = questMod.module +1
 
 
@@ -38,12 +38,13 @@ function ScriptExecutionEngine()
 				
 				if(workerTable[k]["index"] > #workerTable[k]["action"] and workerTable[k]["pending"] == false and workerTable[k]["started"] == true) then
 					
-					if workerTable[k]["parent"] ~= "" and workerTable[k]["parent"] then
+					if workerTable[k]["parent"] ~= nil and workerTable[k]["parent"] ~= ""then
 						
-						workerTable[workerTable[k]["parent"]]["pending"] = false
-						--		workerTable[workerTable[k]["parent"]]["lastindex"] = workerTable[workerTable[k]["parent"]]["index"]
-						workerTable[workerTable[k]["parent"]]["index"] = workerTable[workerTable[k]["parent"]]["index"] + 1
-						
+						if(workerTable[workerTable[k]["parent"]] ~= nil) then
+							workerTable[workerTable[k]["parent"]]["pending"] = false
+							
+							workerTable[workerTable[k]["parent"]]["index"] = workerTable[workerTable[k]["parent"]]["index"] + 1
+						end
 					end
 					
 					if workerTable[k]["children"] == "" then
@@ -105,17 +106,17 @@ function ScriptExecutionEngine()
 									local isfinish = false
 									
 									
-									
-									local status, retval = pcall(executeAction,list[index],k,parent,workerTable[k]["index"],workerTable[k]["source"],workerTable[k]["executortag"])
+									local action = list[index]
+									local status, retval = pcall(executeAction,action,k,parent,workerTable[k]["index"],workerTable[k]["source"],workerTable[k]["executortag"])
 									
 									
 									
 									if status == false then
 									
-										print('CyberMod Scripting Error: ' .. retval)
-										print('CyberMod Scripting Error: ' .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
-										spdlog.error('CyberMod Scripting Error: ' .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
-										--Game.GetPlayer():SetWarningMessage("CyberMod Scripting error, check the log for more detail")
+										print(getLang("scripting_error") .. retval)
+										print(getLang("scripting_error") .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
+										spdlog.error(getLang("scripting_error") .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
+										--Game.GetPlayer():SetWarningMessage("CyberScript Scripting error, check the log for more detail")
 										workerTable[k] =  nil
 										else
 										isfinish = retval
@@ -328,8 +329,8 @@ function checkWaitingAction(action,tag,parent,index)
 	if(action.name == "wait_for_trigger") then
 		
 		
-		
-		result = checkTrigger(action.trigger)
+		local trigger = action.trigger
+		result = checkTrigger(trigger)
 		
 	end
 	
@@ -363,8 +364,8 @@ function checkWaitingAction(action,tag,parent,index)
 	
 	if(action.name == "while_one") then
 		
-		
-		result = checkTrigger(action.trigger)
+		local trigger = action.trigger
+		result = checkTrigger(trigger)
 		debugPrint(1,"while one "..tostring(result))
 		executeAction(action.action,tag,parent,index,source,executortag)
 		
@@ -626,12 +627,12 @@ function doEvent(tag)
 		
 		if(checkTriggerRequirement(event.requirement,event.trigger))then
 		
-			--print("CyberMod : Doing event : "..event.name)
+			--print("CyberScript : Doing event : "..event.name)
 			
 			--	doActionof(event.action,"interact")
 			runActionList(event.action, tag, "interact",false,"nothing")
 			else
-			--print("CyberMod : can't do event : "..event.name)
+			--print("CyberScript : can't do event : "..event.name)
 			
 		end
 	end
@@ -702,7 +703,7 @@ function doInitEvent()
 	end
 	
 	worldprocessing = false
-	print("CyberMod : doing init event...")
+	print("CyberScript : doing init event...")
 	
 end
 
@@ -734,15 +735,18 @@ end
 
 function checkIf(action,parent,source,executortag)
 	
-	if(checkTrigger(action.trigger)) then
+	local trigger = action.trigger
+	if(checkTrigger(trigger)) then
 		
 		local tag= "if_"..math.random(1,9999)
-		runSubActionList(action.if_action, tag.."_if", parent,source,false,executortag)
+		local actiontodo = action.if_action
+		runSubActionList(actiontodo, tag.."_if", parent,source,false,executortag)
 		
 		else
 		
 		local tag= "else_"..math.random(1,9999)
-		runSubActionList(action.else_action, tag.."_else", parent,source,false,executortag)
+		local actiontodo = action.else_action
+		runSubActionList(actiontodo, tag.."_else", parent,source,false,executortag)
 		
 		
 		
@@ -783,21 +787,23 @@ end
 
 function checkAmbush()
 	local ambushevent = {}
-	print("check ambsush")
-	if(AmbushEnabled == 1 and isAVinService == false) then
+	
+	if(AmbushEnabled == true and isAVinService == false) then
 		--debugPrint(1,"mark1")
 		if(currentDistricts2.customdistrict ~= nil) then
 			--debugPrint(1,"mark1")		
 			
 			
-			
+			print("check ambsush")
 			--	debugPrint(1,"mark1")	
 			for k,v in pairs(arrayEvent) do
-				print(k)
+				
 				if(arrayEvent[k].event.way == "ambush") then
 					--debugPrint(1,arrayEvent[k].event.way)
 					--table.insert(ambushevent,k)
+					print(k)
 					doEvent(k)
+					
 					
 				end
 			end
@@ -1381,6 +1387,24 @@ function checkNPC()
 	
 end
 
+function checkValue(operator,value1,value2)
+return (
+	(value1 ~= nil and value2 ~= nil and 
+		(
+		(operator == "<" and value1 < value2) or 
+		(operator == "<=" and value1 <= value2) or
+		(operator == ">" and value1 > value2) or
+		(operator == ">=" and value1 >= value2) or
+		(operator == "!=" and value1 ~= value2) or 
+		(operator == "=" and value1 == value2)
+		)
+	) or
+	(operator == "empty" and value1 == nil) or
+	(operator == "notempty" and value1 ~= nil)
+	)
+		
+		
+end
 
 --Get List
 
@@ -1392,6 +1416,7 @@ function getInteractGroup()
 	
 	for key,value in pairs(arrayInteract) do --actualcode
 		
+	
 		local interact2 = arrayInteract[key].interact
 		local canadd = true
 		
@@ -2280,7 +2305,7 @@ function getVIPfromfactionbyscore(factiontag)
 	end
 	
 	if(#tempvip == 0) then
-	print("no VIP founded for "..factiontag.." where the player score is "..playerscore)
+	print(getLang("scripting_novip01")..factiontag..getLang("scripting_novip02")..playerscore)
 	end
 	
 	return tempvip
@@ -2290,20 +2315,20 @@ function getGangfromDistrict(district,minimum)
 	
 	local factiontable = {}
 	
-	for k,v in pairs(currentSave.arrayFactionDistrict) do
+	for k,v in pairs(currentSave.Score) do
 		
-		if(currentSave.arrayFactionDistrict[k][district] ~= nil and currentSave.arrayFactionDistrict[k][district] >= minimum) then
+		if(currentSave.Score[k][district] ~= nil and currentSave.Score[k][district] >= minimum) then
 			
 			local factionscore= {}
 			factionscore.tag = k
-			factionscore.score = currentSave.arrayFactionDistrict[k][district]
+			factionscore.score = currentSave.Score[k][district]
 			table.insert(factiontable,factionscore)
 			
 			else
 			
-			if(currentSave.arrayFactionDistrict[k][district] == nil) then
+			if(currentSave.Score[k][district] == nil) then
 			
-				currentSave.arrayFactionDistrict[k][district] = 0
+				currentSave.Score[k][district] = 0
 		
 			end
 			
@@ -2343,20 +2368,20 @@ function getGangRivalfromDistrict(gang,district,minimum)
 	local districttable = {}
 	local factiontable = {}
 	
-	for k,v in pairs(currentSave.arrayFactionDistrict) do
+	for k,v in pairs(currentSave.Score) do
 		
-		if(currentSave.arrayFactionDistrict[k][district] ~= nil and currentSave.arrayFactionDistrict[k][district] >= minimum) then
+		if(currentSave.Score[k][district] ~= nil and currentSave.Score[k][district] >= minimum) then
 			
 			local factionscore= {}
 			factionscore.tag = k
-			factionscore.score = currentSave.arrayFactionDistrict[k][district]
+			factionscore.score = currentSave.Score[k][district]
 			table.insert(districttable,factionscore)
 			
 			else
 			
-			if(currentSave.arrayFactionDistrict[k][district] == nil) then
+			if(currentSave.Score[k][district] == nil) then
 			
-				currentSave.arrayFactionDistrict[k][district] = 0
+				currentSave.Score[k][district] = 0
 		
 			end
 			
@@ -2391,15 +2416,15 @@ function getGangfromDistrictAndSubdistrict(district,minimum)
 	
 	local mydistrict = getDistrictByTag(district)
 	
-	for k,v in pairs(currentSave.arrayFactionDistrict) do
+	for k,v in pairs(currentSave.Score) do
 		
 		
-		if(currentSave.arrayFactionDistrict[k][mydistrict.Tag] ~= nil and currentSave.arrayFactionDistrict[k][mydistrict.Tag] >= minimum) then
+		if(currentSave.Score[k][mydistrict.Tag] ~= nil and currentSave.Score[k][mydistrict.Tag] >= minimum) then
 			-- debugPrint(1,k)
-			-- debugPrint(1,currentSave.arrayFactionDistrict[k][district])
+			
 			local obj = {}
 			obj.tag = k
-			obj.score = currentSave.arrayFactionDistrict[k][mydistrict.Tag]
+			obj.score = currentSave.Score[k][mydistrict.Tag]
 			table.insert(factiontable,obj)
 			
 			
@@ -2407,9 +2432,9 @@ function getGangfromDistrictAndSubdistrict(district,minimum)
 			
 			else
 			
-			if(currentSave.arrayFactionDistrict[k][mydistrict.Tag] == nil) then
+			if(currentSave.Score[k][mydistrict.Tag] == nil) then
 			
-				currentSave.arrayFactionDistrict[k][mydistrict.Tag] = 0
+				currentSave.Score[k][mydistrict.Tag] = 0
 		
 			end
 			
@@ -2420,46 +2445,7 @@ function getGangfromDistrictAndSubdistrict(district,minimum)
 	end
 	
 	
-	-- for i=1,#mydistrict.SubDistrict do
-	
-	-- local subdist = mydistrict.SubDistrict[i]
-	
-		-- for k,v in pairs(currentSave.arrayFactionDistrict) do
-			
-			
-			-- if(currentSave.arrayFactionDistrict[k][subdist] ~= nil and currentSave.arrayFactionDistrict[k][subdist] >= minimum) then
 
-				-- for i=1,#factiontable do
-				
-					-- if(factiontable[i].tag == k) then
-					
-						-- factiontable[i].score =  factiontable[i].score + currentSave.arrayFactionDistrict[k][subdist]
-					-- else
-						
-						-- local obj = {}
-						-- obj.tag = k
-						-- obj.score = currentSave.arrayFactionDistrict[k][subdist]
-						-- table.insert(factiontable,obj)
-						
-					-- end
-				-- end
-				
-				-- else
-				
-				-- if(currentSave.arrayFactionDistrict[k][subdist] == nil) then
-				
-					-- currentSave.arrayFactionDistrict[k][subdist] = 0
-			
-				-- end
-				
-			-- end
-			
-			
-			
-		-- end
-	-- end
-	
-	
 	
 	table.sort(factiontable, function(a,b) return a.score > b.score end)
 	
@@ -2475,12 +2461,12 @@ function getGangAffinityfromDistrictAndSubdistrict(district,minimum)
 	
 	local mydistrict = getDistrictByTag(district)
 	
-	for k,v in pairs(currentSave.arrayFactionDistrict) do
+	for k,v in pairs(currentSave.Score) do
 		
 		
-		if(currentSave.arrayFactionDistrict[k][mydistrict.Tag] ~= nil and currentSave.arrayFactionDistrict[k][mydistrict.Tag] >= minimum) then
+		if(currentSave.Score[k][mydistrict.Tag] ~= nil and currentSave.Score[k][mydistrict.Tag] >= minimum) then
 			
-			-- debugPrint(1,currentSave.arrayFactionDistrict[k][district])
+		
 			local obj = {}
 			obj.tag = k
 			obj.score = getScorebyTag(k)
@@ -2491,9 +2477,9 @@ function getGangAffinityfromDistrictAndSubdistrict(district,minimum)
 			
 			else
 			
-			if(currentSave.arrayFactionDistrict[k][mydistrict.Tag] == nil) then
+			if(currentSave.Score[k][mydistrict.Tag] == nil) then
 			
-				currentSave.arrayFactionDistrict[k][mydistrict.Tag] = 0
+				currentSave.Score[k][mydistrict.Tag] = 0
 		
 			end
 			
@@ -2507,10 +2493,10 @@ function getGangAffinityfromDistrictAndSubdistrict(district,minimum)
 	
 	local subdist = mydistrict.SubDistrict[i]
 	debugPrint(1,subdist)
-		for k,v in pairs(currentSave.arrayFactionDistrict) do
+		for k,v in pairs(currentSave.Score) do
 			
 			
-			if(currentSave.arrayFactionDistrict[k][subdist] ~= nil and currentSave.arrayFactionDistrict[k][subdist] >= minimum) then
+			if(currentSave.Score[k][subdist] ~= nil and currentSave.Score[k][subdist] >= minimum) then
 			for i=1,#factiontable do
 				if(factiontable[i].tag == k) then
 				
@@ -2733,31 +2719,31 @@ end
 function getEntityFromManager(tag)
 	local obj = {}
 	obj.id = nil
-	for i = 1, #questMod.EntityManager do
+	
 		
-		local enti = questMod.EntityManager[i]
-		if(enti.tag == tag) then
-			obj = enti
-		end
-		
-		
+	local enti = questMod.EntityManager[tag]
+	if(enti ~= nil) then
+		obj = enti
 	end
+		
+		
+	
 	
 	if(tag == "lookat" and objLook ~= nil) then
 		
 		
 		
-		for i = 1, #questMod.EntityManager do
 		
-				local enti = questMod.EntityManager[i]
-				if type(enti.id) ~= "number" then
-				
-					if(enti.id ~= nil and enti.id.hash == objLook:GetEntityID().hash) then
-						obj = enti
-					end
-			
-				end	
-		end
+		
+		local enti = questMod.EntityManager["lookat"]
+		if(enti ~= nil) and type(enti.id) ~= "number" then
+		
+			if(enti.id ~= nil and enti.id.hash == objLook:GetEntityID().hash) then
+				obj = enti
+			end
+	
+		end	
+		
 		
 		if(obj.id == nil and lookatEntity == nil) then
 			obj.id = objLook:GetEntityID()
@@ -2776,17 +2762,17 @@ function getEntityFromManager(tag)
 		if Game['GetMountedVehicle;GameObject'](Game.GetPlayer()) ~= nil then
 						
 		
-		for i = 1, #questMod.EntityManager do
+	
 		
-				local enti = questMod.EntityManager[i]
-				if type(enti.id) ~= "number" then
+				local enti = questMod.EntityManager["mounted_vehicle"]
+				if (enti ~= nil) and type(enti.id) ~= "number" then
 				
 					if(enti.id ~= nil and enti.id.hash == Game['GetMountedVehicle;GameObject'](Game.GetPlayer()):GetEntityID().hash) then
 						obj = enti
 					end
 			
 				end	
-		end
+		
 		
 		if(obj.id == nil) then
 			obj.id = Game['GetMountedVehicle;GameObject'](Game.GetPlayer()):GetEntityID()
@@ -2806,30 +2792,28 @@ end
 
 function getTrueEntityFromManager(tag)
 	
-	for i = 1, #questMod.EntityManager do
+	
 		
-		local enti = questMod.EntityManager[i]
-		if(enti.tag == tag) then
+		local enti = questMod.EntityManager[tag]
+		if((enti ~= nil) and enti.tag == tag) then
 			return enti
 		end
 		
 		
-	end
+	
 	
 end
 
 function setEntityFromManager(tag,obju)
 	
 	
-	for i = 1, #questMod.EntityManager do
+	
 		
-		local enti = questMod.EntityManager[i]
-		if(enti.tag == tag) then
-			enti = obju
-		end
+		questMod.EntityManager[tag] = obju
 		
 		
-	end
+		
+	
 	
 	
 end
@@ -2851,16 +2835,16 @@ end
 function getEntityFromManagerById(Id)
 	local obj = {}
 	obj.id = nil
-	for i = 1, #questMod.EntityManager do
+	for k,v in pairs(questMod.EntityManager) do
 		
-		local enti = questMod.EntityManager[i]
+		local enti = v
 		
 		
 		
 		if type(enti.id) ~= "number" then
 			
-			if(enti.id ~= nil and enti.id.hash == Id.hash) then
-				obj = questMod.EntityManager[i]
+			if(enti.id ~= nil and Id ~= nil and enti.id.hash == Id.hash) then
+				obj = v
 				
 				
 			end
@@ -2876,40 +2860,43 @@ function getEntityFromManagerById(Id)
 	
 end
 
-function getIndexFromManager(tag)
-	
-	for i = 1, #questMod.EntityManager do
+
+function getScannerdataFromEntityOrGroupOfEntity(entity)
+
+	if (ScannerInfoManager[entity.tag] ~= nil) then
+		return ScannerInfoManager[entity.tag]
 		
-		local enti = questMod.EntityManager[i]
-		if(enti.tag == tag) then
-			return i
+	else
+		local group= getEntityGroupfromEntityTag(entity.tag)
+		if group ~= nil then
+		
+			if (ScannerInfoManager[group.tag] ~= nil) then
+				return ScannerInfoManager[group.tag]
+			end
 		end
-		
-		
+			
 	end
 	
+	return nil
+
+
 end
 
 function getGroupfromManager(tag)
 	
-	for i = 1, #questMod.GroupManager do
-		
-		local enti = questMod.GroupManager[i]
-		if(enti.tag == tag) then
-			return enti
-		end
-		
-		
-	end
+	
+	
+	return questMod.GroupManager[tag]
+	
 	
 end
 
 function getEntityGroupfromEntityTag(tag)
 	local goodgroup = nil
 	
-	for i = 1, #questMod.GroupManager do
+	for k,v in pairs(questMod.GroupManager)do
 		
-		local group = questMod.GroupManager[i]
+		local group = v
 		if(#group.entities > 0) then
 			
 			for y=1,#group.entities do
@@ -2940,20 +2927,7 @@ function getEntityIndexIntoGroup(grouptag, tag)
 	return index
 end
 
-function getIndexFromGroupManager(tag)
-	
-	for i = 1, #questMod.GroupManager do
-		
-		local enti = questMod.GroupManager[i]
-		if(enti.tag == tag) then
-			return i
-		end
-		
-		
-	end
-	
-	return nil
-end
+
 
 function getCustomNPCbyTag(tag)
 	
@@ -3030,7 +3004,7 @@ end
 function getHouseStatut(houseTag)
 	
 	
-	 return getScoreKey(houseTag,"Score")
+	 return getScoreKey(houseTag,"Statut")
 	
 	
 end
@@ -3185,21 +3159,7 @@ function getPlayerItemsbyTag(tag)
 	
 end
 
-function getUserSetting(tag)
-	
-	
-	
-	for i = 1,#currentSave.arrayUserSetting do
-	
-		if(currentSave.arrayUserSetting[i].Tag == tag) then
-		
-			return currentSave.arrayUserSetting[i].Value
-		
-		end
-	end
-	
-	return nil
-end
+
 
 function getSoundByNameNamespace(name,namespace)
 	

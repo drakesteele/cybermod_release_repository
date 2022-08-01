@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: see module loaded")
+debugPrint(3,"CyberScript: see module loaded")
 questMod.module = questMod.module +1
 
 
@@ -11,9 +11,9 @@ function checkTrigger(trigger)
 	if status == false then
 		
 		
-		print('CyberMod Trigger error: ' .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
-		spdlog.error('CyberMod Trigger error: ' .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
-		--Game.GetPlayer():SetWarningMessage("CyberMod Trigger error, check the log for more detail")
+		print(getLang("see_trigger_error") .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
+		spdlog.error(getLang("see_trigger_error") .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
+		--Game.GetPlayer():SetWarningMessage("CyberScript Trigger error, check the log for more detail")
 		return false
 		else
 		return result
@@ -47,6 +47,28 @@ function scriptcheckTrigger(trigger)
 		local multiregion = true
 		local frameworkregion = true
 		local playerregion = true
+		local scannerregion = true
+		
+		if(trigger.context ~= nil) then
+			
+			if(isArray(trigger.context))then
+				for i,v in ipairs(trigger.context) do
+					
+					if(checkTriggerRequirement(v.requirement,v.trigger))then
+						for k,u in pairs(v.prop) do
+							trigger[k] = GeneratefromContext(u)
+						end
+					end
+				end
+				else
+				if(checkTriggerRequirement(trigger.context.requirement,trigger.context.trigger))then
+					for k,u in pairs(trigger.context.prop) do
+						trigger[k] = GeneratefromContext(u)
+					end
+				end
+			end
+			
+		end
 		
 		if entityregion then
 			if(trigger.name == "npc") then
@@ -83,6 +105,28 @@ function scriptcheckTrigger(trigger)
 							return true
 						end
 					end
+				end
+			end
+if(trigger.name == "entity_is_scanned") then
+				local obj = getEntityFromManager(trigger.tag)
+				if(obj.id ~= nil) then
+					local enti = Game.FindEntityByID(obj.id)	
+					if(enti ~= nil) then
+						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						if (enti:IsScanned() == true)then
+							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
+							return true
+						end
+					end
+				end
+			end
+			if(trigger.name == "can_use_preventionsystemspawn") then
+				if Game.GetPreventionSpawnSystem():GetNumberOfSpawnedPreventionUnits() < npcpreventionlimit then
+					return true
+					else
+					
+					return false
+					
 				end
 			end
 			if(trigger.name == "look_at_object") then
@@ -184,21 +228,21 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "entity_at_relative_position") then
 				local obj = getEntityFromManager(trigger.tag)
 				local enti = Game.FindEntityByID(obj.id)	
-				local index = getIndexFromManager(trigger.tag)
+				
 				if(enti ~= nil) then
 					local entityposition = enti:GetWorldPosition()
-					if questMod.EntityManager[index].targetedPostion == nil then
-						questMod.EntityManager[index].targetedPostion = {}
-						questMod.EntityManager[index].targetedPostion.x = entityposition.x + trigger.x
-						questMod.EntityManager[index].targetedPostion.y = entityposition.y + trigger.y
-						questMod.EntityManager[index].targetedPostion.z = entityposition.z + trigger.z
+					if questMod.EntityManager[trigger.tag].targetedPostion == nil then
+						questMod.EntityManager[trigger.tag].targetedPostion = {}
+						questMod.EntityManager[trigger.tag].targetedPostion.x = entityposition.x + trigger.x
+						questMod.EntityManager[trigger.tag].targetedPostion.y = entityposition.y + trigger.y
+						questMod.EntityManager[trigger.tag].targetedPostion.z = entityposition.z + trigger.z
 					end
-					local targetedPostions = questMod.EntityManager[index].targetedPostion
+					local targetedPostions = questMod.EntityManager[trigger.tag].targetedPostion
 					--debugPrint(1,entityposition.y)
 					--debugPrint(1,targetedPostions.y)
 					if check3DPos(entityposition, targetedPostions.x, targetedPostions.y, targetedPostions.z,trigger.range) then
 						result = true
-						questMod.EntityManager[index].targetedPostion = nil
+						questMod.EntityManager[trigger.tag].targetedPostion = nil
 						else
 						result = false
 					end
@@ -248,21 +292,21 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "entity_at_relative_player_position") then
 				local obj = getEntityFromManager(trigger.tag)
 				local enti = Game.FindEntityByID(obj.id)	
-				local index = getIndexFromManager(trigger.tag)
+				
 				if(enti ~= nil) then
 					--debugPrint(1,"test")
 					local entityposition = enti:GetWorldPosition()
 					local playerpos = Game.GetPlayer():GetWorldPosition()
-					if questMod.EntityManager[index].targetedPostion == nil then
-						questMod.EntityManager[index].targetedPostion = {}
-						questMod.EntityManager[index].targetedPostion.x = playerpos.x + trigger.x
-						questMod.EntityManager[index].targetedPostion.y = playerpos.y + trigger.y
-						questMod.EntityManager[index].targetedPostion.z = playerpos.z + trigger.z
+					if questMod.EntityManager[trigger.tag].targetedPostion == nil then
+						questMod.EntityManager[trigger.tag].targetedPostion = {}
+						questMod.EntityManager[trigger.tag].targetedPostion.x = playerpos.x + trigger.x
+						questMod.EntityManager[trigger.tag].targetedPostion.y = playerpos.y + trigger.y
+						questMod.EntityManager[trigger.tag].targetedPostion.z = playerpos.z + trigger.z
 					end
-					local targetedPostions = questMod.EntityManager[index].targetedPostion
+					local targetedPostions = questMod.EntityManager[trigger.tag].targetedPostion
 					if check3DPos(entityposition, targetedPostions.x, targetedPostions.y, targetedPostions.z,trigger.range) then
 						result = true
-						questMod.EntityManager[index].targetedPostion = nil
+						questMod.EntityManager[trigger.tag].targetedPostion = nil
 						else
 						result = false
 					end
@@ -310,19 +354,12 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "entity_script_level") then
 				local obj = getEntityFromManager(trigger.tag)
 				if(obj.id ~= nil) then
-					if(obj.scriptlevel ~= nil) then
+					if(checkValue(trigger.operator,obj.scriptlevel,trigger.scriptlevel)) then
 						
-						if(
-							(trigger.operator == "<" and obj.scriptlevel < trigger.scriptlevel) or
-							(trigger.operator == "<=" and obj.scriptlevel <= trigger.scriptlevel) or
-							(trigger.operator == ">" and obj.scriptlevel > trigger.scriptlevel) or
-							(trigger.operator == ">=" and obj.scriptlevel >= trigger.scriptlevel) or
-							(trigger.operator == "!=" and obj.scriptlevel ~= trigger.scriptlevel) or
-						(trigger.operator == "=" and obj.scriptlevel == trigger.scriptlevel)) then
 						result = true
-						end
 						
 					end
+					
 				end
 			end
 			
@@ -352,6 +389,56 @@ function scriptcheckTrigger(trigger)
 				end
 			end
 			
+			if(trigger.name == "if_entities_around_you") then
+				player = Game.GetPlayer()
+				targetingSystem = Game.GetTargetingSystem()
+				parts = {}
+				local success= false
+				searchQuery = Game["TSQ_ALL;"]() -- Search ALL objects
+				searchQuery.maxDistance = trigger.range
+				success, parts = targetingSystem:GetTargetParts(Game.GetPlayer(), searchQuery)
+				
+				
+				
+				local goodEntity = false
+				
+				for _, v in ipairs(parts) do
+					local newent = v:GetComponent(v):GetEntity() 
+					
+					
+					
+					if(trigger.filter ~= nil and #trigger.filter > 0) then 
+						
+						
+						local entName = newent:ToString()
+						local entAppName = Game.NameToString(newent:GetCurrentAppearanceName())
+						local entDispName = newent:GetDisplayName()
+						
+						if(entName ~= nil and entAppName ~= nil)then
+							for i,filter in ipairs(trigger.filter) do
+								
+								if(goodEntity == false and string.match(entName, filter) or string.match(entAppName, filter) or string.match(entDispName, filter))then 
+									goodEntity = true
+								end
+							end
+						end
+						
+						
+						
+						else
+						
+						goodEntity = true
+						
+					end
+					
+					
+					
+					
+					
+				end
+				
+				return goodEntity
+			end													
 		end
 		
 		if groupregion then
@@ -411,17 +498,9 @@ function scriptcheckTrigger(trigger)
 						local entityTag = group.entities[i]
 						local obj = getEntityFromManager(entityTag)
 						if(obj.id ~= nil) then
-							if(obj.scriptlevel ~= nil) then
+							if(checkValue(trigger.operator,obj.scriptlevel,trigger.scriptlevel)) then
 								
-								if(
-									(trigger.operator == "<" and obj.scriptlevel < trigger.scriptlevel) or
-									(trigger.operator == "<=" and obj.scriptlevel <= trigger.scriptlevel) or
-									(trigger.operator == ">" and obj.scriptlevel > trigger.scriptlevel) or
-									(trigger.operator == ">=" and obj.scriptlevel >= trigger.scriptlevel) or
-									(trigger.operator == "!=" and obj.scriptlevel ~= trigger.scriptlevel) or
-								(trigger.operator == "=" and obj.scriptlevel == trigger.scriptlevel)) then
 								count = count +1
-								end
 								
 							end
 						end
@@ -439,6 +518,16 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "position") then
 				result = checkPos(curPos, trigger.x, trigger.y,trigger.range)
 			end
+if(trigger.name == "player_is_noticed") then
+				result = playerNoticed
+				end
+if(trigger.name == "player_is_targeted") then
+				result = playerTargeted
+				end
+
+
+
+
 			if(trigger.name == "3Dposition") then
 				result = check3DPos(Game.GetPlayer():GetWorldPosition(), trigger.x, trigger.y, trigger.z, trigger.range)
 			end
@@ -479,11 +568,35 @@ function scriptcheckTrigger(trigger)
 			end
 			if(trigger.name == "player_in_poi") then
 				local resultpos = nil
+				
+				
+				if(trigger.district == "current") then
+					trigger.district = currentDistricts2.EnumName
+				end
+				if(trigger.subdistrict == "current") then
+					
+					if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 1) then
+						
+						trigger.subdistrict = currentDistricts2.districtLabels[2]
+						
+						else
+						
+						trigger.district = currentDistricts2.EnumName
+						
+					end
+				end
+				
+				
 				resultpos = FindPOI(trigger.tag,trigger.district,trigger.subdistrict,trigger.iscar,trigger.type,trigger.uselocationtag,true,trigger.range)
 				if(resultpos ~= nil)then
 					result = true
 				end
 			end
+			
+			
+			
+			
+			
 			if(trigger.name == "player_in_metro") then
 				result = TakeAIVehicule
 			end
@@ -538,7 +651,7 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "npc_star_affinity") then
 				local score = 0
 				if(currentStar ~= nil) then
-					score = getScoreKey(currentStar.Names,"Score")
+					score = getScoreKey("Affinity",currentStar.Names)
 				end
 				if(score ~= nil and score >= trigger.value)then
 					result = true
@@ -547,21 +660,21 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "npc_phone_affinity") then
 				local score = 0
 				if(currentNPC ~= nil) then
-					score = getScoreKey(currentNPC.Names,"Score")
+					score = getScoreKey("Affinity",currentNPC.Names)
 				end
 				if(score ~= nil and score >= trigger.value)then
 					result = true
 				end
 			end
 			if(trigger.name == "npc_affinity") then
-				local score = getScoreKey(trigger.value,"Score")
+				local score = getScoreKey("Affinity",trigger.value)
 				if(score ~= nil and score >= trigger.score)then
 					result = true
 				end
 			end
 			if(trigger.name == "entity_affinity") then
 				local obj = getEntityFromManager(trigger.tag)
-				local score = getScoreKey(obj.name,"Score")
+				local score = getScoreKey("Affinity",obj.name)
 				if(score ~= nil and score >= trigger.score)then
 					result = true
 				end
@@ -576,17 +689,12 @@ function scriptcheckTrigger(trigger)
 			
 			if(trigger.name == "check_score") then
 				local score = getScoreKey(trigger.value,trigger.key)
-				if(score ~= nil ) then
-					if(
-						(trigger.operator == "<" and score < trigger.score) or
-						(trigger.operator == "<=" and score <= trigger.score) or
-						(trigger.operator == ">" and score > trigger.score) or
-						(trigger.operator == ">=" and score >= trigger.score) or
-						(trigger.operator == "!=" and score ~= trigger.score) or
-					(trigger.operator == "=" and score == trigger.score)) then
+				if(checkValue(trigger.operator,score,trigger.score)) then
+					
 					result = true
-					end
+					
 				end
+				
 			end
 			
 			
@@ -615,7 +723,140 @@ function scriptcheckTrigger(trigger)
 				end
 			end
 		end
-		
+		if scannerregion then
+			if(trigger.name == "check_scannerdata_for_entity") then
+				
+				local obj = getEntityFromManager(trigger.tag)
+				local enti = Game.FindEntityByID(obj.id)
+				if(enti ~= nil and ScannerInfoManager[trigger.tag]) then
+					
+					
+					
+					if(trigger.prop == "primaryname" or trigger.prop == "secondaryname" or trigger.prop == "text" or trigger.prop == "entityname") then
+						
+						
+						
+						result = string.match(ScannerInfoManager[trigger.tag][trigger.prop], trigger.value)
+						
+						
+						
+					end
+					
+					if(trigger.prop == "level" or trigger.prop == "rarity" or trigger.prop == "attitude") then
+						
+						
+						
+						result = checkValue(trigger.operator,ScannerInfoManager[trigger.tag][trigger.prop],trigger.value)
+						
+						
+						
+					end
+					
+					
+					if(trigger.prop == "reward" or trigger.prop == "streetreward" or trigger.prop == "danger") then
+						
+						
+						
+						result = checkValue(trigger.operator,ScannerInfoManager[trigger.tag]["bounty"][trigger.prop],trigger.value)
+						
+						
+						
+					end
+					
+					
+					if(trigger.prop == "issuedby" ) then
+						
+						
+						
+						result = string.match(ScannerInfoManager[trigger.tag]["bounty"][trigger.prop], trigger.value)
+						
+						
+						
+					end
+					
+					
+					
+					
+					
+					if(trigger.prop == "customtransgressions" or trigger.prop == "transgressions"  ) then
+						
+						result = table.contains(ScannerInfoManager[trigger.tag]["bounty"][trigger.prop],trigger.value)
+						
+						
+						
+					end
+					
+					
+					
+					
+					
+					
+					
+					
+				end
+				
+			end
+			
+			if(trigger.name == "check_current_scannerdata") then
+				if(currentScannerItem ~= nil) then
+					if(trigger.prop == "primaryname" or trigger.prop == "secondaryname" or trigger.prop == "entityname") then
+						
+						
+						
+						result = string.match(currentScannerItem[trigger.prop], trigger.value)
+						
+						
+						
+					end
+					
+					if(trigger.prop == "level" or trigger.prop == "rarity" or trigger.prop == "attitude") then
+						
+						
+						
+						result = checkValue(trigger.operator,currentScannerItem[trigger.prop],trigger.value)
+						
+						
+						
+					end
+					
+					
+					if(trigger.prop == "reward" or trigger.prop == "streetreward" or trigger.prop == "danger") then
+						
+						
+						
+						result = checkValue(trigger.operator,currentScannerItem["bounty"][trigger.prop],trigger.value)
+						
+						
+						
+					end
+					
+					
+					if(trigger.prop == "issuedby" ) then
+						
+						
+						
+						result = string.match(currentScannerItem["bounty"][trigger.prop], trigger.value)
+						
+						
+						
+					end
+					
+					
+					
+					
+					
+					if(trigger.prop == "transgressions" or trigger.prop == "customtransgressions"  ) then
+						
+						result = table.contains(currentScannerItem["bounty"][trigger.prop],trigger.value)
+						
+						
+						
+					end
+				end
+			end
+			
+			
+		end
 		if houseregion then
 			if(trigger.name == "custom_place") then
 				if currentHouse ~= nil then
@@ -773,7 +1014,7 @@ function scriptcheckTrigger(trigger)
 		if gangregion then
 			if(trigger.name == "gang_affinity") then
 				local score = 0
-				score = getScoreKey(trigger.value,"Score")
+				score = getScoreKey("Affinity",trigger.value)
 				if(score ~= nil and score >= trigger.score)then
 					result = true
 				end
@@ -818,8 +1059,8 @@ function scriptcheckTrigger(trigger)
 				end
 			end
 			if(trigger.name == "check_gang_district_score") then
-				if 	currentSave.arrayFactionDistrict[trigger.faction][trigger.district] ~= nil then
-					if currentSave.arrayFactionDistrict[trigger.faction][trigger.district] >= trigger.value then
+				if 	currentSave.Score[trigger.faction][trigger.district] ~= nil then
+					if currentSave.Score[trigger.faction][trigger.district] >= trigger.value then
 						result =  true
 					end
 				end
@@ -841,15 +1082,12 @@ function scriptcheckTrigger(trigger)
 						if(trigger.target ~= trigger.tag ) then
 							
 							local score = getFactionRelation(trigger.tag,trigger.target)
-							if(
-								(trigger.operator == "<" and score < trigger.score) or
-								(trigger.operator == "<=" and score <= trigger.score) or
-								(trigger.operator == ">" and score > trigger.score) or
-								(trigger.operator == ">=" and score >= trigger.score) or
-								(trigger.operator == "!=" and score ~= trigger.score) or
-							(trigger.operator == "=" and score == trigger.score)) then
-							result = true
+							if(checkValue(trigger.operator,score,trigger.score)) then
+								
+								result = true
+								
 							end
+							
 							
 							
 						end
@@ -866,14 +1104,8 @@ function scriptcheckTrigger(trigger)
 							if(gangs[1].tag ~= trigger.tag) then
 								
 								local score = getFactionRelation(trigger.tag,gangs[1].tag)
-								if(
-									(trigger.operator == "<" and score < trigger.score) or
-									(trigger.operator == "<=" and score <= trigger.score) or
-									(trigger.operator == ">" and score > trigger.score) or
-									(trigger.operator == ">=" and score >= trigger.score) or
-									(trigger.operator == "!=" and score ~= trigger.score) or
-								(trigger.operator == "=" and score == trigger.score)) then
-								result = true
+								if(checkValue(trigger.operator,score,trigger.score)) then
+									result = true
 								end
 								
 								
@@ -891,14 +1123,9 @@ function scriptcheckTrigger(trigger)
 								if(gangs[1].tag ~= trigger.tag) then
 									
 									local score = getFactionRelation(trigger.tag,gangs[1].tag)
-									if(
-										(trigger.operator == "<" and score < trigger.score) or
-										(trigger.operator == "<=" and score <= trigger.score) or
-										(trigger.operator == ">" and score > trigger.score) or
-										(trigger.operator == ">=" and score >= trigger.score) or
-										(trigger.operator == "!=" and score ~= trigger.score) or
-									(trigger.operator == "=" and score == trigger.score)) then
-									result = true
+									if(checkValue(trigger.operator,score,trigger.score)) then
+										
+										result = true
 									end
 								end
 							end
@@ -915,14 +1142,8 @@ function scriptcheckTrigger(trigger)
 									if(gangs[1].tag ~= trigger.tag) then
 										
 										local score = getFactionRelation(trigger.tag,gangs[1].tag)
-										if(
-											(trigger.operator == "<" and score < trigger.score) or
-											(trigger.operator == "<=" and score <= trigger.score) or
-											(trigger.operator == ">" and score > trigger.score) or
-											(trigger.operator == ">=" and score >= trigger.score) or
-											(trigger.operator == "!=" and score ~= trigger.score) or
-										(trigger.operator == "=" and score == trigger.score)) then
-										result = true
+										if(checkValue(trigger.operator,score,trigger.score)) then
+											result = true
 										end
 									end
 								end
@@ -970,18 +1191,11 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "last_killed_entity_gang_score") then
 				if lastTargetKilled ~= nil then
 					local killComp, killGangScore, killGang = checkAttitudeByGangScore(lastTargetKilled)
-					if(killGangScore ~= nil) then
-						if(
-							(trigger.operator == "<" and killGangScore < trigger.score) or
-							(trigger.operator == "<=" and killGangScore <= trigger.score) or
-							(trigger.operator == ">" and killGangScore > trigger.score) or
-							(trigger.operator == ">=" and killGangScore >= trigger.score) or
-							(trigger.operator == "!=" and killGangScore ~= trigger.score) or
-						(trigger.operator == "=" and killGangScore == trigger.score)) 
-						then
+					
+					if(checkValue(trigger.operator,killGangScore,trigger.score)) then
 						result = true
-						end
 					end
+					
 				end
 			end
 			
@@ -1093,6 +1307,29 @@ function scriptcheckTrigger(trigger)
 					result =  true
 				end
 			end
+			
+			if(trigger.name == "interact_is_forceloaded") then
+				if(#loadInteract > 0) then
+					
+					for i,v in ipairs(loadInteract) do
+						
+						if(v == trigger.tag) then
+							
+							return true
+							
+						end
+						
+					end
+					
+					
+					
+					
+				end
+				
+				
+				return false
+			end
+			
 		end
 		
 		if relationregion then
@@ -1399,25 +1636,25 @@ function scriptcheckTrigger(trigger)
 				end
 			end
 			if(trigger.name == "player_is_online") then
-				result =  multiReady
+				result =  MultiplayerOn
 			end
 			if(trigger.name == "player_is_connected") then
-				result =  multiEnabled
+				result =  NetServiceOn
 				
 			end
 			if(trigger.name =="player_multi_canbuild")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil) then
 					result = ActualPlayerMultiData.instance.CanBuild
 				end
 			end 
 			if(trigger.name =="player_multi_isowner")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil) then
 					result = ActualPlayerMultiData.instance.isInstanceOwner
 				end
 			end 
 			if(trigger.name =="player_multi_guild_isowner")then
 				
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.currentGuild ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.currentGuild ~= nil) then
 					result = ActualPlayerMultiData.currentGuild.isOwner
 				end
 			end 
@@ -1439,202 +1676,130 @@ function scriptcheckTrigger(trigger)
 				end
 			end
 			if(trigger.name =="player_server_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.scores[trigger.value]
-					if(score ~= nil) then
-						if(
-							(trigger.operator == "<" and score < trigger.score) or
-							(trigger.operator == "<=" and score <= trigger.score) or
-							(trigger.operator == ">" and score > trigger.score) or
-							(trigger.operator == ">=" and score >= trigger.score) or
-							(trigger.operator == "!=" and score ~= trigger.score) or
-						(trigger.operator == "=" and score == trigger.score)) then
+					if(checkValue(trigger.operator,score,trigger.score)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="looked_player_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance_players[multiName].score[trigger.value]
-					if(score ~= nil) then
-						if(
-							(trigger.operator == "<" and score < trigger.score) or
-							(trigger.operator == "<=" and score <= trigger.score) or
-							(trigger.operator == ">" and score > trigger.score) or
-							(trigger.operator == ">=" and score >= trigger.score) or
-							(trigger.operator == "!=" and score ~= trigger.score) or
-						(trigger.operator == "=" and score == trigger.score)) then
+					if(checkValue(trigger.operator,score,trigger.score)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="server_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance.scores[trigger.value]
-					if(score ~= nil) then
-						if(
-							(trigger.operator == "<" and score < trigger.score) or
-							(trigger.operator == "<=" and score <= trigger.score) or
-							(trigger.operator == ">" and score > trigger.score) or
-							(trigger.operator == ">=" and score >= trigger.score) or
-							(trigger.operator == "!=" and score ~= trigger.score) or
-						(trigger.operator == "=" and score == trigger.score)) then
+					if(checkValue(trigger.operator,score,trigger.score)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="server_score_to_player_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance.scores[trigger.server]
 					local playerscore = ActualPlayerMultiData.scores[trigger.player]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="server_score_to_looked_player_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance.scores[trigger.server]
 					local playerscore = ActualPlayerMultiData.instance_players[multiName].score[trigger.value]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="server_score_to_server_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance.scores[trigger.server]
 					local playerscore = ActualPlayerMultiData.instance.scores[trigger.score]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="server_score_to_game_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
 					local score = ActualPlayerMultiData.instance.scores[trigger.server]
 					local playerscore = getScoreKey(trigger.score,"Score")
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="guild_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
 					local score = ActualPlayerMultiData.guildscores[trigger.guild][trigger.guildscore]
-					if(score ~= nil) then
-						if(
-							(trigger.operator == "<" and score < trigger.score) or
-							(trigger.operator == "<=" and score <= trigger.score) or
-							(trigger.operator == ">" and score > trigger.score) or
-							(trigger.operator == ">=" and score >= trigger.score) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == trigger.score)) then
+					if(checkValue(trigger.operator,score,trigger.score)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="guid_score_to_server_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
 					local playerscore = ActualPlayerMultiData.instance.Scores[trigger.server]
 					local score = ActualPlayerMultiData.guildscores[trigger.guild][trigger.guildscore]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="guild_score_to_player_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
 					local score =  ActualPlayerMultiData.guildscores[trigger.guild][trigger.guildscore]
 					local playerscore = ActualPlayerMultiData.scores[trigger.player]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="guild_score_to_looked_player_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
 					local score =  ActualPlayerMultiData.guildscores[trigger.guild][trigger.guildscore]
 					local playerscore = ActualPlayerMultiData.instance_players[multiName].score[trigger.value]
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end 
 			if(trigger.name =="guild_score_to_game_score")then
-				if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.guildscores ~= nil) then
 					local score =  ActualPlayerMultiData.guildscores[trigger.guild][trigger.guildscore]
 					local playerscore = getScoreKey(trigger.score,"Score")
-					if(score ~= nil and playerscore ~= nil) then
-						if(
-							(trigger.operator == "<" and score < playerscore) or
-							(trigger.operator == "<=" and score <= playerscore) or
-							(trigger.operator == ">" and score > playerscore) or
-							(trigger.operator == ">=" and score >= playerscore) or
-							(trigger.operator == "!=" and score ~= playerscore) or
-						(trigger.operator == "=" and score == playerscore)) then
+					if(checkValue(trigger.operator,score,playerscore)) then
+						
 						result = true
-						end
+						
 					end
 				end
 			end
@@ -1689,8 +1854,34 @@ end
 function executeAction(action,tag,parent,index,source,executortag)
 	local result = true
 	actionistaken = true
+	
 	if(action.tag == "this") then
 		action.tag = executortag
+	end
+	
+	
+	
+	if(action.context ~= nil) then
+		
+		if(isArray(action.context))then
+			for i,v in ipairs(action.context) do
+				
+				if(checkTriggerRequirement(v.requirement,v.trigger))then
+					for k,u in pairs(v.prop) do
+						
+						action[k] = GeneratefromContext(u)
+					end
+				end
+			end
+			else
+			if(checkTriggerRequirement(action.context.requirement,action.context.trigger))then
+				for k,u in pairs(action.context.prop) do
+					
+					action[k] = GeneratefromContext(u)
+				end
+			end
+		end
+        
 	end
 	
 	
@@ -1713,50 +1904,50 @@ function executeAction(action,tag,parent,index,source,executortag)
 	local multiregion = true
 	local framework = true
 	local scene = true
-	
+	local scannerregion = true
 	
 	if groupregion then
 		if(action.name == "create_group") then
 			local group = {}
 			group.tag = action.tag
 			group.entities = {}
-			table.insert(questMod.GroupManager,group)
+			questMod.GroupManager[action.tag] = group
+			
 			debugPrint(1,"group created")
 		end
 		if(action.name == "add_entity_to_group") then
-			local index =getIndexFromGroupManager(action.tag)
+			
 			for i=1, #action.entities do
-				table.insert(questMod.GroupManager[index].entities,action.entities[i])
+				table.insert(questMod.GroupManager[action.tag].entities,action.entities[i])
 			end
+			
 		end
 		if(action.name == "set_entity_to_group") then
-			local index =getIndexFromGroupManager(action.tag)
-			questMod.GroupManager[index].entities = action.entities
+			
+			questMod.GroupManager[action.tag].entities = action.entities
+			
 		end
 		if(action.name == "despawn_group") then
 			local group =getGroupfromManager(action.tag)
 			if group ~= nil then
 				for i=1, #group.entities do 
 					local entityTag = group.entities[i]
-					--despawnEntity(entiTab.spawnlevel)
+					
 					despawnEntity(entityTag)
-					--questMod.EntityManager[group[i]] = nil
+					
 				end
 			end
 		end
 		if(action.name == "remove_group") then
-			local index =getIndexFromGroupManager(action.tag)
-			if index ~= nil then
-				table.remove(questMod.GroupManager,index)
-			end
+			questMod.GroupManager[action.tag] = nil
 		end
 		if(action.name == "remove_entity_from_group") then
-			local index =getIndexFromGroupManager(action.tag)
-			for i=1, #questMod.GroupManager[index].entities do 
-				local entityTag = questMod.GroupManager[index].entities[i]
+			
+			for i=1, #questMod.GroupManager[action.tag].entities do 
+				local entityTag = questMod.GroupManager[action.tag].entities[i]
 				for y=1, action.entities do
 					if(entityTag == action.entities[y]) then
-						table.remove(questMod.GroupManager[index].entities,i)
+						table.remove(questMod.GroupManager[action.tag].entities,i)
 					end
 				end
 			end
@@ -1983,7 +2174,23 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 			
 		end
-		
+		if(action.name == "ressurect_group") then
+			local group =getGroupfromManager(action.tag)
+			for i=1, #group.entities do 
+				local entityTag = group.entities[i]
+				local obj = getEntityFromManager(entityTag)
+				local enti = Game.FindEntityByID(obj.id)
+				if(enti ~= nil) then
+					
+					local sp = Game.GetScriptableSystemsContainer():Get(CName.new("ScriptedPuppet"))
+					sp:SendResurrectEvent(enti)
+					
+					
+				end
+				
+			end
+			
+		end
 		if(action.name == "set_script_level_group") then
 			local group =getGroupfromManager(action.tag)
 			for i=1, #group.entities do 
@@ -2158,215 +2365,35 @@ function executeAction(action,tag,parent,index,source,executortag)
 				if(action.amount > 1) then
 					tag = action.tag.."_"..i
 				end
-				local position = {}
-				if(action.position == "at") then
-					position.x = action.x
-					position.y = action.y
-					position.z = action.z
-				end
-				if(action.position == "relative_to_entity") then
-					local positionVec4 = Game.GetPlayer():GetWorldPosition()
-					local entity = nil
-					if(action.position_tag ~= "player") then
-						local obj = getEntityFromManager(action.position_tag)
-						entity = Game.FindEntityByID(obj.id)
-						positionVec4 = entity:GetWorldPosition()
-						else
-						entity = Game.GetPlayer()
-					end
-					if(action.position_way ~= nil and (action.position_way ~= "" or action.position_way ~= "normal")) then
-						if(action.position_way == "behind") then
-							positionVec4 = getBehindPosition(entity,action.position_distance)
-						end
-						if(action.position_way == "forward") then
-							positionVec4 = getForwardPosition(entity,action.position_distance)
-						end
-					end
-					position = positionVec4
-				end
-				if(action.position == "node") then
-					local node = getNode(action.position_tag)
-					if node ~= nil then
-						if(action.position_node_usegameplay == true) then
-							position.x = node.GameplayX
-							position.y = node.GameplayY
-							position.z = node.GameplayZ
-							else
-							position.x = node.X
-							position.y = node.Y
-							position.z = node.Z
-						end
-						else
-						error("can't find an node who have tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "current_node") then
-					local position = Game.GetPlayer():GetWorldPosition()
-					local range = 70
-					if(action.position_node_current_detection_range ~= nil) then
-						range = action.position_node_current_detection_range
-					end
-					local node = getNodefromPosition(position.x,position.y,position.z,range)
-					if node ~= nil then
-						if(action.position_node_usegameplay == true) then
-							position.x = node.GameplayX
-							position.y = node.GameplayY
-							position.z = node.GameplayZ
-							else
-							position.x = node.X
-							position.y = node.Y
-							position.z = node.Z
-						end
-						else
-						error("can't find an current node")
-					end
-				end
-				if(action.position == "poi") then
-					local currentpoi = nil
-					currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-					if(currentpoi ~= nil) then
-						position.x = currentpoi.x
-						position.y = currentpoi.y
-						position.z = currentpoi.z
-						else
-						print("can't find an current poi")
-						spdlog.error("can't find an current poi . data :"..tostring(dump(action)).." tag "..tag.." parent "..parent.." index "..index)
-					end
-				end
-				if(action.position == "mappin") then
-					local mappin = getMappinByTag(action.position_tag)
-					if(mappin)then
-						position = mappin.position
-						else
-						error("can't find an mappin with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "fasttravel") then
-					local markerref = nil
-					local tempos = nil
-					for j=1, #mappedFastTravelPoint do
-						local point = mappedFastTravelPoint[j]
-						if(point.markerref == action.position_tag) then
-							markerref = point.markerrefdata
-							tempos = point.position
-							break
-						end
-					end
-					if(markerref)then
-						position = tempos
-						else
-						error("can't find an fast travel point with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "current_fasttravel") then
-					if(ActiveFastTravelMappin ~= nil)then
-						position = ActiveFastTravelMappin.position
-						else
-						error("can't find an current fast travel point ")
-					end
-				end
-				if(action.position == "current_custom_mappin") then
-					if(ActivecustomMappin ~= nil)then
-						local mappin = ActivecustomMappin:GetWorldPosition()
-						position.x = mappin.x
-						position.y = mappin.y
-						position.z = mappin.z
-						else
-						error("can't find an current custom point ")
-					end
-				end
-				if(action.position == "custom_place") then
-					local house = getHouseByTag(action.position_tag)
-					if(house ~= nil) then
-						if(action.position_house_way == "default") then
-							position.x = house.posX
-							position.y = house.posY
-							position.z = house.posZ
-						end
-						if(action.position_house_way == "enter") then
-							position.x = house.EnterX
-							position.y = house.EnterY
-							position.z = house.EnterZ
-						end
-						if(action.position_house_way == "exit") then
-							position.x = house.ExitX
-							position.y = house.ExitY
-							position.z = house.ExitZ
-						end
-						else
-						error("can't find an custom place with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "custom_room") then
-					local room = getRoomByTag(action.position_tag,action.position_house_tag)
-					if(room ~= nil) then
-						position.x = room.posX
-						position.y = room.posY
-						position.z = room.posZ
-						else
-						error("can't find an custom room with tag : "..action.position_tag.." for the house with tag :"..action.position_house_tag)
-					end
-				end
-				if(action.position == "current_custom_place") then
-					if(currentHouse ~= nil) then
-						if(action.position_house_way == "default") then
-							position.x = currentHouse.posX
-							position.y = currentHouse.posY
-							position.z = currentHouse.posZ
-						end
-						if(action.position_house_way == "Enter") then
-							position.x = currentHouse.EnterX
-							position.y = currentHouse.EnterY
-							position.z = currentHouse.EnterZ
-						end
-						if(action.position_house_way == "Exit") then
-							position.x = currentHouse.ExitX
-							position.y = currentHouse.ExitY
-							position.z = currentHouse.ExitZ
-						end
-						else
-						error("can't find an current custom place")
-					end
-				end	
-				if(action.position == "current_custom_room") then
-					if(currentRoom ~= nil) then
-						position.x = currentRoom.posX
-						position.y = currentRoom.posY
-						position.z = currentRoom.posZ
-						else
-						error("can't find an current custom room")
-					end				
-				end
-				if(action.position ~= "at" and position.x ~= nil) then
-					position.x = position.x + action.x
-					position.y = position.y + action.y
-					position.z = position.z + action.z
-					else
-					
-					if(position.x == nil) then
-						error("position is empty")
-					end
-				end
+				
+				
+				local position = getPositionFromParameter(action)
+				
 				if(chara ~= "" and position.x ~= nil) then
-					spawnVehicleV2(chara,action.appearance,tag, position.x, position.y ,position.z,action.spawnlevel,action.spawn_system,action.isAV,action.appears_from_behind,false,action.wait_for_vehicle, action.scriptlevel)
+					if(action.amount > 1) then
+					
+					position.x = position.x + (action.amount*0.5)
+					
+					end
+					spawnVehicleV2(chara,action.appearance,tag, position.x, position.y ,position.z,action.spawnlevel,action.spawn_system,action.isAV,action.appears_from_behind,false,action.wait_for_vehicle, action.scriptlevel, action.wait_for_vehicle_second)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						if(index == nil and action.create_group_if_not_exist == true) then
+						
+						if(questMod.GroupManager[action.group] == nil and action.create_group_if_not_exist == true) then
 							local group = {}
 							group.tag = action.group
 							group.entities = {}
-							table.insert(questMod.GroupManager,group)
+							questMod.GroupManager[action.group] = group
 							debugPrint(1,"group created")
-							index =getIndexFromGroupManager(action.group)
+							
 						end
-						if(index ~= nil) then
-							table.insert(questMod.GroupManager[index].entities,tag)
+						if(questMod.GroupManager[action.group] ~= nil) then
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 							else
 							debugPrint(1,"group with tag : "..action.group.." doesn't exist")
 						end
 					end
 					else
-					print("can't find an vehicule")
+					print(getLang("see_action_novehicle"))
 				end
 			end
 		end
@@ -2396,6 +2423,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 		end
 		if(action.name == "vehicle_follow_entity") then
 			VehicleFollowEntity(action.vehicle, action.tag)
+		end
+		if(action.name == "vehicle_chase_entity") then
+			VehicleChaseEntity(action.vehicle, action.tag)
 		end
 		if(action.name == "change_av_velocity") then
 			AVVelocity = action.value
@@ -2493,8 +2523,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,tag)
 					end
 				end
 			end
@@ -2522,8 +2552,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,tag)
 					end
 				end
 			end
@@ -2552,8 +2582,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2591,8 +2621,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2624,8 +2654,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2665,8 +2695,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2729,8 +2759,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,tag)
 					end
 				end
 			end
@@ -2791,8 +2821,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,tag)
 					end
 				end
 			end
@@ -2854,8 +2884,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2926,8 +2956,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -2992,8 +3022,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -3066,8 +3096,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
 						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
+							
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 						end
 					end
 				end
@@ -3114,8 +3144,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			setScore(action.value,"Score",score)
 		end
 		if(action.name == "random_custom_score") then
-			local score  = getScoreKey(action.variable,"Score")
-			score = math.random(action.min,action.max)
+			local score  = math.random(action.min,action.max)
 			setScore(action.variable,"Score",score)
 		end
 		if(action.name == "operate_custom_score_to_another_one") then
@@ -3150,21 +3179,125 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 			setScore(action.resultscore,"Score",score)
 		end
-		if(action.name == "change_player_reputation") then
-			setScore("player_reputation","Score",action.value)
+		
+		
+		
+		
+		
+		
+		
+		if(action.name == "set_score") then
+			setScore(action.score,action.key,action.value)
 		end
-		if(action.name == "concate_custom_variable_with_score") then
-			local score1  = getValue(action.object,action.value,action.parameter,action.index)
-			setVariable(action.resultvariable,action.resultkey,score1)
+		
+		if(action.name == "operate_score") then
+			local score  = getScoreKey(action.score,action.key)
+			if(score == nil) then score = 0 end
+			
+			if(action.operator == "+") then
+				score = score + action.value
+			end
+			if(action.operator == "-") then
+				score = score - action.value
+			end
+			if(action.operator == "*") then
+				score = score * action.value
+			end
+			if(action.operator == "/") then
+				score = score / action.value
+			end
+			if(action.operator == "positive") then
+				if(score > 0) then
+					score = 0 + score
+					else
+					score = 0 - score
+				end
+			end
+			if(action.operator == "negative") then
+				if(score > 0) then
+					score = 0 - score
+					else
+					score = 0 + score
+				end
+			end
+			if(action.operator == "random") then
+				score = math.random(action.min,action.max)
+			end
+			
+			
+			
+			setScore(action.score,action.key,score)
 		end
+		
+		if(action.name == "operate_score_from_another_score") then
+			local score  = getScoreKey(action.score,action.key)
+			local score2 =  getScoreKey(action.targetscore,action.targetkey)
+			
+			if(score == nil) then score = 0 end
+			if(score2 == nil) then score2 = 0 end
+			
+			if(action.operator == "+") then
+				score = score + score2
+			end
+			if(action.operator == "-") then
+				score = score - score2
+			end
+			if(action.operator == "*") then
+				score = score * score2
+			end
+			if(action.operator == "/") then
+				score = score /score2
+			end
+			
+			
+			
+			
+			setScore(action.score,action.key,score)
+		end
+		
+		
+		if(action.name == "set_variable") then
+			setVariable(action.variable,action.key,action.value)
+		end
+		
+		
+		if(action.name == "concate_variable") then
+			local var  = getVariableKey(action.variable,action.key)
+			var = var .. action.value
+			setVariable(action.variable,action.key,var)
+		end
+		
+		
+		if(action.name == "concate_variable_with_variable") then
+			local var1  = getVariableKey(action.variable,action.key)
+			local var2  = getVariableKey(action.targetvariable,action.targetkey)
+			local var = var1 .. var2
+			setVariable(action.variable,action.key,var)
+		end
+		
+		
+		if(action.name == "concate_variable_with_score") then
+			local var1  = getVariableKey(action.variable,action.key)
+			local score1  = getScoreKey(action.score,action.scorekey)
+			local var = var1 .. score2
+			setVariable(action.variable,action.key,var)
+		end
+		
+		
+		
+		
+		
+		
 	end
 	
 	if houseregion then
 		if(action.name == "change_house_statut") then
-			updateHouseStatut(action.value,action.score)
+			
+			setScore(action.value,"Statut",action.score)
 		end
 		if(action.name == "change_house_score") then
-			updateHouseScore(action.value,action.score)
+			
+			setScore(action.value,"Score",action.score)
 		end
 		if(action.name == "getSalaryFromCurrentRent") then
 			if currentHouse ~= nil then
@@ -3207,9 +3340,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local itemid = ItemID.new(tid)
 					local amount = currentHouse.price
 					local result = ts:RemoveItem(player, itemid, amount)
-					updateHouseStatut(currentHouse.tag,1)
+					
+					setScore(currentHouse.tag,"Statut",1)
 					else
-					Game.GetPlayer():SetWarningMessage("This place can't be buyed or the price is too high for you !")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_place_price_toohigh"))
 				end
 			end
 		end
@@ -3227,9 +3361,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local itemid = ItemID.new(tid)
 					local amount = house.price
 					local result = ts:RemoveItem(player, itemid, amount)
-					updateHouseStatut(house.tag,1)
+					
+					setScore(currentHouse.tag,"Statut",1)
 					else
-					Game.GetPlayer():SetWarningMessage("This place can't be buyed or the price is too high for you !")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_place_price_toohigh"))
 				end
 			end
 		end
@@ -3247,9 +3382,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local itemid = ItemID.new(tid)
 					local amount = house.price
 					local result = ts:GiveItem(player, itemid, amount)
-					updateHouseStatut(house.tag,1)
+					
+					setScore(currentHouse.tag,"Statut",0)
 					else
-					Game.GetPlayer():SetWarningMessage("This place can't be buyed or the price is too high for you !")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_place_price_toohigh"))
 				end
 			end
 		end
@@ -3263,9 +3399,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local amount =  round(currentHouse.price/2)
 					--debugPrint(1,"amount : "..amount)
 					local result = ts:GiveItem(player, itemid, amount)
-					updateHouseStatut(currentHouse.tag,0)
+					
+					setScore(currentHouse.tag,"Statut",0)
 					else
-					Game.GetPlayer():SetWarningMessage("This place can't be buyed or the price is too high for you !")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_place_price_toohigh"))
 				end
 			end
 		end
@@ -3278,9 +3415,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local itemid = ItemID.new(tid)
 					local amount = currentHouse.price*currentHouse.coef
 					local result = ts:RemoveItem(player, itemid, amount)
-					updateHouseStatut(currentHouse.tag,2)
+					
+					setScore(currentHouse.tag,"Statut",2)
 					else
-					Game.GetPlayer():SetWarningMessage("This place can't be rented or the price is too high for you !")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_place_rent_toohigh"))
 				end
 			end
 		end
@@ -3393,7 +3531,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 		if(action.name == "open_buyed_item_ui") then
 			if currentHouse ~= nil then
 				if(getHouseStatut(currentHouse.tag) == 1) then
-					ScrollSpeed = 0.07
+					
 					BuyedItemsUI()
 				end
 			end
@@ -3816,38 +3954,167 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		if(action.name == "current_place_clear_all_item") then
+		
+		if(currentHouse ~=nil) then
+			if(#currentItemSpawned > 0) then
+						
+						
+							for i=1,#currentItemSpawned do
+								
+								deleteHousing(currentItemSpawned[i].Id)
+								
+								
+							end
+							
+							despawnItemFromHouse()
+							
+						end
+				end
+		
+		end
+		
+	
+	
+	
+	if(action.name == "current_place_apply_template") then
+		
+		if(currentHouse ~=nil and arrayHousingTemplate[action.tag] ~= nil) then
+		local template = arrayHousingTemplate[action.tag].template
+		
+		if(#template.items > 0) then
+							
+							
+							
+							
+							for i,v in ipairs(template.items) do
+								
+								local obj = {}
+								obj.Id = v.Id
+								obj.Tag = v.Tag
+								obj.HouseTag = currentHouse.tag
+								obj.ItemPath = v.ItemPath
+								obj.X = action.x +v.X
+								obj.Y = action.y + v.Y
+								obj.Z = action.z + v.Z
+								obj.Yaw = v.Yaw
+								obj.Pitch = v.Pitch
+								obj.Roll = v.Roll
+								obj.Title = v.Title
+								obj.fromTemplate = true
+								obj.template = template.tag
+								
+								
+								saveHousing(obj)
+				
+								local housing = getHousing(obj.Tag,obj.X,obj.Y,obj.Z)
+								obj.Id = housing.Id
+								
+								local poss = Vector4.new( obj.X, obj.Y,  obj.Z,1)
+								
+								
+								local angless = EulerAngles.new(obj.Roll, obj.Pitch,  obj.Yaw)
+								
+								
+								obj.entityId = spawnItem(obj, poss, angless)
+								
+								
+								table.insert(currentItemSpawned,obj)
+								
+							end
+							
+							
+						end
+		
+		end
+		
+	
 	end
+	
+	if(action.name == "current_place_clear_all_template") then
+		
+		if(currentHouse ~=nil) then
+		
+			if(#currentItemSpawned > 0) then
+								
+								for i=1,#currentItemSpawned do
+									
+									if(currentItemSpawned[i].fromTemplate ~= nil and currentItemSpawned[i].fromTemplate == true) then
+										deleteHousing(currentItemSpawned[i].Id)
+										despawnItemFromId(currentItemSpawned[i].Id)
+										
+									end
+									
+									
+								end
+								
+								
+						end
+		
+		end
+		
+	
+	end
+	
+	
+	if(action.name == "current_place_clear_template") then
+		
+		if(currentHouse ~=nil) then
+		
+			if(#currentItemSpawned > 0) then
+								
+								for i=1,#currentItemSpawned do
+									
+									if(currentItemSpawned[i].fromTemplate ~= nil and currentItemSpawned[i].fromTemplate == true and currentItemSpawned[i].template == action.tag) then
+										deleteHousing(currentItemSpawned[i].Id)
+										despawnItemFromId(currentItemSpawned[i].Id)
+										
+									end
+									
+									
+								end
+								
+								
+						end
+		
+		end
+		
+	
+	end
+	
+end
+	
 	
 	if gangregion then
 		if(action.name == "gang_affinity") then
-			local score = getScoreKey(action.value,"Score")
+			local score = getScoreKey("Affinity",action.value)
 			if(score == nil) then
 				score = 0
-				setScore(action.value,"Score",score)
+				setScore("Affinity",action.value,score)
 			end
 			score = score + action.score
-			setScore(action.value,"Score",score)
+			setScore("Affinity",action.value,score)
 		end
 		if(action.name == "add_gang_district_score") then
-			currentSave.arrayFactionDistrict[action.faction][action.district] = currentSave.arrayFactionDistrict[action.faction][action.district] + action.value
+			currentSave.Score[action.faction][action.district] = currentSave.Score[action.faction][action.district] + action.value
 		end
 		if(action.name == "remove_gang_district_score") then
-			currentSave.arrayFactionDistrict[action.faction][action.district] = currentSave.arrayFactionDistrict[action.faction][action.district] - action.value
+			currentSave.Score[action.faction][action.district] = currentSave.Score[action.faction][action.district] - action.value
 		end
 		if(action.name == "set_gang_district_score") then
-			currentSave.arrayFactionDistrict[action.faction][action.district] = action.value
+			currentSave.Score[action.faction][action.district] = action.value
 		end
 		if(action.name == "gang_affinity_from_current_district_leader") then
 			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
 			if(#gangs > 0) then
 				local gang = getFactionByTag(gangs[1].tag)
-				local score = getScoreKey(gang.tag,"Score")
+				local score = getScoreKey("Affinity",gang.Tag)
 				if(score == nil) then
 					score = 0
-					setScore(gang.tag,"Score",score)
+					setScore("Affinity",gang.Tag,score)
 				end
 				score = score + action.score
-				setScore(gang.Tag,"Score",score)
+				setScore("Affinity",gang.Tag,score)
 			end
 		end
 		if(action.name == "gang_affinity_from_current_district_leader_rival") then
@@ -3857,13 +4124,13 @@ function executeAction(action,tag,parent,index,source,executortag)
 				local gang = getFactionByTag(gangs[1].tag)
 				local rivalindex = math.random(1,#gang.Rivals)
 				gang = getFactionByTag(gang.Rivals[rivalindex])
-				local score = getScoreKey(gang.tag,"Score")
+				local score = getScoreKey("Affinity",gang.Tag)
 				if(score == nil) then
 					score = 0
-					setScore(gang.tag,"Score",score)
+					setScore("Affinity",gang.Tag,score)
 				end
 				score = score + action.score
-				setScore(gang.Tag,"Score",score)
+				setScore("Affinity",gang.Tag,score)
 			end
 		end
 		if(action.name == "gang_affinity_from_current_subdistrict_leader") then
@@ -3873,13 +4140,13 @@ function executeAction(action,tag,parent,index,source,executortag)
 						local gangs = getGangfromDistrict(test,20)
 						if(#gangs > 0) then
 							local gang = getFactionByTag(gangs[1].tag)
-							local score = getScoreKey(gang.tag,"Score")
+							local score = getScoreKey(gang.Tag,"Score")
 							if(score == nil) then
 								score = 0
-								setScore(gang.tag,"Score",score)
+								setScore("Affinity",gang.Tag,score)
 							end
 							score = score + action.score
-							setScore(gang.Tag,"Score",score)
+							setScore("Affinity",gang.Tag,score)
 							break
 						end
 					end
@@ -3895,13 +4162,13 @@ function executeAction(action,tag,parent,index,source,executortag)
 							local gang = getFactionByTag(gangs[1].tag)
 							local rivalindex = math.random(1,#gang.Rivals)
 							gang = getFactionByTag(gang.Rivals[rivalindex])
-							local score = getScoreKey(gang.tag,"Score")
+							local score = getScoreKey("Affinity",gang.Tag)
 							if(score == nil) then
 								score = 0
-								setScore(gang.tag,"Score",score)
+								setScore("Affinity",gang.Tag,score)
 							end
 							score = score + action.score
-							setScore(gang.Tag,"Score",score)
+							setScore("Affinity",gang.Tag,score)
 							break
 						end
 					end
@@ -3912,20 +4179,20 @@ function executeAction(action,tag,parent,index,source,executortag)
 		
 		if(action.name == "add_gang_currentdistrict_score") then
 			if currentDistricts2 ~= nil then
-				currentSave.arrayFactionDistrict[action.faction][currentDistricts2.Tag] = currentSave.arrayFactionDistrict[action.faction][currentDistricts2.Tag] + action.value
+				currentSave.Score[action.faction][currentDistricts2.Tag] = currentSave.Score[action.faction][currentDistricts2.Tag] + action.value
 			end
 		end
 		if(action.name == "remove_gang_currentdistrict_score") then
 			if currentDistricts2 ~= nil then
-				currentSave.arrayFactionDistrict[action.faction][currentDistricts2.Tag] =
-				currentSave.arrayFactionDistrict[action.faction][currentDistricts2.Tag] - action.value
+				currentSave.Score[action.faction][currentDistricts2.Tag] =
+				currentSave.Score[action.faction][currentDistricts2.Tag] - action.value
 			end
 		end
 		if(action.name == "add_leader_currentdistrict_score") then
 			if currentDistricts2 ~= nil then
 				local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
 				if(#gangs > 0) then
-					currentSave.arrayFactionDistrict[gangs[1].tag][currentDistricts2.Tag] = currentSave.arrayFactionDistrict[gangs[1].tag][currentDistricts2.Tag] + action.value
+					currentSave.Score[gangs[1].tag][currentDistricts2.Tag] = currentSave.Score[gangs[1].tag][currentDistricts2.Tag] + action.value
 				end
 			end
 		end
@@ -3933,7 +4200,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			if currentDistricts2 ~= nil then
 				local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
 				if(#gangs > 0) then
-					currentSave.arrayFactionDistrict[gangs[1].tag][currentDistricts2.Tag] = currentSave.arrayFactionDistrict[gangs[1].tag][currentDistricts2.Tag] - action.value
+					currentSave.Score[gangs[1].tag][currentDistricts2.Tag] = currentSave.Score[gangs[1].tag][currentDistricts2.Tag] - action.value
 				end
 			end
 		end
@@ -3943,10 +4210,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					if i > 1 then
 						local gangs = getGangfromDistrict(test,20)
 						if(#gangs > 0) then
-						debugPrint(1,currentDistricts2.Tag)
-						currentSave.arrayFactionDistrict[gangs[1].tag][test] = currentSave.arrayFactionDistrict[gangs[1].tag][test] + action.value
-						break
-					end
+							debugPrint(1,currentDistricts2.Tag)
+							currentSave.Score[gangs[1].tag][test] = currentSave.Score[gangs[1].tag][test] + action.value
+							break
+						end
 					end
 				end
 			end
@@ -3957,7 +4224,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 					if i > 1 then
 						local gangs = getGangfromDistrict(test,20)
 						if(#gangs > 0) then
-							currentSave.arrayFactionDistrict[gangs[1].tag][test] = currentSave.arrayFactionDistrict[gangs[1].tag][test] - action.value
+							currentSave.Score[gangs[1].tag][test] = currentSave.Score[gangs[1].tag][test] - action.value
 							break
 						end
 					end
@@ -3966,7 +4233,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 		end
 		if(action.name == "set_gang_currentdistrict_score") then
 			if currentDistricts2 ~= nil then
-				currentSave.arrayFactionDistrict[action.faction][currentDistricts2.Tag] = action.value
+				currentSave.Score[action.faction][currentDistricts2.Tag] = action.value
 			end
 		end
 		if(action.name == "add_gang_currentsubdistrict_score") then
@@ -3976,7 +4243,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						debugPrint(1,i)
 						debugPrint(1,test)
 						debugPrint(1,action.faction)
-						currentSave.arrayFactionDistrict[action.faction][test] = currentSave.arrayFactionDistrict[action.faction][test]+ action.value
+						currentSave.Score[action.faction][test] = currentSave.Score[action.faction][test]+ action.value
 						break
 					end
 				end
@@ -3986,8 +4253,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			if #currentDistricts2.districtLabels > 0 then
 				for i, test in ipairs(currentDistricts2.districtLabels) do
 					if i > 1 then
-						currentSave.arrayFactionDistrict[action.faction][test] =
-						currentSave.arrayFactionDistrict[action.faction][test]- action.value
+						currentSave.Score[action.faction][test] =
+						currentSave.Score[action.faction][test]- action.value
 						break
 					end
 				end
@@ -3997,7 +4264,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			if #currentDistricts2.districtLabels > 0 then
 				for i, test in ipairs(currentDistricts2.districtLabels) do
 					if i > 1 then
-						currentSave.arrayFactionDistrict[action.faction][test] = action.value
+						currentSave.Score[action.faction][test] = action.value
 						break
 					end
 				end
@@ -4138,6 +4405,52 @@ function executeAction(action,tag,parent,index,source,executortag)
 		if(action.name == "set_fact") then
 			Game.SetDebugFact(action.value, action.score)
 		end
+		
+		if(action.name == "load_interact") then
+			
+			if(#loadInteract < 4) then
+				table.insert(loadInteract,action.tag)
+				
+				createInteraction(false)
+				candisplayInteract = true
+				createInteraction(true)
+				else
+				
+				error("There is already 4 force loaded interact. Limit is reached !")
+			end
+		end
+		
+		if(action.name == "unload_interact") then
+			if(#loadInteract > 0) then
+				local indextoremove  = nil
+				for i,v in ipairs(loadInteract) do
+					
+					if(v == action.tag) then
+						
+						indextoremove = i
+						
+					end
+					
+				end
+				
+				
+				if(indextoremove ~= nil) then
+					
+					table.remove(loadInteract,indextoremove)
+					
+				end
+				
+			end
+			candisplayInteract = false
+			createInteraction(false)
+		end
+		
+		if(action.name == "clean_all_loaded_interact") then
+			loadInteract = {}
+			candisplayInteract = false
+			createInteraction(false)
+		end
+		
 		if(action.name == "buy_item") then
 			local player = Game.GetPlayer()
 			local ts = Game.GetTransactionSystem()
@@ -4186,6 +4499,21 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local result = ts:GiveItem(player, itemid, amount)
 			------debugPrint(1,"give money")
 		end
+		if(action.name == "give_money_current_stock") then
+			if(CurrentStock ~= nil and CurrentStock.price ~= nil and CurrentStock.userQuantity ~= nil and CurrentStock.statut ~= 0 and CurrentStock.userQuantity ~= nil and CurrentStock.userQuantity > 0) then
+				
+				local player = Game.GetPlayer()
+				local ts = Game.GetTransactionSystem()
+				local tid = TweakDBID.new("Items.money")
+				local itemid = ItemID.new(tid)
+				local amount = tonumber(CurrentStock.price )
+				
+				local result = ts:GiveItem(player, itemid, amount)
+				else
+				print(getLang("nocurrentstock"))
+			end
+			------debugPrint(1,"give money")
+		end
 		if(action.name == "give_random_money") then
 			local player = Game.GetPlayer()
 			local ts = Game.GetTransactionSystem()
@@ -4212,6 +4540,22 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 			local result = ts:RemoveItem(player, itemid, amount)
 			debugPrint(1,result)
+			--debugPrint(1,"remove money")
+		end
+		
+		if(action.name == "remove_money_current_stock") then
+			if(CurrentStock ~= nil and checkStackableItemAmount("Items.money",CurrentStock.price)) then
+				local player = Game.GetPlayer()
+				local ts = Game.GetTransactionSystem()
+				local tid = TweakDBID.new("Items.money")
+				local itemid = ItemID.new(tid)
+				local amount = tonumber(CurrentStock.price )
+				
+				local result = ts:RemoveItem(player, itemid, amount)
+				debugPrint(1,result)
+				else
+				print(getLang("nocurrentstock"))
+			end
 			--debugPrint(1,"remove money")
 		end
 		if(action.name == "remove_random_money") then
@@ -4738,7 +5082,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				
 				if(action.conversation == "online") then
 					
-					if(multiReady and OnlineConversation ~= nil) then
+					if(MultiplayerOn and OnlineConversation ~= nil) then
 						onlineInstanceMessageProcessing()
 						for z=1,#OnlineConversation.conversation do
 							local conversation = OnlineConversation.conversation[z]
@@ -4753,6 +5097,92 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 				end
 			end
+			
+			local notificationData = gameuiGenericNotificationData.new()
+			notificationData.time = action.duration
+			notificationData.widgetLibraryItemName = CName('notification_message')
+			notificationData.notificationData = userData
+			JournalNotificationQueue:AddNewNotificationData(notificationData)
+		end
+		
+		if(action.name == "phone_news_notification") then
+			local test = getLang(action.title)
+			local obj = getEntityFromManager(action.title)
+			local enti = Game.FindEntityByID(obj.id)
+			if(action.title == "lookat")then
+				enti = objLook
+			end
+			if(enti ~= nil) then
+				if(action.title == "current_phone_npc") then
+					if(currentNPC ~= nil) then
+						test  = currentNPC.Names
+					end
+				end
+				if(action.title == "current_star") then
+					if(currentStar ~= nil) then
+						test  = currentStar.Names
+					end
+				end
+			end
+			local openAction = OpenMessengerNotificationAction.new()
+			openAction.eventDispatcher = JournalNotificationQueue
+			local userData = PhoneMessageNotificationViewData.new()
+			userData.title = test
+			
+			local text = "Error, connect to keystone for get the latest news !"
+			
+			if(#corpoNews > 0) then
+				local id = math.random(1,#corpoNews)
+				text = corpoNews[id]
+			end
+			userData.SMSText  = text
+			
+			userData.action = openAction
+			userData.animation = CName('notification_phone_MSG')
+			userData.soundEvent = CName('PhoneSmsPopup')
+			userData.soundAction = CName('OnOpen')
+			currentPhoneDialogPopup = gameJournalPhoneMessage.new()
+			currentPhoneDialogPopup.sender = 1
+			currentPhoneDialogPopup.text = text
+			currentPhoneDialogPopup.delay = -9999
+			currentPhoneDialogPopup.id = test
+			
+			
+			local phone_news_conv = {}
+			phone_news_conv.tag = "corpo_news"
+			phone_news_conv.unlock = false
+			phone_news_conv.speaker = getLang("see_action_phone_news_speaker")
+			phone_news_conv.conversation = {}
+			
+			local phone_news_conv01 = {}
+			phone_news_conv01.tag = "corpo_news01"
+			phone_news_conv01.name = "Latest News"
+			phone_news_conv01.unlock = false
+			phone_news_conv01.message = {}
+			
+			local phone_news_conv01_msg = {}
+			phone_news_conv01_msg.tag = "corpo_news01"
+			phone_news_conv01_msg.text = text
+			phone_news_conv01_msg.sender = 0
+			phone_news_conv01_msg.unlock = true
+			phone_news_conv01_msg.readed = false
+			phone_news_conv01_msg.choices =  {}
+			
+			table.insert(phone_news_conv01.message,phone_news_conv01_msg)
+			table.insert(phone_news_conv.conversation,phone_news_conv01)
+			
+			arrayPhoneConversation["corpo_news"] = {}
+			arrayPhoneConversation["corpo_news"].conv = phone_news_conv
+			arrayPhoneConversation["corpo_news"].file = "default"
+			arrayPhoneConversation["corpo_news"].datapack = "default"
+			
+			
+			
+			currentPhoneConversation = arrayPhoneConversation["corpo_news"].conv.conversation[1]
+			currentPhoneConversation.currentchoices = {}
+			currentPhoneConversation.loaded = 0
+			
+			
 			
 			local notificationData = gameuiGenericNotificationData.new()
 			notificationData.time = action.duration
@@ -4783,7 +5213,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				
 				UIPopupsManager.ShowPopup(notificationData)
 				else
-				Game.GetPlayer():SetWarningMessage("Open and close Main menu before call an popup.")
+				Game.GetPlayer():SetWarningMessage(getLang("see_action_poup_fail"))
 			end
 			
 		end
@@ -4839,7 +5269,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						
 						UIPopupsManager.ShowPopup(notificationData)
 						else
-						Game.GetPlayer():SetWarningMessage("Open and close Main menu before call an popup.")
+						Game.GetPlayer():SetWarningMessage(getLang("see_action_poup_fail"))
 					end
 				end
 				
@@ -4872,7 +5302,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			activeMetroDisplay = action.value
 		end
 		if(action.name == "consolelog") then
-			print(action.value)
+			print(getLang(action.value))
 		end
 		if(action.name == "shard_window") then
 			shardUIevent = NotifyShardRead.new()
@@ -4894,16 +5324,40 @@ function executeAction(action,tag,parent,index,source,executortag)
 			Game.GetStatPoolsSystem():RequestChangingStatPoolValue(Game.GetPlayer():GetEntityID(), action.value, action.score, Game.GetPlayer(), true, true)
 		end
 		if(action.name == "mod_stat") then
+			--			https://nativedb.red4ext.com/gamedataStatType
 			Game.ModStatPlayer(action.value, action.score)
 		end
 		if(action.name == "mod_statpool") then
 			--https://nativedb.red4ext.com/gamedataStatPoolType
-			RequestSettingStatPoolValue(Game.GetPlayer():GetEntityID(), Enum.new('gamedataStatPoolType', action.value), action.score, Game.GetPlayer(), action.perc);
+			Game.GetStatPoolsSystem():RequestSettingStatPoolValue(Game.GetPlayer():GetEntityID(), Enum.new('gamedataStatPoolType', action.value), action.score, Game.GetPlayer(), action.perc);
 		end
 		if(action.name == "mod_statpool_max") then
 			--https://nativedb.red4ext.com/gamedataStatPoolType
-			RequestSettingStatPoolMaxValue(Game.GetPlayer():GetEntityID(), Enum.new('gamedataStatPoolType', action.value), Game.GetPlayer());
+			Game.GetStatPoolsSystem():RequestSettingStatPoolMaxValue(Game.GetPlayer():GetEntityID(), Enum.new('gamedataStatPoolType', action.value), Game.GetPlayer());
 		end
+		
+		if(action.name == "set_attribute") then
+			Game.SetAtt(action.value, action.score)
+		end
+		
+		if(action.name == "give_skill_point") then
+			Game.GiveDevPoints("Attribute", action.score) 
+		end
+		
+		if(action.name == "give_perk_point") then
+			Game.GiveDevPoints("Primary", action.score) 
+		end
+		
+		if(action.name == "toggle_infinite_stamina") then
+			Game.InfiniteStamina(action.value) 
+		end
+		
+		if(action.name == "set_level") then
+			Game.SetLevel("Level", action.score)
+		end
+		
+		
+		
 		if(action.name == "wanted_level") then
 			local preventionSystem = Game.GetScriptableSystemsContainer():Get("PreventionSystem")
 			preventionSystem:AddGeneralPercent(action.value)
@@ -4957,7 +5411,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				currentTimer.type = action.type
 				ticktimer = 0
 				else
-				Game.GetPlayer():SetWarningMessage(getLang("An timer is already active."))
+				Game.GetPlayer():SetWarningMessage(getLang("see_timer_already"))
 			end
 		end
 		
@@ -4992,249 +5446,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 		end
 		if(action.name == "set_mappin") then
-			local position = {}
-			if(action.position == "at") then
-				position.x = action.x
-				position.y = action.y
-				position.z = action.z
-			end
-			if(action.position == "poi_district") then
-				local currentpoi = nil
-				if(action.position_random == true) then
-					local district = arrayDistricts[math.random(1,#arrayDistricts)]
-					currentpoi = FindPOI(action.position_tag,district.EnumName,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-					else
-					currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-				end
-				if(currentpoi ~= nil) then
-					position.x = currentpoi.x
-					position.y = currentpoi.y
-					position.z = currentpoi.z
-					else
-					error("No POI founded ")
-				end
-			end
-			if(action.position == "poi_subdistrict") then
-				local currentpoi = nil
-				if(action.position_random == true) then
-					local district = arrayDistricts[math.random(1,#arrayDistricts)]
-					local subdistrict = district.SubDistrict[math.random(1,#district.SubDistrict)]
-					currentpoi = FindPOI(action.position_tag,action.position_poi_district,subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-					else
-					local currentpoi = nil
-					currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-				end
-				if(currentpoi ~= nil) then
-					position.x = currentpoi.x
-					position.y = currentpoi.y
-					position.z = currentpoi.z
-					else
-					error("No POI founded ")
-				end
-			end
-			if(action.position == "poi_current_district") then
-				local currentpoi = nil
-				currentpoi = FindPOI(action.position_tag,currentDistricts2.districtLabels[2],action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-				if(currentpoi ~= nil) then
-					position.x = currentpoi.x
-					position.y = currentpoi.y
-					position.z = currentpoi.z
-					else
-					error("No POI founded ")
-				end
-			end
-			if(action.position == "poi_current_subdistrict") then
-				local currentpoi = nil
-				currentpoi = FindPOI(action.position_tag,action.position_poi_district,currentDistricts2.districtLabels[2],action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-				if(currentpoi ~= nil) then
-					position.x = currentpoi.x
-					position.y = currentpoi.y
-					position.z = currentpoi.z
-					else
-					error("No POI founded ")
-				end
-			end
-			if(action.position == "relative_to_entity") then
-				local positionVec4 = Game.GetPlayer():GetWorldPosition()
-				local entity = nil
-				if(action.position_tag ~= "player") then
-					local obj = getEntityFromManager(action.position_tag)
-					entity = Game.FindEntityByID(obj.id)
-					positionVec4 = entity:GetWorldPosition()
-					else
-					entity = Game.GetPlayer()
-				end
-				if(action.position_way ~= nil and (action.position_way ~= "" or action.position_way ~= "normal")) then
-					if(action.position_way == "behind") then
-						positionVec4 = getBehindPosition(entity,action.position_distance)
-					end
-					if(action.position_way == "forward") then
-						positionVec4 = getForwardPosition(entity,action.position_distance)
-					end
-				end
-				position.x = positionVec4.x
-				position.y = positionVec4.y
-				position.z = positionVec4.z
-			end
-			if(action.position == "node") then
-				local node = getNode(action.position_tag)
-				if node ~= nil then
-					if(action.position_node_usegameplay == true) then
-						position.x = node.GameplayX
-						position.y = node.GameplayY
-						position.z = node.GameplayZ
-						else
-						position.x = node.X
-						position.y = node.Y
-						position.z = node.Z
-					end
-					else
-					error("can't find an node who have tag : "..action.position_tag)
-				end
-			end
-			if(action.position == "current_node") then
-				local position = Game.GetPlayer():GetWorldPosition()
-				local range = 70
-				if(action.position_node_current_detection_range ~= nil) then
-					range = action.position_node_current_detection_range
-				end
-				local node = getNodefromPosition(position.x,position.y,position.z,range)
-				if node ~= nil then
-					if(action.position_node_usegameplay == true) then
-						position.x = node.GameplayX
-						position.y = node.GameplayY
-						position.z = node.GameplayZ
-						else
-						position.x = node.X
-						position.y = node.Y
-						position.z = node.Z
-					end
-					else
-					error("can't find an current node")
-				end
-			end
-			if(action.position == "poi") then
-				local currentpoi = nil
-				currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-				if(currentpoi ~= nil) then
-					position.x = currentpoi.x
-					position.y = currentpoi.y
-					position.z = currentpoi.z
-					else
-					error("can't find an current poi")
-				end
-			end
-			if(action.position == "mappin") then
-				local mappin = getMappinByTag(action.position_tag)
-				if(mappin)then
-					position = mappin.position
-					else
-					error("can't find an mappin with tag : "..action.position_tag)
-				end
-			end
-			if(action.position == "fasttravel") then
-				local markerref = nil
-				local tempos = nil
-				for j=1, #mappedFastTravelPoint do
-					local point = mappedFastTravelPoint[j]
-					if(point.markerref == action.position_tag) then
-						markerref = point.markerrefdata
-						tempos = point.position
-						break
-					end
-				end
-				if(markerref)then
-					position = tempos
-					else
-					error("can't find an fast travel point with tag : "..action.position_tag)
-				end
-			end
-			if(action.position == "current_custom_mappin") then
-				if(ActivecustomMappin ~= nil)then
-					local mappin = ActivecustomMappin:GetWorldPosition()
-					position.x = mappin.x
-					position.y = mappin.y
-					position.z = mappin.z
-					else
-					error("can't find an current custom point ")
-				end
-			end
-			if(action.position == "current_fasttravel") then
-				if(ActiveFastTravelMappin ~= nil)then
-					position.x = ActiveFastTravelMappin.position.x
-					position.y = ActiveFastTravelMappin.position.y
-					position.z = ActiveFastTravelMappin.position.z
-					else
-					error("can't find an current fast travel point ")
-				end
-			end
-			if(action.position == "custom_place") then
-				local house = getHouseByTag(action.position_tag)
-				if(house ~= nil) then
-					if(action.position_house_way == "default") then
-						position.x = house.posX
-						position.y = house.posY
-						position.z = house.posZ
-					end
-					if(action.position_house_way == "enter") then
-						position.x = house.EnterX
-						position.y = house.EnterY
-						position.z = house.EnterZ
-					end
-					if(action.position_house_way == "exit") then
-						position.x = house.ExitX
-						position.y = house.ExitY
-						position.z = house.ExitZ
-					end
-					else
-					error("can't find an custom place with tag : "..action.position_tag)
-				end
-			end
-			if(action.position == "custom_room") then
-				local room = getRoomByTag(action.position_tag,action.position_house_tag)
-				if(room ~= nil) then
-					position.x = room.posX
-					position.y = room.posY
-					position.z = room.posZ
-					else
-					error("can't find an custom room with tag : "..action.position_tag.." for the house with tag :"..action.position_house_tag)
-				end
-			end
-			if(action.position == "current_custom_place") then
-				if(currentHouse ~= nil) then
-					if(action.position_house_way == "default") then
-						position.x = currentHouse.posX
-						position.y = currentHouse.posY
-						position.z = currentHouse.posZ
-					end
-					if(action.position_house_way == "Enter") then
-						position.x = currentHouse.EnterX
-						position.y = currentHouse.EnterY
-						position.z = currentHouse.EnterZ
-					end
-					if(action.position_house_way == "Exit") then
-						position.x = currentHouse.ExitX
-						position.y = currentHouse.ExitY
-						position.z = currentHouse.ExitZ
-					end
-					else
-					error("can't find an current custom place")
-				end
-			end	
-			if(action.position == "current_custom_room") then
-				if(currentRoom ~= nil) then
-					position.x = currentRoom.posX
-					position.y = currentRoom.posY
-					position.z = currentRoom.posZ
-					else
-					error("can't find an current custom room")
-				end				
-			end
-			if(position.x ~= nil and action.position ~= "at") then
-				position.x = position.x + action.x
-				position.y = position.y + action.y
-				position.z = position.z + action.z
-			end
+			local position = getPositionFromParameter(action)
 			if(action.position ~= "on_entity" and action.position ~= "on_group")then
 				if(position.x ~= nil)then
 					registerMappin(position.x,position.y,position.z,action.tag,action.typemap,action.wall,action.active,action.mapgroup,nil,action.title,action.desc)
@@ -5278,6 +5490,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
+		
+		
+		
 		if(action.name == "new_map_point") then
 			registerMappin(action.x,action.y,action.z,action.tag,action.typemap,action.wall,action.active,action.mapgroup,nil,action.title,action.desc)
 		end
@@ -5431,6 +5647,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
+		
 		if(action.name == "delete_map_point") then
 			deleteMappinByTag(action.tag)
 		end
@@ -5453,6 +5671,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
+		
+		
 		if(action.name == "set_map_point_position") then
 			setMappinPositionByTag(action.tag,action.x,action.y,action.z)
 		end
@@ -5684,6 +5905,77 @@ function executeAction(action,tag,parent,index,source,executortag)
 					dialogLine.speakerName = action.speaker
 					candotext = true
 				end
+				
+				
+				
+				
+				
+				if(candotext == true) then
+					dialogLine.isPersistent  = true
+					dialogLine.duration  = action.duration
+					currentSubtitlesGameController:SpawnDialogLine(dialogLine)
+					local temp = tick
+					local nexttemp = temp
+					nexttemp =nexttemp +  math.ceil((action.duration*60))
+					action.tick = nexttemp
+					result = false
+				end
+				else
+				error("can't find Subtitle controller, please call an npc for load one")
+			end
+		end
+		if(action.name == "news_subtitle") then 
+			if(currentSubtitlesGameController ~= nil) then
+				--debugPrint(1,"ye")
+				local linesToShow = {}
+				--currentSubtitlesGameController:Cleanup()
+				local dialogLine = scnDialogLineData.new()
+				local id = math.random(1,9999)
+				dialogLine.id = CRUID(id)
+				dialogLine.text  = getLang(action.title)
+				dialogLine.type  = 5
+				dialogLine.speaker = Game.GetPlayer()
+				dialogLine.speakerName  = action.speaker
+				local candotext = true
+				if(action.speaker == "current_phone_npc") then
+					if(currentNPC ~= nil) then
+						dialogLine.speakerName  = currentNPC.Names
+						else
+						candotext = false
+					end
+					elseif(action.speaker == "current_star") then
+					if(currentStar ~= nil) then
+						dialogLine.speakerName  = currentStar.Names
+						else
+						candotext = false
+					end
+					elseif(action.speaker == "entity") then
+					local obj = getEntityFromManager(action.speakertag)
+					dialogLine.speakerName = obj.name
+					candotext = true
+					elseif(action.speaker == "mp_player") then
+					dialogLine.speakerName = myTag
+					candotext = true
+					elseif(action.speaker == "mp_looked_player") then
+					if(multiName == "") then
+						dialogLine.speakerName = "Player"
+						else
+						dialogLine.speakerName = multiName
+					end
+					candotext = true
+					else
+					dialogLine.speakerName = action.speaker
+					
+					if(action.usecorponews == true) then
+						if(#corpoNews > 0) then
+							local id = math.random(1,#corpoNews)
+							dialogLine.text  = getLang(corpoNews[id])
+						end
+					end
+					
+					
+					candotext = true
+				end
 				if(candotext == true) then
 					dialogLine.isPersistent  = true
 					dialogLine.duration  = action.duration
@@ -5878,25 +6170,25 @@ function executeAction(action,tag,parent,index,source,executortag)
 		end
 		if(action.name == "npc_star_affinity") then
 			if(currentStar ~= nil) then
-				local score = getScoreKey(currentStar.Names,"Score")
+				local score = getScoreKey("Affinity",currentStar.Names)
 				if(score == nil) then score = 0 end
 				score = score + action.value
-				setScore(currentStar.Names,"Score",score)
+				setScore("Affinity",currentStar.Names,score)
 			end
 		end
 		if(action.name == "npc_affinity") then
-			local score = getScoreKey(action.value,"Score")
+			local score = getScoreKey("Affinity",action.value)
 			if(score == nil) then score = 0 end
 			score = score + action.score
-			setScore(action.value,"Score",score)
+			setScore("Affinity",action.value,score)
 		end
 		if(action.name == "entity_affinity") then
 			local obj = getEntityFromManager(action.tag)
 			debugPrint(1,dump((obj)))
-			local score = getScoreKey(obj.name,"Score")
+			local score = getScoreKey("Affinity",obj.name)
 			if(score == nil) then score = 0 end
 			score = score + action.score
-			setScore(obj.name,"Score",score)
+			setScore("Affinity",obj.name,score)
 		end
 		if(action.name == "custom_star_message") then
 			------debugPrint(1,npcStarSpawn)
@@ -5944,12 +6236,26 @@ function executeAction(action,tag,parent,index,source,executortag)
 		if(action.name == "change_quest_content") then
 			QuestManager.ChangeQuestContent(action.tag,getLang(action.value))
 		end
-		if(action.name == "change_objective_content") then
+		
+		if(action.name == "change_quest_title") then
+			QuestManager.ChangeQuestTitle(action.tag,getLang(action.value))
+		end
+		
+		if(action.name == "change_objective_content" or action.name == "change_objective_text") then
 			QuestManager.ChangeObjectiveContent(action.tag,getLang(action.value))
 		end
+		
+		
 		if(action.name == "mission") then
+			setScore(action.value,"Score",0)
+			
+			QuestManager.MarkQuestAsActive(action.value)
+			local objective = QuestManager.GetFirstObjectiveEntry(action.value)
+			QuestManager.TrackObjective(objective.id)
+			
 			TriggerQuest(action.value)
-			MarkQuestAsActive(action.value)
+			
+			--			QuestTrackerUI.TrackObjective()
 		end
 		if(action.name == "lock_mission") then
 			setScore(action.value,"Score",nil)
@@ -6054,7 +6360,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local obj = getEntityFromManager(action.tag)
 			obj.path = getPath(action.path)
 			if(obj.path == nil) then
-				Game.GetPlayer():SetWarningMessage("There is no Path for this two nodes...")
+				Game.GetPlayer():SetWarningMessage(getLang("see_action_nopath"))
 				else
 				obj.path.reverse = obj.circuit.reverse
 				if(obj.path.reverse == true) then
@@ -6070,7 +6376,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local obj = getEntityFromManager(action.tag)
 			obj.path = getPathBetweenTwoNode(obj.currentNode.tag, obj.nextNode.tag)
 			if(obj.path == nil) then
-				Game.GetPlayer():SetWarningMessage("There is no Path for this two nodes...")
+				Game.GetPlayer():SetWarningMessage(getLang("see_action_nopath"))
 				else
 				obj.path.reverse = obj.circuit.reverse
 				if(obj.path.reverse == true) then
@@ -6364,8 +6670,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 				spawnEntity(chara, action.tag, node.X, node.Y ,node.Z,action.spawnlevel,action.ambush,isAV,action.beta)
 			end
 			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
+				
+				table.insert(questMod.GroupManager[action.group].entities,action.tag)
 			end
 		end
 		if(action.name == "summon_entity_at_mappin") then
@@ -6378,8 +6684,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			if(mappin) then
 				spawnEntity(chara, action.tag, mappin.position.x, mappin.position.y ,mappin.position.z,action.spawnlevel,action.ambush, isAV,action.beta)
 				if(action.group ~= nil and action.group ~= "") then
-					local index =getIndexFromGroupManager(action.group)
-					table.insert(questMod.GroupManager[index].entities,action.tag)
+					
+					table.insert(questMod.GroupManager[action.group].entities,action.tag)
 				end
 			end
 		end
@@ -6445,8 +6751,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					spawnEntity(chara, action.tag, node.X, node.Y ,node.Z,action.spawnlevel,action.ambush,isAV,action.beta)
 				end
 				if(action.group ~= nil and action.group ~= "") then
-					local index =getIndexFromGroupManager(action.group)
-					table.insert(questMod.GroupManager[index].entities,action.tag)
+					
+					table.insert(questMod.GroupManager[action.group].entities,action.tag)
 				end
 			end
 		end
@@ -6533,7 +6839,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				local obj = getEntityFromManager(entityTag)
 				obj.path = getPath(action.path)
 				if(obj.path == nil) then
-					Game.GetPlayer():SetWarningMessage("There is no Path for this two nodes...")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_nopath"))
 					else
 					obj.path.reverse = obj.circuit.reverse
 					if(obj.path.reverse == true) then
@@ -6559,7 +6865,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 					obj.path = getPathBetweenTwoNode(obj.currentNode.tag, obj.nextNode.tag)
 				end
 				if(obj.path == nil) then
-					Game.GetPlayer():SetWarningMessage("There is no Path for this two nodes...")
+					Game.GetPlayer():SetWarningMessage(getLang("see_action_nopath"))
 					else
 					obj.path.reverse = obj.circuit.reverse
 					if(obj.path.reverse == true) then
@@ -6934,6 +7240,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 				action.amount = math.random(1,6)
 			end
 			for i=1,action.amount do
+				
+				
 				if(action.source == "random") then
 					local indexchara = math.random(1,#arrayPnjDb)
 					chara = arrayPnjDb[indexchara].TweakIDs
@@ -6971,12 +7279,20 @@ function executeAction(action,tag,parent,index,source,executortag)
 								local index = math.random(1,#viptable)
 								
 								chara = viptable[index]
+								else
+							
+							error("No VIP NPC for this faction")
 							end
 						end
 						else
-						if(#gang.SpawnableNPC > 0) then
+						--spdlog.error(dump(gang))
+						if(gang.SpawnableNPC ~= nil and #gang.SpawnableNPC > 0) then
 							local index = math.random(1,#gang.SpawnableNPC)
 							chara = gang.SpawnableNPC[index]
+							
+							else
+							
+							error("No Spawnable NPC for this faction")
 						end
 					end
 				end
@@ -7064,7 +7380,6 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 					end
 				end
-				
 				if(action.source == "district_rival" or action.source == "subdistrict_rival") then
 					
 					if(action.source_gang == "player") then
@@ -7099,8 +7414,6 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 					end
 				end
-				
-				
 				if(action.source == "current_district_rival") then
 					
 					if(action.source_gang == "player") then
@@ -7174,207 +7487,30 @@ function executeAction(action,tag,parent,index,source,executortag)
 				if(action.amount > 1) then
 					tag = action.tag.."_"..i
 				end
+				
+				
 				local position = {}
-				if(action.position == "at") then
-					position.x = action.x
-					position.y = action.y
-					position.z = action.z
-				end
-				if(action.position == "relative_to_entity") then
-					local positionVec4 = Game.GetPlayer():GetWorldPosition()
-					local entity = nil
-					if(action.position_tag ~= "player") then
-						local obj = getEntityFromManager(action.position_tag)
-						entity = Game.FindEntityByID(obj.id)
-						positionVec4 = entity:GetWorldPosition()
-						else
-						entity = Game.GetPlayer()
-					end
-					if(action.position_way ~= nil and (action.position_way ~= "" or action.position_way ~= "normal")) then
-						if(action.position_way == "behind") then
-							positionVec4 = getBehindPosition(entity,action.position_distance)
-						end
-						if(action.position_way == "forward") then
-							positionVec4 = getForwardPosition(entity,action.position_distance)
-						end
-					end
-					position = positionVec4
-				end
-				if(action.position == "node") then
-					local node = getNode(action.position_tag)
-					if node ~= nil then
-						if(action.position_node_usegameplay == true) then
-							position.x = node.GameplayX
-							position.y = node.GameplayY
-							position.z = node.GameplayZ
-							else
-							position.x = node.X
-							position.y = node.Y
-							position.z = node.Z
-						end
-						else
-						error("can't find an node who have tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "current_node") then
-					local position = Game.GetPlayer():GetWorldPosition()
-					local range = 70
-					if(action.position_node_current_detection_range ~= nil) then
-						range = action.position_node_current_detection_range
-					end
-					local node = getNodefromPosition(position.x,position.y,position.z,range)
-					if node ~= nil then
-						if(action.position_node_usegameplay == true) then
-							position.x = node.GameplayX
-							position.y = node.GameplayY
-							position.z = node.GameplayZ
-							else
-							position.x = node.X
-							position.y = node.Y
-							position.z = node.Z
-						end
-						else
-						error("can't find an current node")
-					end
-				end
-				if(action.position == "poi") then
-					local currentpoi = nil
-					currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,action.position_poi_range)
-					if(currentpoi ~= nil) then
-						position.x = currentpoi.x
-						position.y = currentpoi.y
-						position.z = currentpoi.z
-						else
-						error("can't find an current poi")
-					end
-				end
-				if(action.position == "mappin") then
-					local mappin = getMappinByTag(action.position_tag)
-					if(mappin)then
-						position = mappin.position
-						else
-						error("can't find an mappin with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "fasttravel") then
-					local markerref = nil
-					local tempos = nil
-					for j=1, #mappedFastTravelPoint do
-						local point = mappedFastTravelPoint[j]
-						if(point.markerref == action.position_tag) then
-							markerref = point.markerrefdata
-							tempos = point.position
-							break
-						end
-					end
-					if(markerref)then
-						position = tempos
-						else
-						error("can't find an fast travel point with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "current_fasttravel") then
-					if(ActiveFastTravelMappin ~= nil)then
-						position = ActiveFastTravelMappin.position
-						else
-						error("can't find an current fast travel point ")
-					end
-				end
-				if(action.position == "current_custom_mappin") then
-					if(ActivecustomMappin ~= nil)then
-						local mappin = ActivecustomMappin:GetWorldPosition()
-						position.x = mappin.x
-						position.y = mappin.y
-						position.z = mappin.z
-						else
-						error("can't find an current custom point ")
-					end
-				end
-				if(action.position == "custom_place") then
-					local house = getHouseByTag(action.position_tag)
-					if(house ~= nil) then
-						if(action.position_house_way == "default") then
-							position.x = house.posX
-							position.y = house.posY
-							position.z = house.posZ
-						end
-						if(action.position_house_way == "enter") then
-							position.x = house.EnterX
-							position.y = house.EnterY
-							position.z = house.EnterZ
-						end
-						if(action.position_house_way == "exit") then
-							position.x = house.ExitX
-							position.y = house.ExitY
-							position.z = house.ExitZ
-						end
-						else
-						error("can't find an custom place with tag : "..action.position_tag)
-					end
-				end
-				if(action.position == "custom_room") then
-					local room = getRoomByTag(action.position_tag,action.position_house_tag)
-					if(room ~= nil) then
-						position.x = room.posX
-						position.y = room.posY
-						position.z = room.posZ
-						else
-						error("can't find an custom room with tag : "..action.position_tag.." for the house with tag :"..action.position_house_tag)
-					end
-				end
-				if(action.position == "current_custom_place") then
-					if(currentHouse ~= nil) then
-						if(action.position_house_way == "default") then
-							position.x = currentHouse.posX
-							position.y = currentHouse.posY
-							position.z = currentHouse.posZ
-						end
-						if(action.position_house_way == "Enter") then
-							position.x = currentHouse.EnterX
-							position.y = currentHouse.EnterY
-							position.z = currentHouse.EnterZ
-						end
-						if(action.position_house_way == "Exit") then
-							position.x = currentHouse.ExitX
-							position.y = currentHouse.ExitY
-							position.z = currentHouse.ExitZ
-						end
-						else
-						error("can't find an current custom place")
-					end
-				end	
-				if(action.position == "current_custom_room") then
-					if(currentRoom ~= nil) then
-						position.x = currentRoom.posX
-						position.y = currentRoom.posY
-						position.z = currentRoom.posZ
-						else
-						error("can't find an current custom room")
-					end				
-				end
-				if(action.position ~= "at" and position.x ~= nil) then
-					position.x = position.x + action.x
-					position.y = position.y + action.y
-					position.z = position.z + action.z
-					else
-					if(position.x == nil) then
-						error("position is empty")
-					end
-				end
+				local position = getPositionFromParameter(action)
+				
 				if(chara ~= "" and chara ~= nil and position.x ~= nil) then
+				if(action.amount > 1) then
+				
+				position.x = position.x + (action.amount*0.5)
+				
+				end
 					spawnNPC(chara,action.appearance, tag, position.x, position.y ,position.z,action.spawnlevel,action.use_police_prevention_system,action.scriptlevel)
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						if(index == nil and action.create_group_if_not_exist == true) then
+						
+						if(questMod.GroupManager[action.group] == nil and action.create_group_if_not_exist == true) then
 							local group = {}
 							group.tag = action.group
 							group.entities = {}
-							table.insert(questMod.GroupManager,group)
+							questMod.GroupManager[action.group] = group
 							debugPrint(1,"group created")
-							index =getIndexFromGroupManager(action.group)
+							
 						end
-						if(index ~= nil) then
-							table.insert(questMod.GroupManager[index].entities,tag)
+						if(questMod.GroupManager[action.group] ~= nil) then
+							table.insert(questMod.GroupManager[action.group].entities,tag)
 							else
 							error("group with tag : "..action.group.." doesn't exist")
 						end
@@ -7403,18 +7539,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			--Game.GetTeleportationFacility():Teleport(Game.GetPlayer(), Vector4.new( action.x, action.y, action.z,1) , 1)
 			Game.TeleportPlayerToPosition(action.x,action.y,action.z)
 		end
-		if(action.name == "summon_entity") then
-			chara = action.npc
-			local isAV = false
-			if(action.isAV ~= nil) then
-				isAV = action.isAV
-			end
-			spawnEntity(chara, action.tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
-			end
-		end
+		
 		if(action.name == "summon_current_star") then
 			if(currentNPC ~= nil) then
 				chara = currentNPC.TweakIDs
@@ -7424,8 +7549,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 				spawnEntity(chara, "current_star", action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
 				if(action.group ~= nil and action.group ~= "") then
-					local index =getIndexFromGroupManager(action.group)
-					table.insert(questMod.GroupManager[index].entities,"current_star")
+					
+					table.insert(questMod.GroupManager[action.group].entities,"current_star")
 				end
 				currentStar = currentNPC
 				
@@ -7442,1604 +7567,6 @@ function executeAction(action,tag,parent,index,source,executortag)
 				error("No current Phoned NPC ")
 			end
 		end
-		if(action.name == "summon_entity_from_faction") then
-			local gang = getFactionByTag(action.faction)
-			if(action.amount == nil) then
-				action.amount = 1
-			end
-			if(action.amount == 0) then
-				action.amount = math.random(1,6)
-			end
-			for i=1,action.amount do
-				if(#gang.SpawnableNPC > 0) then
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local index = math.random(1,#gang.SpawnableNPC)
-					chara = gang.SpawnableNPC[index]
-					local isAV = false
-					if(action.isAV ~= nil) then
-						isAV = action.isAV
-					end
-					spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_faction") then
-			local gang = getFactionByTag(action.faction)
-			if(action.amount == nil) then
-				action.amount = 1
-			end
-			if(action.amount == 0) then
-				action.amount = math.random(1,6)
-			end
-			for i=1,action.amount do
-				if(#gang.SpawnableNPC > 0) then
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local viptable = getVIPfromfactionbyscore(gang.Tag)
-					local index = math.random(1,#viptable)
-					chara = viptable[index]
-					local isAV = false
-					if(action.isAV ~= nil) then
-						isAV = action.isAV
-					end
-					spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_faction_rival") then
-			local gang = getFactionByTag(action.faction)
-			gang = getFactionByTag(gang.Rivals[1])
-			if(action.amount == nil) then
-				action.amount = 1
-			end
-			if(action.amount == 0) then
-				action.amount = math.random(1,6)
-			end
-			for i=1,action.amount do
-				if(#gang.SpawnableNPC > 0) then
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local index = math.random(1,#gang.SpawnableNPC)
-					chara = gang.SpawnableNPC[index]
-					local isAV = false
-					if(action.isAV ~= nil) then
-						isAV = action.isAV
-					end
-					spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_district") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = gangs[1]
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_subdistrict") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_district_rival") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_subdistrict_rival") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_district") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = gangs[1]
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_subdistrict") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_district_rival") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_subdistrict_rival") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, action.x, action.y ,action.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_district_at_current_poi") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = gangs[1]
-				if(#gang.SpawnableNPC > 0 and currentpoi ~=nil) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_subdistrict_at_current_poi") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_district_rival_at_current_poi") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_from_leader_faction_subdistrict_rival_at_current_poi") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_district_at_current_poi") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = gangs[1]
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_subdistrict_at_current_poi") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_district_rival_at_current_poi") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_from_leader_faction_subdistrict_rival_at_current_poi") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0 and currentpoi ~=nil) then
-				local gang = getFactionByTag(gangs[1].tag) 
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil) then
-							isAV = action.isAV
-						end
-						spawnEntity(chara, tag, currentpoi.x, currentpoi.y ,currentpoi.z,action.spawnlevel,action.ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative") then
-			local isAV = false
-			if(action.isAV ~= nil and action.isAV==true) then
-				debugPrint(1,"AV is "..tostring(action.isAV))
-				isAV = action.isAV
-				local group = getGroupfromManager("AV")
-				if(group.entities == nil) then
-					group.entities = {}
-				end
-				debugPrint(1,action.tag)
-				table.insert(group.entities,action.tag)
-				debugPrint(1,#group.entities)
-			end
-			local viptable = getVIPfromfactionbyscore(action.faction)
-			debugPrint(1,dump(viptable))
-			local index = math.random(1,#viptable)
-			debugPrint(1,index)	
-			chara = viptable[index]
-			local positionVec4 = Game.GetPlayer():GetWorldPosition()
-			local entity = nil
-			if(action.entity ~= "player") then
-				local obj = getEntityFromManager(action.entity)
-				entity = Game.FindEntityByID(obj.id)
-				positionVec4 = entity:GetWorldPosition()
-				else
-				entity = Game.GetPlayer()
-			end
-			if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-				if(action.position == "behind") then
-					positionVec4 = getBehindPosition(entity,action.distance)
-				end
-				if(action.position == "forward") then
-					positionVec4 = getForwardPosition(entity,action.distance)
-				end
-				else
-				positionVec4.x = positionVec4.x + action.x
-				positionVec4.y = positionVec4.y + action.y
-				positionVec4.z = positionVec4.z + action.z
-			end
-			local ambush = false
-			if(action.ambush ~= nil) then
-				ambush = action.ambush
-			end
-			spawnEntity(chara, action.tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative") then
-			local isAV = false
-			if(action.isAV ~= nil and action.isAV==true) then
-				debugPrint(1,"AV is "..tostring(action.isAV))
-				isAV = action.isAV
-				local group = getGroupfromManager("AV")
-				if(group.entities == nil) then
-					group.entities = {}
-				end
-				debugPrint(1,action.tag)
-				table.insert(group.entities,action.tag)
-				debugPrint(1,#group.entities)
-			end
-			chara = action.npc
-			local positionVec4 = Game.GetPlayer():GetWorldPosition()
-			local entity = nil
-			if(action.entity ~= "player") then
-				local obj = getEntityFromManager(action.entity)
-				entity = Game.FindEntityByID(obj.id)
-				positionVec4 = entity:GetWorldPosition()
-				else
-				entity = Game.GetPlayer()
-			end
-			if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-				if(action.position == "behind") then
-					positionVec4 = getBehindPosition(entity,action.distance)
-				end
-				if(action.position == "forward") then
-					positionVec4 = getForwardPosition(entity,action.distance)
-				end
-				else
-				positionVec4.x = positionVec4.x + action.x
-				positionVec4.y = positionVec4.y + action.y
-				positionVec4.z = positionVec4.z + action.z
-			end
-			local ambush = false
-			if(action.ambush ~= nil) then
-				ambush = action.ambush
-			end
-			spawnEntity(chara, action.tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
-			end
-		end
-		if(action.name == "summon_random_entity_at_entity_relative") then
-			local isAV = false
-			if(action.isAV ~= nil and action.isAV==true) then
-				debugPrint(1,"AV is "..tostring(action.isAV))
-				isAV = action.isAV
-				local group = getGroupfromManager("AV")
-				if(group.entities == nil) then
-					group.entities = {}
-				end
-				debugPrint(1,action.tag)
-				table.insert(group.entities,action.tag)
-				debugPrint(1,#group.entities)
-			end
-			local index = math.random(1,#action.npc)
-			chara = action.npc[index]
-			local positionVec4 = Game.GetPlayer():GetWorldPosition()
-			local entity = nil
-			if(action.entity ~= "player") then
-				local obj = getEntityFromManager(action.entity)
-				entity = Game.FindEntityByID(obj.id)
-				positionVec4 = entity:GetWorldPosition()
-				else
-				entity = Game.GetPlayer()
-			end
-			if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-				if(action.position == "behind") then
-					positionVec4 = getBehindPosition(entity,action.distance)
-				end
-				if(action.position == "forward") then
-					positionVec4 = getForwardPosition(entity,action.distance)
-				end
-				else
-				positionVec4.x = positionVec4.x + action.x
-				positionVec4.y = positionVec4.y + action.y
-				positionVec4.z = positionVec4.z + action.z
-			end
-			local ambush = false
-			if(action.ambush ~= nil) then
-				ambush = action.ambush
-			end
-			spawnEntity(chara, action.tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
-			end
-		end
-		if(action.name == "summon_current_star_at_entity_relative") then
-			if(currentNPC ~= nil) then
-				local isAV = false
-				if(action.isAV ~= nil and action.isAV==true) then
-					debugPrint(1,"AV is "..tostring(action.isAV))
-					isAV = action.isAV
-					local group = getGroupfromManager("AV")
-					if(group.entities == nil) then
-						group.entities = {}
-					end
-					table.insert(group.entities,"current_star")
-					debugPrint(1,#group.entities)
-				end
-				chara = currentNPC.TweakIDs
-				local positionVec4 = Game.GetPlayer():GetWorldPosition()
-				local entity = nil
-				if(action.entity ~= "player") then
-					local obj = getEntityFromManager(action.entity)
-					entity = Game.FindEntityByID(obj.id)
-					positionVec4 = entity:GetWorldPosition()
-					else
-					entity = Game.GetPlayer()
-				end
-				if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-					if(action.position == "behind") then
-						positionVec4 = getBehindPosition(entity,action.distance)
-					end
-					if(action.position == "forward") then
-						positionVec4 = getForwardPosition(entity,action.distance)
-					end
-					else
-					positionVec4.x = positionVec4.x + action.x
-					positionVec4.y = positionVec4.y + action.y
-					positionVec4.z = positionVec4.z + action.z
-				end
-				local ambush = false
-				if(action.ambush ~= nil) then
-					ambush = action.ambush
-				end
-				spawnEntity(chara, "current_star", positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-				if(action.group ~= nil and action.group ~= "") then
-					local index =getIndexFromGroupManager(action.group)
-					table.insert(questMod.GroupManager[index].entities,"current_star")
-				end
-				currentStar = currentNPC
-				
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction") then
-			local gang = getFactionByTag(action.faction)
-			if(#gang.SpawnableNPC > 0) then
-				if(action.amount == nil) then
-					action.amount = 1
-				end
-				if(action.amount == 0) then
-					action.amount = math.random(1,6)
-				end
-				for i=1,action.amount do
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local index = math.random(1,#gang.SpawnableNPC)
-					chara = gang.SpawnableNPC[index]
-					local isAV = false
-					if(action.isAV ~= nil and action.isAV==true) then
-						debugPrint(1,"AV is "..tostring(action.isAV))
-						isAV = action.isAV
-						local group = getGroupfromManager("AV")
-						if(group.entities == nil) then
-							group.entities = {}
-						end
-						table.insert(group.entities,tag)
-						debugPrint(1,#group.entities)
-					end
-					local positionVec4 = Game.GetPlayer():GetWorldPosition()
-					local entity = nil
-					if(action.entity ~= "player") then
-						local obj = getEntityFromManager(action.entity)
-						entity = Game.FindEntityByID(obj.id)
-						positionVec4 = entity:GetWorldPosition()
-						else
-						entity = Game.GetPlayer()
-					end
-					if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-						if(action.position == "behind") then
-							positionVec4 = getBehindPosition(entity,action.distance)
-						end
-						if(action.position == "forward") then
-							positionVec4 = getForwardPosition(entity,action.distance)
-						end
-						else
-						positionVec4.x = positionVec4.x + action.x
-						positionVec4.y = positionVec4.y + action.y
-						positionVec4.z = positionVec4.z + action.z
-					end
-					local ambush = false
-					if(action.ambush ~= nil) then
-						ambush = action.ambush
-					end
-					spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative_from_faction") then
-			local gang = getFactionByTag(action.faction)
-			if(#gang.SpawnableNPC > 0) then
-				if(action.amount == nil) then
-					action.amount = 1
-				end
-				if(action.amount == 0) then
-					action.amount = math.random(1,6)
-				end
-				for i=1,action.amount do
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local viptable = getVIPfromfactionbyscore(gang.Tag)
-					local index = math.random(1,#viptable)
-					chara = viptable[index]
-					local isAV = false
-					if(action.isAV ~= nil and action.isAV==true) then
-						debugPrint(1,"AV is "..tostring(action.isAV))
-						isAV = action.isAV
-						local group = getGroupfromManager("AV")
-						if(group.entities == nil) then
-							group.entities = {}
-						end
-						table.insert(group.entities,tag)
-						debugPrint(1,#group.entities)
-					end
-					local positionVec4 = Game.GetPlayer():GetWorldPosition()
-					local entity = nil
-					if(action.entity ~= "player") then
-						local obj = getEntityFromManager(action.entity)
-						entity = Game.FindEntityByID(obj.id)
-						positionVec4 = entity:GetWorldPosition()
-						else
-						entity = Game.GetPlayer()
-					end
-					if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-						if(action.position == "behind") then
-							positionVec4 = getBehindPosition(entity,action.distance)
-						end
-						if(action.position == "forward") then
-							positionVec4 = getForwardPosition(entity,action.distance)
-						end
-						else
-						positionVec4.x = positionVec4.x + action.x
-						positionVec4.y = positionVec4.y + action.y
-						positionVec4.z = positionVec4.z + action.z
-					end
-					local ambush = false
-					if(action.ambush ~= nil) then
-						ambush = action.ambush
-					end
-					spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction_rival") then
-			local gang = getFactionByTag(action.faction)
-			local rivalindex = math.random(1,#gang.Rivals)
-			gang = getFactionByTag(gang.Rivals[rivalindex])
-			if(#gang.SpawnableNPC > 0) then
-				if(action.amount == nil) then
-					action.amount = 1
-				end
-				if(action.amount == 0) then
-					action.amount = math.random(1,6)
-				end
-				for i=1,action.amount do
-					local tag = action.tag
-					if(action.amount > 1) then
-						tag = action.tag.."_"..i
-					end
-					local index = math.random(1,#gang.SpawnableNPC)
-					chara = gang.SpawnableNPC[index]
-					debugPrint(1,chara)
-					local isAV = false
-					if(action.isAV ~= nil and action.isAV==true) then
-						debugPrint(1,"AV is "..tostring(action.isAV))
-						isAV = action.isAV
-						local group = getGroupfromManager("AV")
-						if(group.entities == nil) then
-							group.entities = {}
-						end
-						table.insert(group.entities,tag)
-						debugPrint(1,#group.entities)
-					end
-					local positionVec4 = Game.GetPlayer():GetWorldPosition()
-					local entity = nil
-					if(action.entity ~= "player") then
-						local obj = getEntityFromManager(action.entity)
-						entity = Game.FindEntityByID(obj.id)
-						positionVec4 = entity:GetWorldPosition()
-						else
-						entity = Game.GetPlayer()
-					end
-					if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-						if(action.position == "behind") then
-							positionVec4 = getBehindPosition(entity,action.distance)
-						end
-						if(action.position == "forward") then
-							positionVec4 = getForwardPosition(entity,action.distance)
-						end
-						else
-						positionVec4.x = positionVec4.x + action.x
-						positionVec4.y = positionVec4.y + action.y
-						positionVec4.z = positionVec4.z + action.z
-					end
-					local ambush = false
-					if(action.ambush ~= nil) then
-						ambush = action.ambush
-					end
-					spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,tag)
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction_leader_district") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction_leader_subdistrict") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction_leader_district_rival") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_at_entity_relative_from_faction_leader_subdistrict_rival") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.SpawnableNPC > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local index = math.random(1,#gang.SpawnableNPC)
-						chara = gang.SpawnableNPC[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative_from_faction_leader_district") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative_from_faction_leader_subdistrict") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative_from_faction_leader_district_rival") then
-			local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
-		if(action.name == "summon_entity_vip_at_entity_relative_from_faction_leader_subdistrict_rival") then
-			local gangs = {}
-			for i, test in ipairs(currentDistricts2.districtLabels) do
-				if i > 1 then
-					gangs = getGangfromDistrict(test,20)
-					if(#gangs > 0) then
-						break
-					end
-				end
-			end
-			if(#gangs > 0) then
-				local gang = getFactionByTag(gangs[1].tag)
-				local rivalindex = math.random(1,#gang.Rivals)
-				gang = getFactionByTag(gang.Rivals[rivalindex])
-				if(#gang.VIP > 0) then
-					if(action.amount == nil) then
-						action.amount = 1
-					end
-					if(action.amount == 0) then
-						action.amount = math.random(1,6)
-					end
-					for i=1,action.amount do
-						local tag = action.tag
-						if(action.amount > 1) then
-							tag = action.tag.."_"..i
-						end
-						local viptable = getVIPfromfactionbyscore(gang.Tag)
-						local index = math.random(1,#viptable)
-						chara = viptable[index]
-						local isAV = false
-						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
-							isAV = action.isAV
-							local group = getGroupfromManager("AV")
-							if(group.entities == nil) then
-								group.entities = {}
-							end
-							debugPrint(1,tag)
-							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
-						end
-						local positionVec4 = Game.GetPlayer():GetWorldPosition()
-						local entity = nil
-						if(action.entity ~= "player") then
-							local obj = getEntityFromManager(action.entity)
-							entity = Game.FindEntityByID(obj.id)
-							positionVec4 = entity:GetWorldPosition()
-							else
-							entity = Game.GetPlayer()
-						end
-						if(action.position ~= nil and (action.position ~= "" or action.position ~= "nothing")) then
-							if(action.position == "behind") then
-								positionVec4 = getBehindPosition(entity,action.distance)
-							end
-							if(action.position == "forward") then
-								positionVec4 = getForwardPosition(entity,action.distance)
-							end
-							else
-							positionVec4.x = positionVec4.x + action.x
-							positionVec4.y = positionVec4.y + action.y
-							positionVec4.z = positionVec4.z + action.z
-						end
-						local ambush = false
-						if(action.ambush ~= nil) then
-							ambush = action.ambush
-						end
-						spawnEntity(chara, tag, positionVec4.x, positionVec4.y ,positionVec4.z,action.spawnlevel,ambush,isAV,action.beta)
-						if(action.group ~= nil and action.group ~= "") then
-							local index =getIndexFromGroupManager(action.group)
-							table.insert(questMod.GroupManager[index].entities,tag)
-						end
-					end
-				end
-			end
-		end
 		if(action.name == "register_entity_you_look_at") then
 			if(objLook ~= nil) then
 				local entity = getEntityFromManager(action.tag)
@@ -9049,10 +7576,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					entity.tag = action.tag
 					entity.tweak = "None"
 					entity.iscompanion = false
-					table.insert(questMod.EntityManager,entity)
+					questMod.EntityManager[action.tag]=entity
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,action.tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,action.tag)
 					end
 					else
 					Game.GetPlayer():SetWarningMessage("An entity with this tag already exist.")
@@ -9069,10 +7596,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 					entity.tag = action.tag
 					entity.tweak = "None"
 					entity.iscompanion = false
-					table.insert(questMod.EntityManager,entity)
+					questMod.EntityManager[action.tag]=entity
 					if(action.group ~= nil and action.group ~= "") then
-						local index =getIndexFromGroupManager(action.group)
-						table.insert(questMod.GroupManager[index].entities,action.tag)
+						
+						table.insert(questMod.GroupManager[action.group].entities,action.tag)
 					end
 					lastTargetKilled = nil
 					else
@@ -9101,9 +7628,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 				if (entity.id == nil) then
 					local entity = {}
 					local appearance = objLook:GetCurrentAppearanceName()
-					table.insert(questMod.EntityManager,entity)
-					local index = getIndexFromGroupManager("companion")
-					table.insert(questMod.GroupManager[index].entities,tag)
+					questMod.EntityManager[tag]=entity
+					
+					table.insert(questMod.GroupManager["companion"].entities,tag)
 					local pos = objLook:GetWorldPosition()
 					spawnEntity(objLook:GetRecordID(), tag, pos.x, pos.y ,pos.z,99,true,false,false)
 					objLook:Dispose()
@@ -9132,9 +7659,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 					entity.tag = tag
 					entity.tweak = "None"
 					entity.iscompanion = false
-					table.insert(questMod.EntityManager,entity)
-					local index =getIndexFromGroupManager(action.group)
-					table.insert(questMod.GroupManager[index].entities,tag)
+					
+					questMod.EntityManager[tag]=entity
+					table.insert(questMod.GroupManager[action.group].entities,tag)
 					else
 					Game.GetPlayer():SetWarningMessage("An entity with this tag already exist.")
 				end
@@ -9144,22 +7671,35 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
 			if(enti ~= nil) then
-				enti:Kill(enti, false, false)
+				enti:OnDied()
+				-- local sp = GetSingleton("ScriptedPuppet")
+				-- sp.Kill(enti,false,false)
 			end
 		end
-		if(action.name == "resurrect_entity") then
+		
+		if(action.name == "ressurect_entity") then
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
 			if(enti ~= nil) then
-				enti.Revive() 
-				enti.Revive(0.5) 
-				enti.Revive(5) 
-				Game.GetStatPoolsSystem():RequestChangingStatPoolValue(enti:GetEntityID(), "Health", 5, Game.GetPlayer(), true, false)
+				
+				local sp = GetSingleton("ScriptedPuppet")
+				sp:SendResurrectEvent(enti)
+				enti:OnResurrected()
+				enti:QueueEvent(CreateDisableRagdollEvent("DisableRagdollTask"))
+				
 			end
+			
 		end
+		-- if(action.name == "resurrect_entity") then
+		-- local obj = getEntityFromManager(action.tag)
+		-- local enti = Game.FindEntityByID(obj.id)
+		-- if(enti ~= nil) then
+		-- enti.Revive() 
+		
+		-- end
+		-- end
 		if(action.name == "despawn_entity") then
-			--local enti = Game.FindEntityByID(questMod.EntityManager[action.tag])
-			--despawnEntity(questMod.EntityManager[action.tag].spawnlevel)
+			
 			despawnEntity(action.tag)
 			if(action.tag == "current_star") then
 				currentStar = nil
@@ -9169,8 +7709,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
 			if enti ~= nil then
-				local index = getIndexFromManager(action.tag)
-				table.remove(questMod.EntityManager,index)
+				
+				questMod.EntityManager[action.tag]=nil
 			end
 		end
 		
@@ -9182,7 +7722,156 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 		end
 		
+		if(action.name == "move") then
+			
+			if(action.group == true ) then
+				local group =getGroupfromManager(action.tag)
+				for i=1, #group.entities do 
+					local entityTag = group.entities[i]
+					local obj = getEntityFromManager(entityTag)
+					local enti = Game.FindEntityByID(obj.id)
+					if(enti ~= nil) then
+						
+						
+						local position = getPositionFromParameter(action)
+						
+						
+						
+						if(position.x ~= nil) then
+							
+							local v2 = nil
+							
+							if(action.moveV2 == true) then
+								v2 = {}
+								v2.quat= GetSingleton('EulerAngles'):ToQuat(EulerAngles.new(action.roll, action.pitch, action.yaw))
+								v2.ignoreNav = action.ignorenavigation
+								v2.stoponobstacle = action.stoponobstacle
+								v2.distance = action.distance
+								v2.distancetolerance = action.distancetolerance
+								v2.outofway=action.outofway
+								
+								
+							end
+							
+							
+							MoveTo(enti, position, 1, action.move,v2)
+							
+							
+							
+							else
+							error("bad character or position. character tweak : "..chara.." position : "..dump(position))
+						end
+						
+						
+						
+						
+					end
+				end
+				else
+				local obj = getEntityFromManager(action.tag)
+				local enti = Game.FindEntityByID(obj.id)
+				if(enti ~= nil) then
+					
+					local position = getPositionFromParameter(action)
+					
+					if(position.x ~= nil) then
+						
+						local v2 = nil
+						
+						if(action.moveV2 == true) then
+							v2 = {}
+							v2.quat= GetSingleton('EulerAngles'):ToQuat(EulerAngles.new(action.roll, action.pitch, action.yaw))
+							v2.ignoreNav = action.ignorenavigation
+							v2.stoponobstacle = action.stoponobstacle
+							v2.distance = action.distance
+							v2.distancetolerance = action.distancetolerance
+							v2.outofway=action.outofway
+							
+							
+						end
+						
+						
+						MoveTo(enti, position, 1, action.move,v2)
+						
+						
+						
+						else
+						error("bad character or position. character tweak : "..chara.." position : "..dump(position))
+					end
+					
+					
+					
+					
+				end
+			end
+		end
 		
+		if(action.name == "teleport") then
+			
+			if(action.group == true ) then
+				local group =getGroupfromManager(action.tag)
+				for i=1, #group.entities do 
+					local entityTag = group.entities[i]
+					local obj = getEntityFromManager(entityTag)
+					local enti = Game.FindEntityByID(obj.id)
+					if(enti ~= nil) then
+						
+						
+						local position = getPositionFromParameter(action)
+						
+						if(position.x ~= nil) then
+							
+							local v2 = nil
+							
+							
+							
+							
+							
+							local rot =  GetSingleton('Quaternion'):ToEulerAngles(enti:GetWorldOrientation())
+							
+							teleportTo(enti, position, rot,false)
+							
+							
+							
+							else
+							error("bad character or position. character tweak : "..chara.." position : "..dump(position))
+						end
+						
+						
+						
+						
+					end
+				end
+				else
+				local obj = getEntityFromManager(action.tag)
+				local enti = Game.FindEntityByID(obj.id)
+				if(enti ~= nil) then
+					local isplayer = false
+					if action.tag == "player" then
+						isplayer = true
+					end
+					
+					local position = getPositionFromParameter(action)
+					
+					if(position.x ~= nil) then
+						
+						
+						local rot =  GetSingleton('Quaternion'):ToEulerAngles(enti:GetWorldOrientation())
+						
+						teleportTo(enti, position, rot,isplayer)
+						
+						
+						
+						else
+						error("bad character or position. character tweak : "..chara.." position : "..dump(position))
+					end
+					
+					
+					
+					
+				end
+			end
+		end
 		
 		if(action.name == "move_entity_at_position") then
 			local obj = getEntityFromManager(action.tag)
@@ -9253,6 +7942,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
+		
+		
 		if(action.name == "entity_hold_position") then
 			local enti = nil
 			local obj = nil 
@@ -9279,6 +7971,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
 		if(action.name == "rotate_entity_to_entity") then
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
@@ -9349,8 +8042,14 @@ function executeAction(action,tag,parent,index,source,executortag)
 				end
 			end
 		end
+		
+		
+		
 		if(action.name == "teleport_entity_to_entity_relative") then
 			local isplayer = false
+			if action.tag == "player" then
+				isplayer = true
+			end
 			
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
@@ -9447,6 +8146,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 			local playerpos = Game.GetPlayer():GetWorldPosition()
 			Game.TeleportPlayerToPosition(playerpos.x+action.x,playerpos.y+action.y,playerpos.z+action.z)
 		end
+		
+		
+		
 		if(action.name == "entity_stop_fight") then
 			InterruptCombat(action.tag)
 		end
@@ -9489,6 +8191,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				EquipGivenWeapon(enti, weaponTDBID, true)
 			end
 		end
+		
 		if(action.name == "attitude_entity_against_entity") then
 			if action.attitude == "hostile" then
 				setAggressiveAgainst(action.tag, action.entity)
@@ -9777,9 +8480,348 @@ function executeAction(action,tag,parent,index,source,executortag)
 			toggleVBodyComponent(action.value)
 		end
 		
+		if(action.name == "spawn_item") then
+			local chara = ""
+			if(action.amount == nil) then
+				action.amount = 1
+			end
+			if(action.amount == 0) then
+				action.amount = math.random(1,6)
+			end
+			for i=1,action.amount do
+				
+				
+				chara = action.path
+				
+				
+				
+				local tag = action.tag
+				if(action.amount > 1) then
+					tag = action.tag.."_"..i
+				end
+				local position = getPositionFromParameter(action)
+				if(chara ~= "" and chara ~= nil and position.x ~= nil) then
+					
+					local spawnedItem = {}
+					
+					spawnedItem.Tag = tag
+					spawnedItem.HouseTag = ""
+					spawnedItem.ItemPath = chara
+					spawnedItem.X = position.x
+					spawnedItem.Y = position.y
+					spawnedItem.Z = position.z
+					
+					spawnedItem.Yaw = action.yaw
+					spawnedItem.Pitch = action.pitch
+					spawnedItem.Roll = action.roll
+					spawnedItem.Title = chara
+					
+					local angles = EulerAngles.new(spawnedItem.Yaw,spawnedItem.Pitch,spawnedItem.Roll)
+					local posVec4 = Vector4.new(position.x, position.y, position.z,1)
+					spawnedItem.entityId = spawnItem(spawnedItem, posVec4, angles)
+					
+					table.insert(currentItemSpawned,item)
+					
+					print("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
+					spdlog.error("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
+					else
+					error("bad item or position. item tweak : "..chara.." position : "..dump(position))
+				end
+			end
+		end
+		
+		if(action.name == "despawn_item") then
+			for i=1,#currentItemSpawned do
+				if(currentItemSpawned[i].Tag == action.tag) then
+					despawnItem(currentItemSpawned[i].entityId)
+				end
+				
+			end
+		end
+		
+		if(action.name == "set_entity_stat") then
+			--https://nativedb.red4ext.com/gamedataStatType
+			--https://nativedb.red4ext.com/gameStatModifierType
+			local obj = getEntityFromManager(action.tag)
+			local enti = Game.FindEntityByID(obj.id)
+			
+			if(enti ~= nil) then
+				
+				
+				
+				local newMod = gameConstantStatModifierData.new()
+				newMod.statType = Enum.new('gamedataStatType', action.stat)
+				newMod.modifierType = Enum.new('gameStatModifierType', action.modifierType)
+				newMod.value = action.value
+				
+				Game.GetStatsSystem():AddModifier(obj.id,newmod)
+			end
+		end
+		
+		
+		
+		if(action.name == "for_entity_around_you") then
+			
+			player = Game.GetPlayer()
+			targetingSystem = Game.GetTargetingSystem()
+			parts = {}
+			local success= false
+			searchQuery = Game["TSQ_ALL;"]() -- Search ALL objects
+			searchQuery.maxDistance = action.range
+			success, parts = targetingSystem:GetTargetParts(Game.GetPlayer(), searchQuery)
+			
+			questMod.GroupManager["temp_around_group"] = {}
+			questMod.GroupManager["temp_around_group"].tag = "temp_around_group"
+			questMod.GroupManager["temp_around_group"].entities = {}
+			
+			
+			for _, v in ipairs(parts) do
+				local newent = v:GetComponent(v):GetEntity() 
+				
+				local goodEntity = false
+				
+				if(action.filter ~= nil and #action.filter > 0) then 
+					
+					
+					local entName = newent:ToString()
+					local entAppName = Game.NameToString(newent:GetCurrentAppearanceName())
+					local entDispName = newent:GetDisplayName()
+					
+					if(entName ~= nil and entAppName ~= nil)then
+						for i,filter in ipairs(action.filter) do
+							
+							if(goodEntity == false and string.match(entName, filter) or string.match(entAppName, filter) or string.match(entDispName, filter))then 
+								goodEntity = true
+							end
+						end
+					end
+					
+					
+					
+					else
+					
+					goodEntity = true
+					
+				end
+				
+				
+				local tag = "scripted_around_"..math.random(0,9999)
+				local obj = getEntityFromManager(tag)
+				
+				if (obj.id == nil and goodEntity == true) then
+					
+					
+					local entity = {}
+					entity.id = newent:GetEntityID()
+					entity.tag = tag
+					entity.tweak = "None"
+					entity.iscompanion = false
+					
+					questMod.EntityManager[tag]=entity
+					if(action.group == nil or action.group == "") then
+						
+						table.insert(questMod.GroupManager["temp_around_group"].entities,entity.tag)
+						
+						else
+						
+						
+						if(questMod.GroupManager[action.group] ~= nil) then
+							table.insert(questMod.GroupManager[action.group].entities,entity.tag)
+							else
+							
+							error("no group founded")
+							
+						end
+						
+					end
+					obj = entity
+					
+					if(#action.action > 0) then
+						
+						runSubActionList(action.action, "forentitylist_"..math.random(1,99999),parent,source,false,entity.tag,false)
+					end
+				end
+				
+				
+				
+			end
+			
+			
+		end
 		
 		
 	end
+	
+	if scannerregion then
+		
+		if(action.name == "set_scannerdata") then
+			
+			
+			
+			ScannerInfoManager[action.tag] = {}
+			ScannerInfoManager[action.tag].primaryname = getLang(action.primaryname)
+			ScannerInfoManager[action.tag].secondaryname = getLang(action.secondaryname)
+			ScannerInfoManager[action.tag].level = action.level
+			ScannerInfoManager[action.tag].rarity = action.rarity
+			ScannerInfoManager[action.tag].faction = action.faction
+			ScannerInfoManager[action.tag].networkstate = ""
+			ScannerInfoManager[action.tag].text = getLang(action.text)
+			ScannerInfoManager[action.tag].attitude = action.attitude
+			
+			if(action.bounty ~= nil) then
+				ScannerInfoManager[action.tag].bounty = action.bounty
+				ScannerInfoManager[action.tag].bounty.issuedby = getLang(action.bounty.issuedby)
+			end
+			
+			
+			
+			
+			
+			
+		end
+		
+		
+		if(action.name == "edit_scannerdata") then
+			
+			
+			if(
+				action.prop == "primaryname" 
+				or action.prop == "secondaryname" 
+				or action.prop == "text" 
+				or action.prop == "level" 
+				or action.prop == "rarity"
+				or action.prop == "faction"
+				or action.prop == "attitude"
+			) then
+			
+			if('string' == type(action.value)) then
+				
+				ScannerInfoManager[action.tag][action.prop] = getLang(action.value)
+				else
+				
+				
+				
+				
+				ScannerInfoManager[action.tag][action.prop] = action.value
+			end
+			
+			end
+			
+			
+			if(
+				action.prop == "danger" 
+				or action.prop == "reward" 
+				or action.prop == "streetreward" 
+				or action.prop == "issuedby"
+			) then
+			
+			if(ScannerInfoManager[action.tag].bounty == nil) then
+				ScannerInfoManager[action.tag].bounty = {}
+				ScannerInfoManager[action.tag].bounty.danger = 0
+				ScannerInfoManager[action.tag].bounty.reward = 0
+				ScannerInfoManager[action.tag].bounty.streetreward = 0
+				ScannerInfoManager[action.tag].bounty.issuedby = "Unknown"
+				ScannerInfoManager[action.tag]["bounty"]["transgressions"] = {}
+				ScannerInfoManager[action.tag]["bounty"]["customtransgressions"] = {}
+				
+			end
+			
+			if('string' == type(action.value)) then
+				
+				ScannerInfoManager[action.tag]["bounty"][action.prop] = getLang(action.value)
+				else
+				
+				if(action.prop == "reward" or action.prop == "streetreward" ) then
+					if(action.operator == "+") then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = ScannerInfoManager[action.tag]["bounty"][action.prop] + action.value
+					end
+					if(action.operator == "-") then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = ScannerInfoManager[action.tag]["bounty"][action.prop] - action.value
+					end
+					if(action.operator == "*") then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = ScannerInfoManager[action.tag]["bounty"][action.prop] * action.value
+					end
+					if(action.operator == "/") then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = ScannerInfoManager[action.tag]["bounty"][action.prop] / action.value
+					end
+					if(action.operator == "positive") then
+						if(ScannerInfoManager[action.tag]["bounty"][action.prop] > 0) then
+							ScannerInfoManager[action.tag]["bounty"][action.prop] = 0 + ScannerInfoManager[action.tag]["bounty"][action.prop]
+							else
+							ScannerInfoManager[action.tag]["bounty"][action.prop] = 0 - ScannerInfoManager[action.tag]["bounty"][action.prop]
+						end
+					end
+					if(action.operator == "negative") then
+						if(ScannerInfoManager[action.tag]["bounty"][action.prop] > 0) then
+							ScannerInfoManager[action.tag]["bounty"][action.prop] = 0 - ScannerInfoManager[action.tag]["bounty"][action.prop]
+							else
+							ScannerInfoManager[action.tag]["bounty"][action.prop] = 0 + ScannerInfoManager[action.tag]["bounty"][action.prop]
+						end
+					end
+					if(action.operator == "random") then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = math.random(action.min,action.max)
+					end
+					
+					if(action.operator == "" or action.operator == "=" or action.operator == nil) then
+						ScannerInfoManager[action.tag]["bounty"][action.prop] = action.value
+					end
+					else
+					ScannerInfoManager[action.tag]["bounty"][action.prop] = action.value
+				end
+				
+				
+			end
+			
+			
+			end
+			
+			if(
+				action.prop == "transgressions" 
+				or action.prop == "customtransgressions" 
+				
+			) then
+			
+			if(ScannerInfoManager[action.tag].bounty == nil) then
+				ScannerInfoManager[action.tag].bounty = {}
+				ScannerInfoManager[action.tag].bounty.danger = 0
+				ScannerInfoManager[action.tag].bounty.reward = 0
+				ScannerInfoManager[action.tag].bounty.streetreward = 0
+				ScannerInfoManager[action.tag].bounty.issuedby = "Unknown"
+				ScannerInfoManager[action.tag]["bounty"]["transgressions"] = {}
+				ScannerInfoManager[action.tag]["bounty"]["customtransgressions"] = {}
+				
+			end
+			
+			
+			
+			ScannerInfoManager[action.tag]["bounty"][action.prop] = action.value
+			
+			
+			
+			end
+			
+			
+			
+			
+			
+			
+			
+		end
+		
+		if(action.name == "delete_scannerdata") then
+			
+			
+			ScannerInfoManager[action.tag] = nil
+			
+			
+			
+			
+			
+		end
+		
+		
+	end
+	
 	
 	if logicregion then
 		if(action.name == "if") then
@@ -9787,13 +8829,16 @@ function executeAction(action,tag,parent,index,source,executortag)
 			result = false
 		end
 		if(action.name == "lightif") then
-			if(checkTrigger(action.trigger)) then
+			local trigger = action.trigger
+			if(checkTrigger(trigger)) then
 				for i=1,#action.if_action do
-					executeAction(action.if_action[i],tag,parent,index,source,executortag)
+					local actiontodo = action.if_action[i]
+					executeAction(actiontodo,tag,parent,index,source,executortag)
 				end
 				else
 				for i=1,#action.else_action do
-					executeAction(action.else_action[i],tag,parent,index,source,executortag)
+					local actiontodo = action.else_action[i]
+					actiontodo(actiontodo,tag,parent,index,source,executortag)
 				end
 			end
 		end
@@ -9845,7 +8890,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			result = false
 		end
 		if(action.name == "wait_for_framework") then
-			waiting = true
+			
 			result = false
 		end
 		if(action.name == "wait_for_target") then
@@ -9905,7 +8950,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 						runActionList(event.action, action.value, tag,source,false,executortag)
 					end
 					else
-					if(checkTriggerRequirement(event.requirement,event.trigger))then
+					local trigger = event.trigger 
+					if(checkTriggerRequirement(event.requirement,trigger))then
 						--debugPrint(1,"check for "..interact2.name)
 						debugPrint(1,"Doing event : "..event.name)
 						if(action.parallele == nil or action.parallele == false)then
@@ -9940,7 +8986,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					
 					else
-					if(checkTriggerRequirement(event.requirement,event.trigger))then
+					local trigger = event.trigger
+					if(checkTriggerRequirement(event.requirement,trigger))then
 						--debugPrint(1,"check for "..interact2.name)
 						debugPrint(1,"Doing event : "..event.name)
 						if(action.parallele == nil or action.parallele == false)then
@@ -9953,7 +9000,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						error("can't do event : "..event.name)
 					end
 				end
-				testTriggerRequirement(event.requirement,event.trigger)
+				
 			end
 			
 		end
@@ -10004,6 +9051,37 @@ function executeAction(action,tag,parent,index,source,executortag)
 				workerTable[tag]["index"] = action.index 
 			end
 		end
+		
+		
+		if(action.name == "goto_alias") then
+			
+			local index = workerTable[tag]["index"]
+			local list = workerTable[tag]["action"]
+			local parent = workerTable[tag]["parent"]
+			local pending = workerTable[tag]["pending"]	
+			
+			
+			for i,v in ipairs(list) do
+				
+				if(action.tag == v.alias) then
+					
+					if(list[index].parent == true) then
+						debugPrint(1,"Go to"..i.." of "..parent.."(alias :"..v.tag..")")
+						workerTable[parent]["index"] = i-1
+						workerTable[tag]["index"] = workerTable[tag]["index"]+1
+						workerTable[parent]["pending"] =  false
+						tag = parent
+						else
+						debugPrint(1,"Go to"..i.." of "..tag.."(alias :"..v.tag..")")
+						workerTable[tag]["index"] = i
+					end
+					
+				end
+				
+			end
+			
+		end
+		
 		if(action.name == "do_random_function")then
 			local tago = math.random(1,#action.funcs)
 			debugPrint(1,action.funcs[tago])
@@ -10027,6 +9105,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 			
 		end
+	
+	
 	end
 	
 	if uiregion then
@@ -10324,20 +9404,20 @@ function executeAction(action,tag,parent,index,source,executortag)
 			Keystone_currentSelectedDatapack = action.value
 		end
 		if(action.name == "open_datapack_group_ui") then
-			ScrollSpeed = 0.07
+			
 			ActivatedGroup()
 		end
 		if(action.name == "open_keystone_datapack_main") then
-			ScrollSpeed = 0.07
+			
 			Keystone_Datapack()
 		end
 		
 		if(action.name == "open_keystone_datapack_mine") then
-			ScrollSpeed = 0.07
+			
 			Keystone_myDatapack()
 		end
 		if(action.name == "open_keystone_main") then
-			ScrollSpeed = 0.07
+			
 			Keystone_Main()
 		end
 		if(action.name == "open_keystone_update_warning") then
@@ -10353,11 +9433,11 @@ function executeAction(action,tag,parent,index,source,executortag)
 			Keystone_Changelog()
 		end
 		if(action.name == "open_keystone_stock") then
-			ScrollSpeed = 0.07
+			
 			Keystone_stock()
 		end
 		if(action.name == "open_keystone_item") then
-			ScrollSpeed = 0.07
+			
 			Keystone_item()
 		end
 		if(action.name == "open_keystone_item_category") then
@@ -10445,19 +9525,15 @@ function executeAction(action,tag,parent,index,source,executortag)
 						debugPrint(1,"tempangle.yaw "..tempangle.yaw)
 						local angletomake= tempangle
 						local newaction = {}
-						newaction.name = "teleport_entity_at_position"
+						newaction.name = "rotate_entity"
 						newaction.tag = action.tag
-						newaction.x = newPos.x
-						newaction.y = newPos.y
-						newaction.z = newPos.z
-						newaction.angle = {}
-						newaction.angle.roll = 0+angletomake.roll
-						newaction.angle.pitch = 0+angletomake.pitch
-						newaction.angle.yaw = 0+angletomake.yaw
-						debugPrint(1,"newaction.angle.yaw "..newaction.angle.yaw)
-						newaction.pathfinding = action.pathfinding
-						newaction.collision = false
-						newaction.axis = "x"
+						
+						newaction.roll = 0
+						newaction.pitch = 0
+						newaction.yaw = tempangle.yaw
+						
+
+					
 						table.insert(actionlist,newaction)
 					end
 					angle = GetSingleton('Vector4'):ToRotation(dirVector)
@@ -10803,7 +9879,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						local group = getGroupfromManager("AV")
 						entity.availableSeat = GetSeats(vehicule)
 						entity.driver = "player"
-						table.insert(questMod.EntityManager,entity)
+						questMod.EntityManager[entity.tag]=entity
 						--debugPrint(1,"new "..entity.tag)
 						obj = entity
 					end
@@ -10811,22 +9887,22 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local obj = getTrueEntityFromManager(obj.tag)
 					if(obj.isAV == true) then
 						obj.isAV = false
-						local index =getIndexFromGroupManager("AV")
-						for i=1, #questMod.GroupManager[index].entities do 
-							local entityTag = questMod.GroupManager[index].entities[i]
+						
+						for i=1, #questMod.GroupManager["AV"].entities do 
+							local entityTag = questMod.GroupManager["AV"].entities[i]
 							if(entityTag == obj.tag) then
-								table.remove(questMod.GroupManager[index].entities,i)
+								table.remove(questMod.GroupManager["AV"].entities,i)
 							end
 						end
 						--debugPrint(1,"removedAV"..obj.tag)
 						else
-						local group =getGroupfromManager("AV")
+						
 						obj.isAV = true
-						if(group.entities == nil) then
-							group.entities = {}
+						if(questMod.GroupManager["AV"].entities == nil) then
+							questMod.GroupManager["AV"].entities = {}
 						end
 						debugPrint(1,"addedAV"..obj.tag)
-						table.insert(group.entities,obj.tag)
+						table.insert(questMod.GroupManager["AV"].entities,obj.tag)
 					end
 				end
 			end
@@ -10875,8 +9951,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			npc.isspawn=true
 			npc.init=false
 			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
+				
+				table.insert(questMod.GroupManager[action.group].entities,action.tag)
 			end
 		end
 		if(action.name == "npc_custom_summon_custom_npc") then
@@ -10899,8 +9975,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 			npc.isspawn=true
 			npc.init=false
 			if(action.group ~= nil and action.group ~= "") then
-				local index =getIndexFromGroupManager(action.group)
-				table.insert(questMod.GroupManager[index].entities,action.tag)
+				
+				table.insert(questMod.GroupManager[action.group].entities,action.tag)
 			end
 		end
 		if(action.name == "npc_custom_edit_custom_npc") then
@@ -10966,7 +10042,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 	
 	if multiregion then
 		if not player_region then
-			if(action.name == "send_action_to_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
+			if(action.name == "send_action_to_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
 				if action.tag == "lookat" and multiName ~= "" then
 					action.tag = multiName
 				end
@@ -10974,17 +10050,17 @@ function executeAction(action,tag,parent,index,source,executortag)
 				result = true
 			end
 			if(action.name == "help_faction") then
-				if(multiReady)then
+				if(MultiplayerOn)then
 					HelpFaction()
 					else
 					Game.GetPlayer():SetWarningMessage(getLang("You need to be online for help your faction"))
 				end
 			end
 			if(action.name == "disconnect") then
-				if(multiEnabled and multiReady) then
+				if(NetServiceOn and MultiplayerOn) then
 					disconnectUser()
-					multiReady = false
-					multiEnabled = false
+					MultiplayerOn = false
+					NetServiceOn = false
 					
 					
 					friendIsSpaned = false
@@ -11009,12 +10085,12 @@ function executeAction(action,tag,parent,index,source,executortag)
 				
 			end
 			if(action.name == "send_message") then
-				if(multiEnabled and multiReady) then
+				if(NetServiceOn and MultiplayerOn) then
 					MessageSenderController()
 				end
 			end
 			if(action.name == "toggle_message_popup") then
-				if(multiEnabled and multiReady) then
+				if(NetServiceOn and MultiplayerOn) then
 					if onlineMessagePopup then
 						onlineMessagePopup = false
 						else
@@ -11024,43 +10100,43 @@ function executeAction(action,tag,parent,index,source,executortag)
 					onlineMessagePopup = false
 				end
 			end
-			if(action.name == "open_avatar_list" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
-				ScrollSpeed = 0.07
+			if(action.name == "open_avatar_list" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
+				
 				Multi_AvatarList()
 			end
-			if(action.name == "change_avatar" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
+			if(action.name == "change_avatar" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
 				currentSave.myAvatar = action.value
 				Cron.After(2,function()	
 					updatePlayerSkin()
 				end)
 			end
-			if(action.name == "shoot_talk" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then 
+			if(action.name == "shoot_talk" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then 
 				onlineShootMessage = true
 			end
-			if(action.name == "select_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil ) then
+			if(action.name == "select_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil ) then
 				selectedUser = action.value
 				onlineReceiver = selectedUser.pseudo
 			end
-			if(action.name == "unblock_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
+			if(action.name == "unblock_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
 				UnblockFriend()
 			end
-			if(action.name == "delete_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
+			if(action.name == "delete_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
 				DeleteFriend()
 			end
-			if(action.name == "block_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
+			if(action.name == "block_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
 				BlockFriend()
 			end
-			if(action.name == "add_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
+			if(action.name == "add_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
 				AddFriend()
 			end
-			if(action.name == "tp_to_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
+			if(action.name == "tp_to_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil and selectedUser ~= nil and selectedUser.pseudo ~= nil and selectedUser.pseudo ~= "" ) then
 				Game.GetTeleportationFacility():Teleport(Game.GetPlayer(), Vector4.new( selectedUser.x, selectedUser.y, selectedUser.z,1) ,EulerAngles.new(0,0,0))
 			end
-			if(action.name == "select_friend" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil ) then
+			if(action.name == "select_friend" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil ) then
 				selectedFriend = action.value
 				onlineReceiver = selectedUser.name	
 			end
-			if(action.name == "open_friend_list" and multiEnabled and multiReady) then
+			if(action.name == "open_friend_list" and NetServiceOn and MultiplayerOn) then
 				local next = next 
 				if ActualFriendList == nil or next(ActualFriendList) == nil then
 					Game.GetPlayer():SetWarningMessage("There is no connected friend..")
@@ -11068,44 +10144,44 @@ function executeAction(action,tag,parent,index,source,executortag)
 					Multi_FriendList()
 				end
 			end
-			if(action.name == "join_instance_friend" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
+			if(action.name == "join_instance_friend" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
 					MessageSenderController()
 				end
 			end
 		end
 		if not instance_region then
-			if(action.name == "open_players_list"  and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
+			if(action.name == "open_players_list"  and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
 				if #ActualPlayersList > 0 then
-					ScrollSpeed = 0.07
+					
 					Multi_InstanceUserList()
 					else
 					Game.GetPlayer():SetWarningMessage("There is no players around..")
 				end
 			end
-			if(action.name == "open_instance_list" and multiEnabled) then
-				ScrollSpeed = 0.07
+			if(action.name == "open_instance_list" and NetServiceOn) then
+				
 				Multi_InstanceList()
 			end
-			if(action.name == "select_instance" and multiEnabled ) then
+			if(action.name == "select_instance" and NetServiceOn ) then
 				selectedInstance = action.value
 			end
-			if(action.name == "connect_instance" and multiEnabled ) then
+			if(action.name == "connect_instance" and NetServiceOn ) then
 				connectMultiplayer()
 			end
-			if(action.name == "get_instance_list" and multiEnabled) then
+			if(action.name == "get_instance_list" and NetServiceOn) then
 				GetInstances()
 			end
-			if(action.name == "open_instance_creation" and multiEnabled) then
+			if(action.name == "open_instance_creation" and NetServiceOn) then
 				onlineInstanceCreation = true
 			end
-			if(action.name == "notify_instance" and multiEnabled and multiReady and CurrentInstance.Title ~= nil) then
+			if(action.name == "notify_instance" and NetServiceOn and MultiplayerOn and CurrentInstance.Title ~= nil) then
 				Game.GetPlayer():SetWarningMessage("Welcome to "..CurrentInstance.Title)
 			end
-			if(action.name == "close_instance_password_popup" and multiEnabled) then
+			if(action.name == "close_instance_password_popup" and NetServiceOn) then
 				onlinePasswordPopup = false
 			end
-			if(action.name == "open_instance_password_popup" and multiEnabled) then
+			if(action.name == "open_instance_password_popup" and NetServiceOn) then
 				selectedInstancePassword="nothing"
 				onlinePasswordPopup = true
 			end
@@ -11113,7 +10189,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				onlineInstanceUpdate = true
 			end
 			if(action.name == "open_instance_management_users" and  ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.isInstanceOwner == true) then
-				ScrollSpeed = 0.07
+				
 				Multi_InstanceOwnerUserList()
 			end
 			if(action.name == "block_instance_user" and  ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.isInstanceOwner == true) then
@@ -11143,13 +10219,13 @@ function executeAction(action,tag,parent,index,source,executortag)
 		if not instance_place_item_region then
 			if(action.name == "open_placed_item_ui_multi" and  ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.CanBuild == true) then
 				if (ActualPlayerMultiData.currentPlaces[1] ~= nil) then
-					ScrollSpeed = 0.07
+					
 					PlacedItemsUIMulti()
 				end
 			end
 			if(action.name == "open_buyed_item_ui_multi" and  ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.CanBuild == true) then
 				if(ActualPlayerMultiData.currentPlaces[1] ~= nil) then
-					ScrollSpeed = 0.07
+					
 					BuyedItemsUIMulti()
 				end
 			end
@@ -11401,508 +10477,1322 @@ function executeAction(action,tag,parent,index,source,executortag)
 			end
 		end
 		if not guild_region then
-			if(action.name == "open_guild_list" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
-					ScrollSpeed = 0.07
+			if(action.name == "open_guild_list" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
+					
 					Multi_GuildList()
 				end
 			end
-			if(action.name == "open_guild_pending" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
+			if(action.name == "open_guild_pending" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
 					Multi_GuildPendingList()
 				end
 			end
-			if(action.name == "open_guild_members" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
-					ScrollSpeed = 0.07
+			if(action.name == "open_guild_members" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
+					
 					Multi_GuildUserList()
 				end
 			end
-			if(action.name == "open_guild_creation" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
+			if(action.name == "open_guild_creation" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
 					onlineGuildCreation = true
 				end
 			end
 			
-			if(action.name == "open_guild_update" and multiEnabled and multiReady) then
-				if(multiEnabled and multiReady) then
+			if(action.name == "open_guild_update" and NetServiceOn and MultiplayerOn) then
+				if(NetServiceOn and MultiplayerOn) then
 					onlineGuildUpdate = true
 				end
 			end
 			
 			if(action.name == "select_guild") then
-				if(multiEnabled and multiReady ) then
+				if(NetServiceOn and MultiplayerOn ) then
 					selectedGuild = action.parameter
 				end
 			end
 			if(action.name == "select_guild_user") then
-				if(multiEnabled and multiReady ) then
+				if(NetServiceOn and MultiplayerOn ) then
 					selectedGuildUser = action.parameter
 				end
 			end
 			if(action.name == "join_guild") then
-				if(multiEnabled and multiReady and selectedGuild ~= nil) then
+				if(NetServiceOn and MultiplayerOn and selectedGuild ~= nil) then
 					joinGuild(mytag,selectedGuild)
 				end
 			end
 			if(action.name == "leave_guild") then
-				if(multiEnabled and multiReady and mytag ~= "") then
+				if(NetServiceOn and MultiplayerOn and mytag ~= "") then
 					leaveGuild(mytag)
 				end
 			end
 			if(action.name == "accept_to_guild") then
-				if(multiEnabled and multiReady and selectedGuildUser ~= "") then
+				if(NetServiceOn and MultiplayerOn and selectedGuildUser ~= "") then
 					acceptGuild(selectedGuildUser)
 				end
 			end
 			if(action.name == "refuse_to_guild") then
-				if(multiEnabled and multiReady and selectedGuildUser ~= "") then
+				if(NetServiceOn and MultiplayerOn and selectedGuildUser ~= "") then
 					refuseGuild(selectedGuildUser)
 				end
 			end
 			if(action.name == "remove_to_guild") then
-				if(multiEnabled and multiReady and multiName ~= "") then
+				if(NetServiceOn and MultiplayerOn and multiName ~= "") then
 					removeGuild(selectedGuildUser)
 				end
 			end
 		end
-	if not server_player_score_region then
-	if(action.name == "operate_server_score" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
-	if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
-	local score = ActualPlayerMultiData.instance.scores[action.value]
-	if(score ~= nil) then
-	score = score + action.score
-	else
-	score = 0 + action.score
-	end
-	operateInstanceScore(myTag,action.value,score)
-	end
-	end
-	if(action.name == "set_server_score" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
-	if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
-	local score = ActualPlayerMultiData.instance.scores[action.value]
-	if(score ~= nil) then
-	score = action.score
-	else
-	score = action.score
-	end
-	setInstanceScore(myTag,action.value,score)
-	end
-	end
-	if(action.name == "delete_server_score" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
-	if(multiEnabled and multiReady and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
-	deleteInstanceScore(myTag,action.value)
-	end
-	end
-	if(action.name == "edit_server_score_user" and multiEnabled and multiReady and  ActualPlayerMultiData ~= nil) then
-	editServerScoreUser(action.score,action.value)
-	result = true
-	end
-	end
+		if not server_player_score_region then
+			if(action.name == "operate_server_score" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+					local score = ActualPlayerMultiData.instance.scores[action.value]
+					if(score ~= nil) then
+						score = score + action.score
+						else
+						score = 0 + action.score
+					end
+					operateInstanceScore(myTag,action.value,score)
+				end
+			end
+			if(action.name == "set_server_score" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+					local score = ActualPlayerMultiData.instance.scores[action.value]
+					if(score ~= nil) then
+						score = action.score
+						else
+						score = action.score
+					end
+					setInstanceScore(myTag,action.value,score)
+				end
+			end
+			if(action.name == "delete_server_score" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
+				if(NetServiceOn and MultiplayerOn and ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.scores ~= nil) then
+					deleteInstanceScore(myTag,action.value)
+				end
+			end
+			if(action.name == "edit_server_score_user" and NetServiceOn and MultiplayerOn and  ActualPlayerMultiData ~= nil) then
+				editServerScoreUser(action.score,action.value)
+				result = true
+			end
+		end
 	end
 	
 	if framework then
-	if(action.name == "download_datapack") then
-	arrayDatapack[action.tag] = {}
-	arrayDatapack[action.tag].state = "new"
-	DownloadModpack(action.value)
-	
-	end
-	if(action.name == "update_datapack") then
-	arrayDatapack[action.tag] = {}
-	arrayDatapack[action.tag].state = "new"
-	UpdateModpack(action.value,action.tag)
-	end
-	if(action.name == "delete_datapack") then
-	DeleteModpack(action.tag)
-	end
-	if(action.name == "enable_datapack") then
-	EnableDatapack(action.tag)
-	end
-	if(action.name == "disable_datapack") then
-	DisableDatapack(action.tag)
-	end
-	if(action.name == "update_mod") then
-	UpdateMods()
-	end
-	if(action.name == "refresh_news") then
-	GetCorpoNews()
-	end
-	if(action.name == "refresh_market") then
-	GetScores()
-	end
-	if(action.name == "select_stock") then
-	CurrentStock = action.value
-	debugPrint(1,dump(CurrentStock))
-	end
-	if(action.name == "buy_score") then
-	debugPrint(1,dump(CurrentStock))
-	if(CurrentStock ~= nil and checkStackableItemAmount("Items.money",CurrentStock.price)) then
-	BuyScore(CurrentStock.tag)
-	end
-	end
-	if(action.name == "sell_score") then
-	if(CurrentStock ~= nil and CurrentStock.price ~= nil and CurrentStock.userQuantity ~= nil and CurrentStock.statut ~= 0 and CurrentStock.userQuantity ~= nil and CurrentStock.userQuantity > 0) then
-	SellScore(CurrentStock.tag)
-	end
-	end
-	if(action.name == "refresh_item_market") then
-	GetItems()
-	end
-	if(action.name == "buy_cart") then
-	if(checkStackableItemAmount("Items.money",CartPrice)) then
-	local itemCartTagList = {}
-	waiting = true
-	for i = 1,#ItemsCart do
-	local items = ItemsCart[i]
-	table.insert(itemCartTagList,items.Tag)
-	updatePlayerItemsQuantity(items,1)
-	local player = Game.GetPlayer()
-	local ts = Game.GetTransactionSystem()
-	local tid = TweakDBID.new("Items.money")
-	local itemid = ItemID.new(tid)
-	local amount = tonumber(items.Price)
-	local result = ts:RemoveItem(player, itemid, amount)
-	end
-	BuyItemsCart(itemCartTagList)
-	ItemsCart = {}
-	CartPrice = 0	
-	end	
-	end
-	if(action.name == "add_to_cart") then
-	table.insert(ItemsCart,Keystone_currentSelectedItem)
-	CartPrice = CartPrice + Keystone_currentSelectedItem.Price
-	end
-	if(action.name == "remove_to_cart") then
-	local res = removeItemInCart(Keystone_currentSelectedItem.tag)
-	if(res == true) then
-	CartPrice = CartPrice - Keystone_currentSelectedItem.Price
-	end
-	end
-	if(action.name == "select_item_stock") then
-	CurrentItemStock = action.value
-	end
-	if(action.name == "connectUser") then
-	connectUser()
-	end
-	if(action.name == "userversion") then
-	setUserVersion()
-	end
-	if(action.name == "get_datapacklist") then
-	GetModpackList()
-	end
-	if(action.name == "get_branch") then
-	GetBranch()
-	end
-	if(action.name == "get_role") then
-	GetRole()
-	end
-	if(action.name == "fetch_data") then
-	FetchData()
-	end
-	if(action.name == "get_faction") then
-	GetFaction()
-	end
-	if(action.name == "get_possiblebranch") then
-	GetPossibleBranch()
-	end
-	if(action.name == "get_factionrank") then
-	GetFactionRank()
-	end
-	if(action.name == "getitemcat") then
-	GetItemCat()
-	end
-	if(action.name == "get_itemlist") then
-	GetItems()
-	end
-	if(action.name == "get_modversion") then
-	GetModVersion()
-	end
+		if(action.name == "download_datapack") then
+			arrayDatapack[action.tag] = {}
+			arrayDatapack[action.tag].state = "new"
+			DownloadModpack(action.value)
+			
+		end
+		if(action.name == "update_datapack") then
+			arrayDatapack[action.tag] = {}
+			arrayDatapack[action.tag].state = "new"
+			UpdateModpack(action.value,action.tag)
+		end
+		if(action.name == "delete_datapack") then
+			DeleteModpack(action.tag)
+		end
+		if(action.name == "enable_datapack") then
+			EnableDatapack(action.tag)
+		end
+		if(action.name == "disable_datapack") then
+			DisableDatapack(action.tag)
+		end
+		if(action.name == "update_mod") then
+			UpdateMods()
+		end
+		if(action.name == "refresh_news") then
+			GetCorpoNews()
+		end
+		if(action.name == "refresh_market") then
+			GetScores()
+		end
+		if(action.name == "select_stock") then
+			CurrentStock = action.value
+			debugPrint(1,dump(CurrentStock))
+		end
+		if(action.name == "clean_current_stock") then
+			CurrentStock = nil
+		end
+		if(action.name == "buy_score") then
+			
+			if(CurrentStock ~= nil and checkStackableItemAmount("Items.money",CurrentStock.price)) then
+				BuyScore(CurrentStock.tag)
+			end
+		end
+		if(action.name == "sell_score") then
+			if(CurrentStock ~= nil and CurrentStock.price ~= nil and CurrentStock.userQuantity ~= nil and CurrentStock.statut ~= 0 and CurrentStock.userQuantity ~= nil and CurrentStock.userQuantity > 0) then
+				SellScore(CurrentStock.tag)
+			end
+		end
+		if(action.name == "refresh_item_market") then
+			GetItems()
+		end
+		if(action.name == "buy_cart") then
+			if(checkStackableItemAmount("Items.money",CartPrice)) then
+				local itemCartTagList = {}
+				
+				for i = 1,#ItemsCart do
+					local items = ItemsCart[i]
+					table.insert(itemCartTagList,items.Tag)
+					updatePlayerItemsQuantity(items,1)
+					local player = Game.GetPlayer()
+					local ts = Game.GetTransactionSystem()
+					local tid = TweakDBID.new("Items.money")
+					local itemid = ItemID.new(tid)
+					local amount = tonumber(items.Price)
+					local result = ts:RemoveItem(player, itemid, amount)
+				end
+				BuyItemsCart(itemCartTagList)
+				ItemsCart = {}
+				CartPrice = 0	
+			end	
+		end
+		if(action.name == "add_to_cart") then
+			table.insert(ItemsCart,Keystone_currentSelectedItem)
+			CartPrice = CartPrice + Keystone_currentSelectedItem.Price
+		end
+		if(action.name == "remove_to_cart") then
+			local res = removeItemInCart(Keystone_currentSelectedItem.tag)
+			if(res == true) then
+				CartPrice = CartPrice - Keystone_currentSelectedItem.Price
+			end
+		end
+		if(action.name == "select_item_stock") then
+			CurrentItemStock = action.value
+		end
+		if(action.name == "connectUser") then
+			connectUser()
+		end
+		if(action.name == "userversion") then
+			setUserVersion()
+		end
+		if(action.name == "get_datapacklist") then
+			GetModpackList()
+		end
+		if(action.name == "get_branch") then
+			GetBranch()
+		end
+		if(action.name == "get_role") then
+			GetRole()
+		end
+		if(action.name == "fetch_data") then
+			FetchData()
+		end
+		if(action.name == "get_faction") then
+			GetFaction()
+		end
+		if(action.name == "get_possiblebranch") then
+			GetPossibleBranch()
+		end
+		if(action.name == "get_factionrank") then
+			GetFactionRank()
+		end
+		if(action.name == "getitemcat") then
+			GetItemCat()
+		end
+		if(action.name == "get_itemlist") then
+			GetItems()
+		end
+		if(action.name == "get_modversion") then
+			GetModVersion()
+		end
 	end
 	
 	if scene then 
-	if(action.name == "show_braindance_ui") then
-	
-	if(BraindanceGameController ~= nil) then
-	local root = BraindanceGameController.rootWidget 
-	
-	
-	
-	root:SetVisible(true)
-	
-	BraindanceGameController.PlayLibraryAnimation(CName("SHOW"))
-	
-	
-	end
-	
-	end
-	
-	if(action.name == "hide_braindance_ui") then
-	
-	if(BraindanceGameController ~= nil) then
-	local root = BraindanceGameController.rootWidget 
-	
-	
-	
-	root:SetVisible(false)
-	
-	
-	
-	
-	end
-	
-	end
-	
-	
-	if(action.name == "load_scene") then
-	
-	local scene = arrayScene[action.tag]
-	
-	if(scene ~= nil) then
-	
-	currentScene = scene.scene
-	currentScene.index = 0
-	
-	else
-	
-	error("No scene founded for the tag "..action.tag)
-	
-	
-	end
-	
-	end
-	
-	if(action.name == "unload_scene") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	currentScene = nil
-	
-	
-	
-	
-	end
-	end
-	
-	if(action.name == "play_scene") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	
-	
-	runActionList(currentScene.reset_action, currentScene.tag.."_reset", "interact",false,"scene")
-	
-	local actionlist = {}
-	
-	local actiontd = {}
-	actiontd.name = "wait_for_trigger"
-	actiontd.trigger = {}
-	actiontd.trigger.name = "event_is_finished"
-	actiontd.trigger.tag = currentScene.tag.."_reset"
-	
-	table.insert(actionlist,actiontd)
-	
-	for i=1,#currentScene.init_action do
-	
-	table.insert(actionlist,currentScene.init_action[i])
-	
-	end
-	
-	
-	runActionList(actionlist, currentScene.tag.."_init", "interact",false,"scene")
-	
-	
-	actionlist = {}
-	
-	actiontd = {}
-	actiontd.name = "wait_for_trigger"
-	actiontd.trigger = {}
-	actiontd.trigger.name = "event_is_finished"
-	actiontd.trigger.tag = currentScene.tag.."_init"
-	
-	table.insert(actionlist,actiontd)
-	
-	for i=1,#currentScene.step do
-	
-	
-	local step = currentScene.step[i]
-	
-	
-	
-	for y=1,#step.action do
-	
-	table.insert(actionlist,step.action[y])
-	
-	end
-	
-	end
-	
-	
-	for i=1,#currentScene.end_action do
-	
-	table.insert(actionlist,currentScene.end_action[i])
-	
-	end
-	
-	
-	runActionList(actionlist, currentScene.tag.."_full", "interact",false,"scene")
-	else
-	
-	error("No scene loaded")
-	
-	end
-	end
-	
-	
-	if(action.name == "reset_scene") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	
-	
-	runActionList(currentScene.reset_action, currentScene.tag.."_reset", "interact",false,"scene")
-	currentScene.index = 0
-	
-	end
-	end
-	
-	
-	if(action.name == "init_scene") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	
-	
-	runActionList(currentScene.init_action, currentScene.tag.."_init", "interact",false,"scene")
-	currentScene.index = 0
-	else
-	
-	error("No scene loaded")
-	end
-	end
-	
-	if(action.name == "play_scene_step_index") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	
-	if(currentScene.step[action.value] ~= nil) then
-	runActionList(currentScene.step[action.value].action, currentScene.tag.."_"..action.value, "interact",false,"scene")
-	currentScene.index = action.value
-	end
-	
-	end
-	end
-	
-	if(action.name == "play_scene_step_by_tag") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	for i=1,#currentScene.step do
-	if(currentScene.step[i].tag == action.tag) then
-	runActionList(currentScene.step[i].action, currentScene.tag.."_"..i, "interact",false,"scene")
-	currentScene.index = i
-	end
-	end
-	
-	end
-	end
-	
-	if(action.name == "play_next_scene_step") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	local index = currentScene.index +1
-	
-	if(currentScene.step[index] ~= nil) then
-	runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
-	currentScene.index = index
-	
-	end
-	
-	end
-	end
-	
-	if(action.name == "play_previous_scene_step") then
-	
-	
-	
-	if(currentScene ~= nil) then
-	
-	
-	local index = currentScene.index -1
-	
-	if(currentScene.step[index] ~= nil) then
-	runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
-	currentScene.index = index
-	
-	end
-	
-	end
-	end
-	
-	if(action.name == "spawn_camera") then
-	local position = {}
-	position.x = action.x
-	position.y = action.y
-	position.z = action.z
-	
-	local angle = {}
-	angle.roll = action.roll
-	angle.pitch = action.pitch
-	angle.yaw = action.yaw
-	
-	spawnCamera(action.tag,action.type,action.entity,position,angle,action.surveillance)
-	
-	end
-	
-	if(action.name == "move_camera") then
-	local position = {}
-	position.x = action.x
-	position.y = action.y
-	position.z = action.z
-	
-	local angle = {}
-	angle.roll = action.roll
-	angle.pitch = action.pitch
-	angle.yaw = action.yaw
-	
-	moveCamera(action.tag,action.type,action.entity,position,angle)
-	end
-	
-	if(action.name == "activate_camera") then
-	enableCamera(action.tag)
-	end
-	
-	if(action.name == "delete_camera") then
-	stopCamera(action.tag)
-	end
-	
-	
-	
-	
-	
+		if(action.name == "show_braindance_ui") then
+			
+			if(BraindanceGameController ~= nil) then
+				local root = BraindanceGameController.rootWidget 
+				
+				
+				
+				root:SetVisible(true)
+				
+				BraindanceGameController.PlayLibraryAnimation(CName("SHOW"))
+				
+				
+			end
+			
+		end
+		
+		if(action.name == "hide_braindance_ui") then
+			
+			if(BraindanceGameController ~= nil) then
+				local root = BraindanceGameController.rootWidget 
+				
+				
+				
+				root:SetVisible(false)
+				
+				
+				
+				
+			end
+			
+		end
+		
+		
+		if(action.name == "load_scene") then
+			
+			local scene = arrayScene[action.tag]
+			
+			if(scene ~= nil) then
+				
+				currentScene = scene.scene
+				currentScene.index = 0
+				
+				else
+				
+				error("No scene founded for the tag "..action.tag)
+				
+				
+			end
+			
+		end
+		
+		if(action.name == "unload_scene") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				currentScene = nil
+				
+				
+				
+				
+			end
+		end
+		
+		if(action.name == "play_scene") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				
+				
+				runActionList(currentScene.reset_action, currentScene.tag.."_reset", "interact",false,"scene")
+				
+				local actionlist = {}
+				
+				local actiontd = {}
+				actiontd.name = "wait_for_trigger"
+				actiontd.trigger = {}
+				actiontd.trigger.name = "event_is_finished"
+				actiontd.trigger.tag = currentScene.tag.."_reset"
+				
+				table.insert(actionlist,actiontd)
+				
+				for i=1,#currentScene.init_action do
+					
+					table.insert(actionlist,currentScene.init_action[i])
+					
+				end
+				
+				
+				runActionList(actionlist, currentScene.tag.."_init", "interact",false,"scene")
+				
+				
+				actionlist = {}
+				
+				actiontd = {}
+				actiontd.name = "wait_for_trigger"
+				actiontd.trigger = {}
+				actiontd.trigger.name = "event_is_finished"
+				actiontd.trigger.tag = currentScene.tag.."_init"
+				
+				table.insert(actionlist,actiontd)
+				
+				for i=1,#currentScene.step do
+					
+					
+					local step = currentScene.step[i]
+					
+					
+					
+					for y=1,#step.action do
+						
+						table.insert(actionlist,step.action[y])
+						
+					end
+					
+				end
+				
+				
+				for i=1,#currentScene.end_action do
+					
+					table.insert(actionlist,currentScene.end_action[i])
+					
+				end
+				
+				
+				runActionList(actionlist, currentScene.tag.."_full", "interact",false,"scene")
+				else
+				
+				error("No scene loaded")
+				
+			end
+		end
+		
+		
+		if(action.name == "reset_scene") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				
+				
+				runActionList(currentScene.reset_action, currentScene.tag.."_reset", "interact",false,"scene")
+				currentScene.index = 0
+				
+			end
+		end
+		
+		
+		if(action.name == "init_scene") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				
+				
+				runActionList(currentScene.init_action, currentScene.tag.."_init", "interact",false,"scene")
+				currentScene.index = 0
+				else
+				
+				error("No scene loaded")
+			end
+		end
+		
+		if(action.name == "play_scene_step_index") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				
+				if(currentScene.step[action.value] ~= nil) then
+					runActionList(currentScene.step[action.value].action, currentScene.tag.."_"..action.value, "interact",false,"scene")
+					currentScene.index = action.value
+				end
+				
+			end
+		end
+		
+		if(action.name == "play_scene_step_by_tag") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				for i=1,#currentScene.step do
+					if(currentScene.step[i].tag == action.tag) then
+						runActionList(currentScene.step[i].action, currentScene.tag.."_"..i, "interact",false,"scene")
+						currentScene.index = i
+					end
+				end
+				
+			end
+		end
+		
+		if(action.name == "play_next_scene_step") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				local index = currentScene.index +1
+				
+				if(currentScene.step[index] ~= nil) then
+					runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
+					currentScene.index = index
+					
+				end
+				
+			end
+		end
+		
+		if(action.name == "play_previous_scene_step") then
+			
+			
+			
+			if(currentScene ~= nil) then
+				
+				
+				local index = currentScene.index -1
+				
+				if(currentScene.step[index] ~= nil) then
+					runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
+					currentScene.index = index
+					
+				end
+				
+			end
+		end
+		
+		if(action.name == "spawn_camera") then
+			local position = {}
+			position.x = action.x
+			position.y = action.y
+			position.z = action.z
+			
+			local angle = {}
+			angle.roll = action.roll
+			angle.pitch = action.pitch
+			angle.yaw = action.yaw
+			
+			spawnCamera(action.tag,action.type,action.entity,position,angle,action.surveillance)
+			
+		end
+		
+		if(action.name == "move_camera") then
+			local position = {}
+			position.x = action.x
+			position.y = action.y
+			position.z = action.z
+			
+			local angle = {}
+			angle.roll = action.roll
+			angle.pitch = action.pitch
+			angle.yaw = action.yaw
+			
+			moveCamera(action.tag,action.type,action.entity,position,angle)
+		end
+		
+		if(action.name == "activate_camera") then
+			enableCamera(action.tag)
+		end
+		
+		if(action.name == "delete_camera") then
+			stopCamera(action.tag)
+		end
+		
+		
+		
+		
+		
 	end
 	
 	return result
-	end																																							
+end	
+
+
+function getPositionFromParameter(action)
+	local position = {}
+	
+	
+	if(action.position == "at") then
+		position.x = action.x
+		position.y = action.y
+		position.z = action.z
+	end
+	if(action.position == "relative_to_entity") then
+		local positionVec4 = Game.GetPlayer():GetWorldPosition()
+		local entity = nil
+		if(action.position_tag ~= "player") then
+			local obj = getEntityFromManager(action.position_tag)
+			entity = Game.FindEntityByID(obj.id)
+			positionVec4 = entity:GetWorldPosition()
+			else
+			entity = Game.GetPlayer()
+		end
+		if(action.position_way ~= nil and (action.position_way ~= "" or action.position_way ~= "normal")) then
+			if(action.position_way == "behind") then
+				positionVec4 = getBehindPosition(entity,action.position_distance)
+			end
+			if(action.position_way == "forward") then
+				positionVec4 = getForwardPosition(entity,action.position_distance)
+			end
+		end
+		
+		
+		position.x = positionVec4.x
+		position.y = positionVec4.y
+		position.z = positionVec4.z
+	end
+	if(action.position == "player_look_at") then
+		local positionVec4 = getForwardPosition(Game.GetPlayer(),action.position_lookatdistance)
+		position.x = positionVec4.x
+		position.y = positionVec4.y
+		position.z = positionVec4.z
+	end
+	
+	
+	if(action.position == "node") then
+		
+		local node = nil
+		
+		if(action.position_tag == "current")then
+			
+			
+			local position = Game.GetPlayer():GetWorldPosition()
+			local range = 70
+			if(action.position_range ~= nil) then
+				range = action.position_range
+			end
+			node = getNodefromPosition(position.x,position.y,position.z,range)
+			
+			
+			else
+			
+			node = getNode(action.position_tag)
+			
+		end
+		
+		
+		if node ~= nil then
+			if(action.position_node_usegameplay == true) then
+				position.x = node.GameplayX
+				position.y = node.GameplayY
+				position.z = node.GameplayZ
+				else
+				position.x = node.X
+				position.y = node.Y
+				position.z = node.Z
+			end
+			else
+			error(getLang("see_action_nonode")..action.position_tag)
+		end
+	end
+	if(action.position == "poi") then
+		
+		
+		if(action.position_poi_district == "current") then
+			action.position_poi_district = currentDistricts2.EnumName
+		end
+		
+		if(action.position_poi_district== "random") then
+			action.position_poi_district = arrayDistricts[math.random(1,#arrayDistricts)].EnumName
+		end
+		
+		
+		if(action.position_poi_subdistrict == "current") then
+			
+			
+			if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 1) then
+				
+				action.position_poi_subdistrict = currentDistricts2.districtLabels[2]
+				
+				else
+				
+				action.position_poi_district = currentDistricts2.EnumName
+				
+			end
+		end
+		
+		if(action.position_poi_district == "random") then
+			local district = arrayDistricts[math.random(1,#arrayDistricts)]
+			action.position_poi_subdistrict = district.SubDistrict[math.random(1,#district.SubDistrict)]
+		end
+		
+		local range = 70
+		if(action.position_range ~= nil) then
+			range = action.position_range
+		end
+		
+		local currentpoi = nil
+		currentpoi = FindPOI(action.position_tag,action.position_poi_district,action.position_poi_subdistrict,action.position_poi_is_for_car,action.position_poi_type,action.position_poi_use_location_tag,action.position_poi_from_position,range)
+		if(currentpoi ~= nil) then
+			position.x = currentpoi.x
+			position.y = currentpoi.y
+			position.z = currentpoi.z
+			else
+			error("can't find an current poi")
+		end
+	end
+	if(action.position == "mappin") then
+		
+		
+		if(action.position_tag == "current")then
+			if(ActivecustomMappin ~= nil)then
+				local mappin = ActivecustomMappin:GetWorldPosition()
+				position.x = mappin.x
+				position.y = mappin.y
+				position.z = mappin.z
+				else
+				error(getLang("see_action_nocurrentmappin"))
+			end
+			else
+			local mappin = getMappinByTag(action.position_tag)
+			if(mappin)then
+				position = mappin.position
+				else
+				error(getLang("see_action_nomappin")..action.position_tag)
+			end
+		end
+	end
+	if(action.position == "fasttravel") then
+		local markerref = nil
+		local tempos = nil
+		
+		if(action.position_tag == "current")then
+			
+			if(ActiveFastTravelMappin ~= nil)then
+				position.x = ActiveFastTravelMappin.position.x
+				position.y = ActiveFastTravelMappin.position.y
+				position.z = ActiveFastTravelMappin.position.z
+				else
+				error(getLang("see_action_nocurrentfasttravel"))
+			end
+			
+			else
+			
+			
+			for j=1, #mappedFastTravelPoint do
+				local point = mappedFastTravelPoint[j]
+				if(point.markerref == action.position_tag) then
+					markerref = point.markerrefdata
+					tempos = point.position
+					break
+				end
+			end
+			
+			if(markerref)then
+				position = tempos
+				else
+				error(getLang("see_action_nofasttravel")..action.position_tag)
+			end	
+			
+			
+		end
+		
+	end
+	if(action.position == "custom_place") then
+		local house = nil
+		
+		if(action.position_tag == "current")then
+			if(currentHouse ~= nil) then
+				if(action.position_house_way == "default") then
+					position.x = currentHouse.posX
+					position.y = currentHouse.posY
+					position.z = currentHouse.posZ
+				end
+				if(action.position_house_way == "Enter") then
+					position.x = currentHouse.EnterX
+					position.y = currentHouse.EnterY
+					position.z = currentHouse.EnterZ
+				end
+				if(action.position_house_way == "Exit") then
+					position.x = currentHouse.ExitX
+					position.y = currentHouse.ExitY
+					position.z = currentHouse.ExitZ
+				end
+				else
+				error("can't find an current custom place")
+			end
+			else
+			house = getHouseByTag(action.position_tag)
+			if(house ~= nil) then
+				if(action.position_house_way == "default") then
+					position.x = house.posX
+					position.y = house.posY
+					position.z = house.posZ
+				end
+				if(action.position_house_way == "enter") then
+					position.x = house.EnterX
+					position.y = house.EnterY
+					position.z = house.EnterZ
+				end
+				if(action.position_house_way == "exit") then
+					position.x = house.ExitX
+					position.y = house.ExitY
+					position.z = house.ExitZ
+				end
+				else
+				error("can't find an custom place with tag : "..action.position_tag)
+			end
+		end
+		
+		
+		
+	end
+	if(action.position == "custom_room") then
+		local room =nil
+		if(action.position_tag == "current")then
+			
+			if(currentRoom ~= nil) then
+				position.x = currentRoom.posX
+				position.y = currentRoom.posY
+				position.z = currentRoom.posZ
+				else
+				error("can't find an current custom room")
+			end		
+			
+			else
+			getRoomByTag(action.position_tag,action.position_house_tag)
+			if(room ~= nil) then
+				position.x = room.posX
+				position.y = room.posY
+				position.z = room.posZ
+				else
+				error("can't find an custom room with tag : "..action.position_tag.." for the house with tag :"..action.position_house_tag)
+			end
+			
+		end
+		
+	end
+	
+	
+	if(position.x ~= nil and action.position ~= "at") then
+		position.x = position.x + action.x
+		position.y = position.y + action.y
+		position.z = position.z + action.z
+		
+	end
+	
+	return position
+	
+end
+
+function GeneratefromContext(context)
+	
+	local text = context.text
+	
+	for k,v in pairs(context.values)do
+		
+		local value = GenerateTextFromContextValues(context, v)
+		text = text:gsub("##"..k, value) 
+		
+		
+	end
+	
+	
+	
+	
+	if(context.type ~= nil and context.type =="number") then
+		text = tonumber(text)
+	end
+	
+	
+	return text
+	
+end
+
+function GenerateTextFromContextValues(context, v)
+	
+	local value = ""
+	
+	if(v.context_value ~= nil) then
+		
+		v[v.replace] = GenerateTextFromContextValues(context, context.values[v.context_value])
+		
+	end
+	
+	
+	
+	if(v.type == "faction") then
+		if(v.tag ~= "random") then
+			value = arrayFaction[v.tag].faction[v.prop]
+			
+			else
+			value = getRandomPairfromTable(arrayFaction).value.faction[v.prop]
+			
+		end
+	end
+	
+	
+	
+	
+	
+	if(v.type == "corpo") then
+		if(v.tag ~= "random") then
+			
+			spdlog.error(dump(arrayCorpo))
+			value = arrayCorpo[v.tag][v.prop]
+			
+			else
+			value = getRandomPairfromTable(arrayCorpo)[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "lang") then
+		value = getLang(v.tag)
+		
+	end
+	
+	if(v.type == "district_leader" or v.type == "subdistrict_leader") then
+		local gangs = getGangfromDistrict(v.tag,20)
+		if(#gangs > 0) then
+			
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+			
+		end
+	end
+	
+	if(v.type == "current_district_leader") then
+		local gangs = getGangfromDistrict(currentDistricts2.Tag,20)
+		if(#gangs > 0) then
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "current_subdistrict_leader") then
+		local gangs = {}
+		for j, test in ipairs(currentDistricts2.districtLabels) do
+			if j > 1 then
+				gangs = getGangfromDistrict(test,20)
+				if(#gangs > 0) then
+					break
+				end
+			end
+		end
+		
+		if(#gangs > 0) then
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "district_rival" or v.type == "subdistrict_rival") then
+		local gangs = {}
+		
+		if(v.tag == "player") then
+			
+			v.tag = getVariableKey("player","current_gang")
+			
+		end
+		
+		local gangs = getGangRivalfromDistrict(v.tag,v.district,20)
+		
+		if(#gangs > 0) then
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "current_district_rival") then
+		
+		local gangs = {}
+		
+		if(v.tag == "player") then
+			
+			v.tag = getVariableKey("player","current_gang")
+			
+		end
+		
+		local gangs = getGangRivalfromDistrict(v.tag,currentDistricts2.Tag,20)
+		if(#gangs > 0) then
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "current_subdistrict_rival") then
+		
+		local gangs = {}
+		
+		if(v.tag == "player") then
+			
+			v.tag = getVariableKey("player","current_gang")
+			
+		end
+		
+		
+		for j, test in ipairs(currentDistricts2.districtLabels) do
+			if j > 1 then
+				gangs = getGangRivalfromDistrict(action.source_gang,test,20)
+				if(#gangs > 0) then
+					break
+				end
+			end
+		end
+		if(#gangs > 0) then
+			value = arrayFaction[gangs[1].tag].faction[v.prop]
+			
+		end
+	end
+	
+	
+	
+	if(v.type == "mappin") then
+		if(v.tag ~= "random") then
+			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
+				value = mappinManager[v.tag]["position"][v.prop]
+				
+				
+				else
+				value = mappinManager[v.tag][v.prop]
+				
+				
+			end
+			
+			else
+			value = getRandomPairfromTable(mappinManager).value.faction[v.prop]
+			
+			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
+				value = getRandomPairfromTable(mappinManager).value["position"][v.prop]
+				
+				
+				
+				else
+				value = getRandomPairfromTable(mappinManager).value[v.prop]
+				
+				
+			end
+			
+		end
+	end
+	
+	if(v.type == "fixer") then
+		if(v.tag ~= "random") then
+			value = arrayFixer[v.tag].fixer[v.prop]
+			
+			else
+			value = getRandomPairfromTable(arrayFixer).value.fixer[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "place") then
+		if(v.tag ~= "random") then
+			value = arrayHouse[v.tag].house[v.prop]
+			
+			else
+			value = getRandomPairfromTable(arrayHouse).value.house[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "poi") then
+		if(v.tag ~= "random") then
+			for o,b in pairs(arrayPOI) do
+				if(#b.poi.locations > 0) then	
+					for y=1,#b.poi.locations do
+						
+						local location = b.poi.locations[y]
+						if(location.Tag == v.tag) then
+							
+							value = location[v.prop]
+							
+							
+						end
+					end
+				end
+			end
+			else
+			for o,b in pairs(arrayPOI) do
+				if(#b.poi.locations > 0) then	
+					for y=1,#b.poi.locations do
+						local prob = math.random(0,5)/5
+						
+						local location = b.poi.locations[math.random(#b.poi.locations)]
+						if(prob == 1) then
+							
+							value = location[v.prop]
+							
+							
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if(v.type == "node") then
+		if(v.tag ~= "random") then
+			value = arrayNode[v.tag].node[v.prop]
+			
+			else
+			value = getRandomPairfromTable(arrayNode).value.node[v.prop]
+			
+		end
+	end
+	
+	if(v.type == "custom_npc") then
+		if(v.tag ~= "random") then
+			
+			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
+				value = arrayCustomNPC[v.tag]["location"][v.prop]
+				
+				
+				else
+				value = arrayCustomNPC[v.tag].npc[v.prop]
+				
+				
+			end
+			
+			
+			else
+			
+			
+			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
+				value = getRandomPairfromTable(arrayCustomNPC).value.npc["location"][v.prop]
+				
+				
+				else
+				value = getRandomPairfromTable(arrayCustomNPC).value.npc[v.prop]
+				
+				
+			end
+		end
+	end
+	
+	if(v.type == "npc") then
+		if(v.tag ~= "random") then
+			
+			local npc = getNPCByName(v.tag)
+			
+			if(npc ~= nil) then
+				value = npc[v.prop]
+			end
+			
+			
+			
+			
+			else
+			
+			local index = math.random(1,#arrayPnjDb)
+			local npc = arrayPnjDb[index]
+			
+			if(npc ~= nil) then
+				value = npc[v.prop]
+			end
+			
+			
+			
+			
+		end
+	end
+	
+	if(v.type == "score") then
+		value = getScoreKey(v.variable,v.key)
+		
+		
+	end
+	
+	if(v.type == "variable") then
+		value = getVariableKey(v.variable,v.key)
+		
+		
+	end
+	
+	
+	if(v.type == "random_variable_key") then
+		value = getRandomPairfromTable(currentSave.Variable[v.variable]).value
+		
+		
+	end
+	
+	if(v.type == "random_score_key") then
+		value = getRandomPairfromTable(currentSave.Score[v.variable]).value
+		
+		
+	end
+	
+	
+	if(v.type == "random_text") then
+		
+		
+		local index = math.random(1,#v.list)
+		
+		value = v.list[index]
+		
+		
+		
+		
+	end
+	
+	
+	if(v.type == "random_lang") then
+		
+		
+		local index = math.random(1,#v.list)
+		
+		value = getLang(v.list[index])
+		
+		
+		
+	end
+	
+	
+	if(v.type == "random_number") then
+		
+		
+		local index = math.random(1,#v.list)
+		
+		value = v.list[index]
+		
+		
+		
+		
+	end
+	
+	if(v.type == "random_math") then
+		
+		
+		local index = math.random(v.min,v.max)
+		
+		value = index
+		
+		
+		
+		
+	end
+	
+	if(v.type == "text")then
+		
+		
+		
+		
+		
+		value = v.value
+		
+	end
+	
+	if(v.type == "number")then
+		
+		
+		
+		
+		
+		value = tonumber(v.value)
+		
+	end
+	
+	
+	if(v.type == "scannerdata" and ScannerInfoManager[v.tag] ~= nil)then
+		
+		if(v.prop == "primaryname" or v.prop == "secondaryname" or v.prop == "text" or v.prop == "entityname") then
+			
+			
+			
+			value = ScannerInfoManager[v.tag][v.prop]
+			
+			
+			
+		end
+		
+		if(v.prop == "level" or v.prop == "rarity" or v.prop == "attitude") then
+			
+			
+			
+			value = ScannerInfoManager[v.tag][v.prop]
+			
+			
+			
+		end
+		
+		
+		if(v.prop == "reward" or v.prop == "streetreward" or v.prop == "danger" and ScannerInfoManager[v.tag]["bounty"] ~= nil) then
+			
+			
+			
+			value = ScannerInfoManager[v.tag]["bounty"][v.prop]
+			
+			
+			
+		end
+		
+		
+		if(v.prop == "issuedby" and ScannerInfoManager[v.tag]["bounty"] ~= nil ) then
+			
+			
+			
+			value = ScannerInfoManager[v.tag]["bounty"][v.prop]
+			
+			
+			
+		end
+		
+		
+		
+		
+		
+		if(v.prop == "customtransgressions" or v.prop == "transgressions" and ScannerInfoManager[v.tag]["bounty"] ~= nil and #ScannerInfoManager[v.tag]["bounty"][v.prop] > 0) then
+			
+			
+			local index = math.random(1,#ScannerInfoManager[v.tag]["bounty"][v.prop])
+			
+			value = ScannerInfoManager[v.tag]["bounty"][v.prop][index]
+			
+		end
+		
+		
+		
+		
+		
+		
+		
+	end
+	
+	if(v.type == "current_scannerdata" and currentScannerItem ~= nil)then
+		
+		if(v.prop == "primaryname" or v.prop == "secondaryname" or v.prop == "text" or v.prop == "entityname") then
+			
+			
+			
+			value = currentScannerItem[v.tag][v.prop]
+			
+			
+			
+		end
+		
+		if(v.prop == "level" or v.prop == "rarity" or v.prop == "attitude") then
+			
+			
+			
+			value = currentScannerItem[v.tag][v.prop]
+			
+			
+			
+		end
+		
+		
+		if(v.prop == "reward" or v.prop == "streetreward" or v.prop == "danger" and currentScannerItem[v.tag]["bounty"] ~= nil) then
+			
+			
+			
+			value = currentScannerItem[v.tag]["bounty"][v.prop]
+			
+			
+			
+		end
+		
+		
+		if(v.prop == "issuedby" and currentScannerItem[v.tag]["bounty"] ~= nil ) then
+			
+			
+			
+			value = currentScannerItem[v.tag]["bounty"][v.prop]
+			
+			
+			
+		end
+		
+		
+		
+		
+		
+		if(v.prop == "customtransgressions" or v.prop == "transgressions" and currentScannerItem[v.tag]["bounty"] ~= nil and #currentScannerItem[v.tag]["bounty"][v.prop] > 0) then
+			
+			
+			local index = math.random(1,#currentScannerItem[v.tag]["bounty"][v.prop])
+			
+			value = currentScannerItem[v.tag]["bounty"][v.prop][index]
+			
+		end
+		
+		
+		
+		
+		
+		
+		
+	end
+	
+	return value
+	
+end		

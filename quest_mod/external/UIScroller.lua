@@ -112,7 +112,7 @@ local function onWheelScroll(_, evt)
 		
 		local myScrollSpeed = getUserSetting("ScrollSpeed")
 		if(myScrollSpeed == nil) then
-			myScrollSpeed = 0.002
+			myScrollSpeed = 0.020
 		end
 			
 		scrollPosition = scrollPosition - myScrollSpeed *  evt:GetAxisData()

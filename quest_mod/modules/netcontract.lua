@@ -1,5 +1,5 @@
-debugPrint(3,"CyberMod: netcontract module loaded")
---print("CyberMod: netcontract module loaded")
+debugPrint(3,"CyberScript: netcontract module loaded")
+--print("CyberScript: netcontract module loaded")
 questMod.module = questMod.module +1
 
 processing = "processing..."
@@ -130,7 +130,7 @@ function ContractWindows()
 			if ImGui.Button("Log Off") then 
 			
 			disconnectUser()
-			multiReady = false
+			MultiplayerOn = false
 			
 			
 			
@@ -204,7 +204,7 @@ function ContractWindows()
 			
 			
 			
-			if ImGui.Button("Connect to CyberMod Service") then
+			if ImGui.Button(getLang("keystone_connect_btn")) then
 				
 				
 				local file = assert(io.open("net/userLogin.txt", "w"))
@@ -236,7 +236,7 @@ function ContractWindows()
 			
 			ImGui.Spacing()
 			
-			ImGui.Text("Connect to Server doesn't mean your are connected to Multiplayer. It means you can use online feature like Keystone.")
+			ImGui.Text(getLang("keystone_connect_msg"))
 			
 			ImGui.Spacing()
 			
@@ -739,7 +739,7 @@ function Market()
 							
 						end
 						
-						--local myscore = getScoreKey(score.tag,"Quantity")
+					
 						 
 						if(score.userQuantity ~= nil and score.statut ~= 0) then
 							ImGui.Spacing()
@@ -817,7 +817,7 @@ function MultiTabs()
 		
 		ImGui.Text("Statut : ")
 		ImGui.SameLine()
-		ImGui.Text(tostring(multiReady))
+		ImGui.Text(tostring(MultiplayerOn))
 		ImGui.Spacing()
 		
 		ImGui.Text("Your Corpo : ")
@@ -902,13 +902,13 @@ function MultiTabs()
 		end
 		
 		
-		if(multiReady) then
+		if(MultiplayerOn) then
 		if ImGui.Button("Log out from Multiplayer") then 
 			
 			lastFriendPos = {}
 			Game.GetPreventionSpawnSystem():RequestDespawnPreventionLevel(-13)
 			
-			multiReady = false
+			MultiplayerOn = false
 			
 			
 			friendIsSpaned = false
@@ -929,7 +929,7 @@ function MultiTabs()
 		
 			
 			
-			multiReady = true
+			MultiplayerOn = true
 			
 			
 			

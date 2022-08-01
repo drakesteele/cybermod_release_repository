@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: housing module loaded")
+debugPrint(3,"CyberScript: housing module loaded")
 questMod.module = questMod.module +1
 
 function spawnItem(spawnIteme, pos, angle)
@@ -274,7 +274,9 @@ function updateItemPositionMulti(obj, pos, angle,test)
 end
 
 function despawnItem(entityId)
-	 Game.FindEntityByID(entityId):GetEntity():Destroy()
+	 if(Game.FindEntityByID(entityId) ~= nil) then
+		Game.FindEntityByID(entityId):GetEntity():Destroy()
+	 end
 end
 function despawnItemFromHouse()
 	if(#currentItemSpawned > 0) then 
@@ -287,6 +289,26 @@ function despawnItemFromHouse()
 					debugPrint(1,"despawning item ok")
 				end)
 			end
+		end
+	end
+end
+function despawnItemFromId(itemId)
+	if(#currentItemSpawned > 0) then 
+	local index = 0
+		for i=1,#currentItemSpawned do
+			
+			if(currentItemSpawned[i].Id == itemId) then
+				index = i
+				local entity = Game.FindEntityByID(currentItemSpawned[i].entityId)
+				if entity ~= nil then
+					despawnItem(currentItemSpawned[i].entityId)
+					
+				end
+			end
+		end
+		if(index > 0) then
+		
+		table.remove(currentItemSpawned,index)
 		end
 	end
 end

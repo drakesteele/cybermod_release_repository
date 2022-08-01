@@ -102,14 +102,34 @@ function Vector4Add(a, b)
 	return Vector4.new(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w)
 end
 
+
+
+
+
+
+
 function resetVar()
+	
+ScrollSpeed = 0.020
+ScriptedEntityAffinity = false
+AmbushMin = 5
+AmbushMax = 10
+AmbushEnabled = true
+AutoAmbush = true
+GangWarsEnabled = true
+AutoRefreshDatapack = true
+displayXYZset = false
+playerNoticed = false
+playerTargeted = false
+entityTargetPlayer = {}
+
 
 AMM = nil
 AMMversion = nil
-datapackObjectType = { "circuit","dialog","event","faction","fixer","function","housing","help","interact","interfaces","lang","mission","node","npc","phone_dialog","place","poi","radio","shard","sound","texture","scene"}
+datapackObjectType = { "circuit","dialog","event","faction","fixer","function","housing","help","interact","interfaces","lang","mission","node","npc","phone_dialog","place","poi","radio","shard","sound","texture","scene","housing_template"}
 cacheupdate = false
 passwordView =ImGuiInputTextFlags.Password
-menuName = "CyberMod"
+menuName = "CyberScript"
 debugPrintLevel = 5
 showLog = false
 onlineInstanceCreation = false
@@ -144,17 +164,51 @@ pathPlayerEntityList ={ "player", "mounted_vehicle","editor_cam","lookat" }
 scenepov ={ "free", "entity" }
 scenepovtype = "free"
 editorcam = false
-
+loadInteract = {}
 moveX=0
 moveY=0
 moveZ=0
+debugOptions= false
 
+
+currentScannerItem = nil
+currentScannerEntity = nil
+
+
+fetcheddata = nil
+npcpreventionlimit = 99999
+
+editHousingTemplateX = 0
+editHousingTemplateY = 0
+editHousingTemplateZ = 0
+
+editHousingTemplateYaw = 0
+editHousingTemplatePitch = 0
+editHousingTemplateRoll = 0
+
+editPOIlocation = ""
+
+editorCurrentScore = ""
+editorCurrentScoreKey = ""
+editorCurrentScoreValue = 0
+
+
+editorCurrentVariable = ""
+editorCurrentVariableKey = ""
+editorCurrentVariableValue = ""
 
 pathOffsetX = 0
 pathOffsetY = 0
 pathOffsetZ = 0
+InfiniteDoubleJump = false
+DisableFallDamage = false
 
+Player_Sprint_Multiplier = 1	--Default is 1 IMPORTANT as of 1.3, movement speed is capped somewhere.
+Player_Run_Multiplier = 1 --Default 1
+Jump_Height = 1 --Default 1
+Double_Jump_Height = 1 --Default 1
 
+CurrentStock = nil
 moveRoll=0
 movePitch=0
 moveYaw=0
@@ -263,9 +317,12 @@ BraindanceGameController = nil
 locationWindowsX = 35
 locationWindowsY = 355
 
+currentHouseCenter = nil
+newHousingTemplateTag = ""
 menuWindowsX = 400
 menuWindowsY = 200
-
+currentHousingTemplate = nil
+currentHousingTemplatetag = ""
 menuFrameX = 400
 menuFrameY = 200
 
@@ -288,6 +345,9 @@ onlineMessageContent =  ""
 onlineMessagePopup = false
 onlineWhisperPopup = false
 onlineMessagePopupFirstUse = true
+
+
+gameStatModifierType = {"Additive","AdditiveMultiplier","Multiplier"}
 
 
 currentLoadedTexture = {}
@@ -361,7 +421,7 @@ VBodyComponents = {"l0_003_pwa_pants__leggins7303", "l1_004_pma_pants__sweatpant
 possibleFaction = { "Arasaka", "Militech", "KangTao", "Nomad"}
 
 npcsource = { "npc", "current_star", "faction", "current_district_leader", "current_subdistrict_leader", "district_leader", "subdistrict_leader", "random","from_list","district_rival","subdistrict_rival","current_district_rival","current_subdistrict_rival"}
-npcposition = { "at", "relative_to_entity", "node", "current_node", "poi", "mappin", "fasttravel", "current_fasttravel", "custom_place","custom_room","current_custom_place","current_custom_room","current_custom_mappin","current_fasttravel"}
+npcposition = { "at", "relative_to_entity", "node","player_look_at", "poi", "mappin", "fasttravel", "custom_place","custom_room"}
 npcpositionway = { "normal", "behind", "forward"}
 npcpositionhouseway = { "default", "enter", "exit"}
 
@@ -386,6 +446,107 @@ listFX = {"blackout", "fast_travel_glitch_long", "fast_travel_glitch", "terrain_
 "status_drugged_low",
 "status_drugged_medium",
 "status_drugged_heavy"}
+
+affiliationTweakList = {
+	
+	"AfterlifeMercs",
+	"Aldecaldos",
+	"Animals",
+	"Arasaka",
+	"Biotechnica",
+	"CityCouncil",
+	"Civilian",
+	"KangTao",
+	"Maelstrom",
+	"Militech",
+	"NCPD",
+	"NetWatch",
+	"News54",
+	"RecordingAgency",
+	"Scavengers",
+	"SixthStreet",
+	"SouthCalifornia",
+	"SSI",
+	"TheMox",
+	"TraumaTeam",
+	"TygerClaws",
+	"Unaffiliated",
+	"UnaffiliatedCorpo",
+	"Unknown",
+	"Valentinos",
+	"VoodooBoys",
+	"Wraiths"
+	
+}
+
+transgressionsTweakList = {"AidingAI",
+"Assault",
+"AssaultByMob",
+"AssaultCop",
+"AssaultCorpo",
+"AssaultPublicOfficial",
+"AttemptedMurder",
+"Battery",
+"BatteryCop",
+"BatteryCorpo",
+"BatteryPublicOfficial",
+"Blackmail",
+"BlackmailCorpo",
+"BlackwallViolation",
+"BodilyHarm",
+"BodySnatching",
+"Classified",
+"Confinement",
+"CopyrightInfringement",
+"CorporateSlander",
+"CorpoSlander",
+"DataDestruction",
+"DataVandal",
+"DefilingHumanRemains",
+"DrugDealing",
+"DrugPossession",
+"ElectronicallyStolenGoods",
+"EmancipationAI",
+"EspionageCorpo",
+"FatalHitAndRun",
+"ForcedImplantProcedures",
+"GeneticAlteration",
+"GeneticAlterationPerform",
+"GrandLarceny",
+"HostageTaking",
+"HumanTrafficking",
+"IllegalCorrespondance",
+"IllegalOrganicFood",
+"ImpersonationCorpo",
+"KidnappingCorpo",
+"KidnappingForRansom",
+"LarcenyCorpo",
+"ManufactureSubstances",
+"MilitaryHardware",
+"MultipleHomocide",
+"Murder",
+"Murder02",
+"MurderCop",
+"MurderCorpo",
+"NetFraud",
+"NetMayhem",
+"Occupation",
+"Pimping",
+"ProhibitedNet",
+"q110_pizza_easter_egg",
+"Racketeering",
+"ReverseEngineering",
+"SabotagingLifeSavingImplants",
+"SellingStolenImplants",
+"SexualAssault",
+"SIDForgery",
+"SIDTheft",
+"StealingLifeSavingImplants",
+"TradingXBD",
+"Trespassing",
+"UnlawfulDataAcquisition",
+"UnpaidDebt",
+"VandalCorp"}
 
 transistionFX ={"blackout",
  "fast_travel_glitch_long",
@@ -1445,7 +1606,7 @@ editor_json_obj_name = ""
 
 possiblecategory = {}
 corpoNews = {}
-
+arrayCorpo = {}
 
 arrayDatapack3 = {}
 arrayMyDatapack = {}
@@ -1656,8 +1817,8 @@ triggerorder = {"name",
 "operator",
 "scriptlevel"}
 
-multiEnabled = true
-multiReady = false
+NetServiceOn = true
+MultiplayerOn = false
 
 
 canSpawn = true
@@ -1848,6 +2009,25 @@ AVinput = {
 	},
 }
 
+
+ScannerInfoManager = {}
+-- ScannerInfoManager["judy01"] = {}
+-- ScannerInfoManager["judy01"].name = "Donk's Love"
+-- ScannerInfoManager["judy01"].secondaryname = "Cookie eaters"
+-- ScannerInfoManager["judy01"].level = 5
+-- ScannerInfoManager["judy01"].rarity = 0
+-- ScannerInfoManager["judy01"].faction = "faction_mox"
+-- ScannerInfoManager["judy01"].attitude = 0
+-- ScannerInfoManager["judy01"].networkstate = 5
+-- ScannerInfoManager["judy01"].text = "Go Buy it for me !"
+-- ScannerInfoManager["judy01"].bounty = {}
+-- ScannerInfoManager["judy01"].bounty.transgressions= {}
+-- ScannerInfoManager["judy01"].bounty.customtransgressions= {"cookier eaters", "donk sucker"}
+-- table.insert( ScannerInfoManager["judy01"].bounty.transgressions,"UnpaidDebt")
+-- ScannerInfoManager["judy01"].bounty.reward = 130891
+-- ScannerInfoManager["judy01"].bounty.streetreward = 69
+-- ScannerInfoManager["judy01"].bounty.issuedby = "donk"
+-- ScannerInfoManager["judy01"].bounty.danger = 5
 
 AVList = {"","",}
 
@@ -2164,6 +2344,7 @@ myDatapackPOI = {}
 myDatapackLanguage = {}
 myDatapackEvent = {}
 myDatapackHousing = {}
+myDatapackHousingTemplate = {}
 myDatapackHelp = {}
 myDatapackTheme = {}
 myDatapackInterfaces = {}
@@ -2352,7 +2533,7 @@ if(file_exists("net/userLogin.txt"))then
 	
 
 end
---print("CyberMod: variable module loaded")
+--print("CyberScript: variable module loaded")
 --debugPrint(1,"Variables init finish")
 
 

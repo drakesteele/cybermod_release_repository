@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: AV module loaded")
+debugPrint(3,"CyberScript: AV module loaded")
 questMod.module = questMod.module +1
 
 --TAKEN AND ADAPTED FROM FREEFLY, This mod was created by keanuWheeze from CP2077 Modding Tools Discord. Check his page : https://www.nexusmods.com/cyberpunk2077/mods/780?tab=files

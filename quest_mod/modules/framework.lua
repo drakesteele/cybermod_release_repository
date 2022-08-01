@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: framework module loaded")
+debugPrint(3,"CyberScript: framework module loaded")
 questMod.module = questMod.module +1
 
 
@@ -32,47 +32,52 @@ function GetModpackList()
 end
 
 function FetchData()
+		
+		fetcheddata = readFetchedData()
+		
 	
 		
-		local action = {}
+			local action = {}
+			
+			action.action = "FetchData"
+			action.parameter = ""
+			
+			
+			WriteAction(action)
+			
+			waitforactionfinished(0.1,false, function()
+				
+				fetcheddata = readFetchedData()
+				arrayDatapack3 = {}
+				arrayDatapack3 = fetcheddata.datapack
+				
+			
+				debugPrint(1,#arrayDatapack3)
+				
+				fetchdatatime = fetcheddata.updatetime
+				currentbranch = fetcheddata.branch
+				currentRole =  fetcheddata.role
+				currentFaction =  fetcheddata.faction
+				currentFactionRank =  fetcheddata.factionrank
+				possiblecategory = {}
+				
+				corpoNews =  fetcheddata.corponews
+				FillCorpo()
+				
+				for i=1,#fetcheddata.itemcat do
+				table.insert(possiblecategory,fetcheddata.itemcat[i].parent)
+				
+				end
+				
+				
+				
+				CurrentServerModVersion = fetcheddata.modversion
+				
+				
+				
+			end)
 		
-		action.action = "FetchData"
-		action.parameter = ""
-	
 		
-		WriteAction(action)
-		
-		waitforactionfinished(0.1,false, function()
-			debugPrint(1,"Data Fetched...")
-			local data = readFetchedData()
-			arrayDatapack3 = {}
-			arrayDatapack3 = data.datapack
-			
-		
-			debugPrint(1,#arrayDatapack3)
-			
-			
-			currentbranch = data.branch
-			currentRole =  data.role
-			currentFaction =  data.faction
-			currentFactionRank =  data.factionrank
-			possiblecategory = {}
-			
-			corpoNews =  data.corponews
-		
-			
-			for i=1,#data.itemcat do
-			table.insert(possiblecategory,data.itemcat[i].parent)
-			
-			end
-			
-			
-			
-			CurrentServerModVersion = data.modversion
-			
-			
-			
-		end)
 		
 	
 	
@@ -147,7 +152,7 @@ function UpdateModpack(datapackfile,tag)
 			
 			CheckandUpdateDatapack()
 	
-			print(tag.." updated to version " ..arrayDatapack[tag].metadata.version)
+			print(tag..getLang("framework_modpack_updated") ..arrayDatapack[tag].metadata.version)
 			
 		end)
 	
@@ -200,7 +205,7 @@ function DeleteModpack(tag)
 			arrayDatapack3 = readDatapackStore()
 			
 			
-			print(tag.." delete " ..tostring(arrayDatapack[tag]== nil))
+			print(tag..getLang("framework_modpack_deleted") ..tostring(arrayDatapack[tag]== nil))
 			
 			
 			currentpack = ""
@@ -223,7 +228,7 @@ function GetModVersion()
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
-			debugPrint(1,"Fetching Version")
+			
 			CurrentServerModVersion = {}
 			CurrentServerModVersion = readCurrentServerModVersion()
 			debugPrint(1,CurrentServerModVersion.version)
@@ -243,7 +248,7 @@ function UpdateMods()
 		action.action = "UpdateMods"
 		action.parameter = ""
 		
-		debugPrint(1,"Update of the mod in progress")
+	
 		db:close()
 		db = nil
 		io.open("net/dbclose.txt","w"):close()
@@ -267,7 +272,7 @@ function UpdateMods()
 		
 		waitforactionfinished(1,false, function()
 			
-		debugPrint(1,"Mod Update finished, update CET")
+		
 	
 		
 		end)
@@ -565,18 +570,8 @@ function LocalNeedUpdate(tag)
 	local localvesrion = 0
 	
 	local serverversion = 0
-
-	for i=1,#arrayMyDatapack do
 	
-		if(arrayMyDatapack[i].tag == tag) then
-		localvesrion = arrayMyDatapack[i].version
-	
-		end
-		
-		
-	
-	end
-	
+	localvesrion = arrayDatapack[tag].metadata.version
 	
 	for i=1,#arrayDatapack3 do
 	
@@ -588,7 +583,15 @@ function LocalNeedUpdate(tag)
 		
 	
 	end
+	
+	
+	
+	
+	
 	local result = (localvesrion ~= serverversion)
+	
+	
+	
 	
 	return result
 	
@@ -596,7 +599,24 @@ end
 
 
 
+function GetDatapackOnlineVersion(tag)
+	
+	local result = 0
 
+	for i=1,#arrayDatapack3 do
+	
+		if(arrayDatapack3[i].tag == tag) then
+			result = arrayDatapack3[i].version
+		
+		end
+		
+		
+	
+	end
+	
+	return result
+	
+end
 
 --User
 function sendMessage(usertag,content)
@@ -866,7 +886,7 @@ local typeofreceiver = 0
 		action = {}
 		
 		action.name = "phone_notification"
-		action.title = "Cybermod Instance"
+		action.title = "CyberScript Instance"
 		action.duration = 4
 		action.desc = "Instance Message"
 		action.conversation = "online"
@@ -1435,6 +1455,43 @@ function SetItem(tag, x, y, z, roll, pitch ,yaw )
 	
 end
 
+function SetItemList(itemlist )
+		local action = {}
+		
+		action.action = "SetItemList"
+		action.parameter = JSON:encode(itemlist)
+		debugPrint(1,dump(action))
+		WriteAction(action)
+		
+		waitforactionfinished(0.1,false, function()
+			
+			
+			debugPrint(1,"OK")
+			
+		end)
+	
+	
+end
+
+function DeleteAllItem(houseTag )
+	if(#ActualPlayerMultiData.currentPlaces > 0) then
+		local action = {}
+		
+		action.action = "DeleteAllItem"
+		action.parameter = ActualPlayerMultiData.currentPlaces[1].tag
+		debugPrint(1,dump(action))
+		WriteAction(action)
+		
+		waitforactionfinished(0.1,false, function()
+			
+			
+			debugPrint(1,"OK")
+			
+		end)
+	
+	end
+end
+
 function DeleteItem(tag )
 		local action = {}
 		
@@ -1484,7 +1541,7 @@ function connectMultiplayer()
 			
 	connectInstance()
 	
-	multiReady = true
+	MultiplayerOn = true
 		
 		
 	OnlineConversation = nil
@@ -1708,7 +1765,7 @@ function GetCorpoNews()
 			waitforactionfinished(0.1,false, function()
 			
 			corpoNews =  json.decode(readUserInput())
-			
+			FillCorpo()
 		
 		end)
 			
@@ -1806,7 +1863,7 @@ function BuyScore(tag)
 			arrayMarket = {}
 			arrayMarket =  readFile("net/currentMarket.json",false)
 			
-			waiting = false
+		
 		end)
 	
 	
@@ -1828,7 +1885,7 @@ function SellScore(tag)
 			
 			arrayMarket = {}
 			arrayMarket =  readFile("net/currentMarket.json",false)
-			waiting = false
+			
 			
 		
 		end)
@@ -1914,7 +1971,7 @@ function BuyItems(tag)
 			arrayMarketItem = {}
 			arrayMarketItem =  readFile("net/currentItemsMarket.json",false)
 		
-			waiting = false
+			
 		end)
 	
 	
@@ -1943,7 +2000,7 @@ function BuyItemsCart(tagtable)
 			arrayMarketItem = {}
 			arrayMarketItem =  readFile("net/currentItemsMarket.json",false)
 		
-			waiting = false
+			
 		end)
 	
 	
@@ -1970,7 +2027,7 @@ function SellItems(tag)
 			
 			arrayMarketItem = {}
 			arrayMarketItem =  readFile("net/currentItemsMarket.json",false)
-			waiting = false
+			
 			
 		
 		end)
@@ -2073,6 +2130,7 @@ end
 
 function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
 	--debugPrint(1,"first waiting...")
+	waiting = true
 	Cron.After(timer, function()
 		if (file_exists("successaction.txt")) then
 			
@@ -2080,6 +2138,7 @@ function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
 			os.remove("successaction.txt")
 				functionprint()
 				debugPrint(1,"OK")
+				waiting = false
 		else
 			if (file_exists("failaction.txt")) then
 				
@@ -2087,6 +2146,7 @@ function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
 				os.remove("failaction.txt")
 				failfunctionprint()
 				debugPrint(1,"NOK")
+				waiting = false
 				
 			else
 				

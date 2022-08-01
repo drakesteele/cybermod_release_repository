@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: Editor module loaded")
+debugPrint(3,"CyberScript: Editor module loaded")
 
 
 function resetEditorObject()
@@ -52,7 +52,7 @@ function resetEditorObject()
 	currentEditorTrigger = nil
 	currentEditorAction = nil
 	currentEditorOptions = nil
-	
+	currentHouseCenter = nil
 	
 	
 	questTrigger = true
@@ -180,14 +180,14 @@ function editorWindows()
 	
 	
 	
-	if ImGui.Begin("Editor") then
+	if ImGui.Begin(getLang("editor_editor")) then
 		
 		ImGui.Spacing()
 		if ImGui.BeginTabBar("EditorTabs", ImGuiTabBarFlags.NoTooltip) then
 			
 			MainTabs()
 			local status, retval =pcall(function()
-				if ImGui.BeginTabItem("Story") then
+				if ImGui.BeginTabItem(getLang("editor_Story")) then
 					
 					if ImGui.BeginTabBar("QuestsTabsTabsBar", ImGuiTabBarFlags.NoTooltip) then
 						
@@ -212,7 +212,7 @@ function editorWindows()
 				
 				
 				
-				if ImGui.BeginTabItem("World") then
+				if ImGui.BeginTabItem(getLang("editor_World")) then
 					
 					if ImGui.BeginTabBar("RelationsTabsTabsBar", ImGuiTabBarFlags.NoTooltip) then
 						
@@ -247,7 +247,7 @@ function editorWindows()
 				
 				
 				
-				if ImGui.BeginTabItem("UI") then
+				if ImGui.BeginTabItem(getLang("editor_UI")) then
 					
 					if ImGui.BeginTabBar("UITabsTabsBar", ImGuiTabBarFlags.NoTooltip) then
 						
@@ -273,14 +273,16 @@ function editorWindows()
 				
 				
 				DatapackBuilder()
+				ScoreEditor()
+				VariableEditor()
 				SettingTab()
 			end)
 			if status == false then
 				
 				
-				print('CyberMod Editor Error: ' .. retval)
-				spdlog.error('CyberMod Editor Error: ' .. retval)
-				Game.GetPlayer():SetWarningMessage("CyberMod Editor error, check the log for more detail")
+				print(getLang("editor_error") .. retval)
+				spdlog.error(getLang("editor_error") .. retval)
+				Game.GetPlayer():SetWarningMessage(getLang("editor_error_msg"))
 				
 				
 				
@@ -325,7 +327,7 @@ function MainTabs()
 	
 	
 	
-	if ImGui.BeginTabItem("Introduction") then
+	if ImGui.BeginTabItem(getLang("editor_Introduction")) then
 		
 		
 		
@@ -360,9 +362,9 @@ function QuestTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Quest") then
+	if ImGui.BeginTabItem(getLang("editor_Quest")) then
 		
-		if ImGui.BeginCombo("Load an script", loadQuesttag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadQuesttag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -385,7 +387,7 @@ function QuestTabs()
 			
 			ImGui.EndCombo()
 		end
-		if(ImGui.Button("Load quest")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedQuest = loadQuest.quest
 			
@@ -414,7 +416,7 @@ function QuestTabs()
 		end
 		if(loadQuest.quest ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				
 				activeEditedQuest = {}
 				loadQuest = {}
@@ -450,14 +452,14 @@ function QuestTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedQuest.title = ImGui.InputText("Title", activeEditedQuest.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedQuest.content = ImGui.InputText("Content", activeEditedQuest.content, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedQuest.tag = ImGui.InputText("Tag", activeEditedQuest.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedQuest.title = ImGui.InputText(getLang("editor_title"), activeEditedQuest.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedQuest.content = ImGui.InputText(getLang("editor_content"), activeEditedQuest.content, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedQuest.tag = ImGui.InputText(getLang("editor_tag"), activeEditedQuest.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedQuest.recommandedlevel =  ImGui.InputInt("Recommanded Level", activeEditedQuest.recommandedlevel, 1,10, ImGuiInputTextFlags.None)
+		activeEditedQuest.recommandedlevel =  ImGui.InputInt(getLang("editor_recommendedlevel"), activeEditedQuest.recommandedlevel, 1,10, ImGuiInputTextFlags.None)
 		
 		
-		if ImGui.BeginCombo("Quest Type :", defaultQuestType) then
+		if ImGui.BeginCombo(getLang("editor_Quest_Type"), defaultQuestType) then
 			
 			
 			for k,v in pairs(EgameJournalQuestType) do
@@ -477,7 +479,7 @@ function QuestTabs()
 		end
 		
 		
-		if ImGui.BeginCombo("District :", defaultEnumDistrict) then
+		if ImGui.BeginCombo(getLang("editor_district"), defaultEnumDistrict) then
 			
 			
 			for k,v in pairs(EgamedataDistrict) do
@@ -506,24 +508,24 @@ function QuestTabs()
 		
 		
 		
-		triggerNode("Trigger condition :",activeEditedQuest,"trigger_condition")
+		triggerNode(getLang("trigger_condition"),activeEditedQuest,"trigger_condition")
 		if(tableHasKey(activeEditedQuest["trigger_condition"])) then
-			ImGui.Text("Do not put any requirement if you want that this dialog being enable by default in phone or speak way.")
-			requirementNode("Trigger requirement :",activeEditedQuest,"trigger_condition_requirement","trigger_condition")
+			ImGui.Text(getLang("editor_msg_phone_way"))
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedQuest,"trigger_condition_requirement","trigger_condition")
 			if(#activeEditedQuest["trigger_condition_requirement"] > 0) then
 				
-				actionNode("Triggers actions :",activeEditedQuest,"trigger_action")
+				actionNode(getLang("trigger_action"),activeEditedQuest,"trigger_action")
 				
 				
 				ObjectiveNode(activeEditedQuest)
 				
-				actionNode("End actions :",activeEditedQuest,"end_action")
-				actionNode("Failure actions :",activeEditedQuest,"failure_action")
-				actionNode("Reset actions :",activeEditedQuest,"reset_action")
+				actionNode(getLang("end_action"),activeEditedQuest,"end_action")
+				actionNode(getLang("failure_action"),activeEditedQuest,"failure_action")
+				actionNode(getLang("reset_action"),activeEditedQuest,"reset_action")
 				
 				
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 		end
 		
@@ -544,7 +546,7 @@ function QuestTabs()
 			
 			
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -555,7 +557,7 @@ function QuestTabs()
 			
 			ImGui.SameLine()
 			
-			if ImGui.Button("Test in Game") and activeEditedQuest.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedQuest.tag ~= "" then
 				
 				arrayQuest2[activeEditedQuest.tag] = {}
 				arrayQuest2[activeEditedQuest.tag].quest = activeEditedQuest
@@ -567,7 +569,7 @@ function QuestTabs()
 			
 			ImGui.SameLine()
 			
-			if ImGui.Button("Export this object in quest_mod/json/report folder") then
+			if ImGui.Button(getLang("editor_export")) then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedQuest.tag..".json", "w"))
@@ -582,11 +584,11 @@ function QuestTabs()
 			
 			else
 			
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 			
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedQuest.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedQuest.tag ~= "" then
 			
 			editor_json_tag = activeEditedQuest.tag
 			editor_json = JSON:encode_pretty(activeEditedQuest)
@@ -625,10 +627,10 @@ function DialogTabs()
 		activeEditedDialog.havequitoption = true
 	end
 	
-	if ImGui.BeginTabItem("Choices") then
+	if ImGui.BeginTabItem(getLang("editor_Choices")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadDialogtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadDialogtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -654,7 +656,7 @@ function DialogTabs()
 		
 		
 		
-		if(ImGui.Button("Load Dialog")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedDialog = loadDialog
 			
@@ -675,7 +677,7 @@ function DialogTabs()
 		
 		if(loadDialog.Tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				
 				activeEditedDialog = {}
 				loadDialog = {}
@@ -702,13 +704,13 @@ function DialogTabs()
 		
 		activeEditedDialog.Desc = ""
 		
-		activeEditedDialog.Tag = ImGui.InputText("Tag", activeEditedDialog.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedDialog.Tag = ImGui.InputText(getLang("editor_tag"), activeEditedDialog.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedDialog.havequitoption = ImGui.Checkbox("Have Talk Later Answer ?", activeEditedDialog.havequitoption)
+		activeEditedDialog.havequitoption = ImGui.Checkbox(getLang("editor_havequitoption"), activeEditedDialog.havequitoption)
 		
 		--npcchara = "Judy"
 		
-		ImGui.Text("Who speak ?")
+		ImGui.Text(getLang("editor_speaker_who"))
 		--	debugPrint(1,activeEditedDialog.speaker.value)
 		
 		if(activeEditedDialog.speaker.value ~= nil) then
@@ -745,7 +747,7 @@ function DialogTabs()
 		end
 		
 		
-		ImGui.Text("How it speak ?")
+		ImGui.Text(getLang("editor_speaker_way"))
 		
 		if(activeEditedDialog.speaker.way ~= nil) then
 			
@@ -815,18 +817,18 @@ function DialogTabs()
 		ImGui.Spacing()
 		
 		
-		triggerNode("Trigger condition :",activeEditedDialog,"trigger")
+		triggerNode(getLang("trigger_condition"),activeEditedDialog,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(activeEditedDialog["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",activeEditedDialog,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedDialog,"requirement","trigger")
 			if(#activeEditedDialog["requirement"] > 0) then
-				optionsNode("Answers :",activeEditedDialog)
+				optionsNode(getLang("editor_answer"),activeEditedDialog)
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -839,7 +841,7 @@ function DialogTabs()
 		
 		if(activeEditedDialog.Tag ~= nil and activeEditedDialog.Tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -848,7 +850,7 @@ function DialogTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedDialog.Tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedDialog.Tag ~= "" then
 				
 				
 				
@@ -857,61 +859,7 @@ function DialogTabs()
 				
 				createDialog(activeEditedDialog)	
 				
-				-- if(activeEditedDialog.speaker.way == "quest") then
-				
-				-- local dioal = SetNextDialog(activeEditedDialog.Tag,activeEditedDialog.speaker.way)
-				
-				-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-				
-				-- --debugPrint(1,dioal.Desc)
-				-- openQuestDialogWindow = false
-				
-				-- currentQuestdialog = dioal
-				-- openQuestDialogWindow = true
-				-- end
-				
-				-- if(activeEditedDialog.speaker.way == "interact") then
-				
-				-- local dioal = SetNextDialog(activeEditedDialog.Tag,activeEditedDialog.speaker.way)
-				
-				-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-				
-				-- --debugPrint(1,dioal.Desc)
-				-- openEventDialogWindow = false
-				
-				-- currentEventDialog = dioal
-				-- openEventDialogWindow = true
-				-- end
-				
-				-- if(activeEditedDialog.speaker.way == "phone") then
-				
-				-- local dioal = SetNextDialog(activeEditedDialog.Tag,activeEditedDialog.speaker.way)
-				
-				-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-				
-				-- --debugPrint(1,dioal.Desc)
-				-- openPhoneDialogWindow = false
-				
-				-- currentPhoneDialog = dioal
-				-- openPhoneDialogWindow = true
-				
-				-- --SetDialogPhoneUI(dioal)
-				-- --------debug--debugPrint(1,"dialog phone enabled")
-				-- end
-				
-				-- if(activeEditedDialog.speaker.way == "speak") then
-				-- local dioal = SetNextDialog(activeEditedDialog.Tag,activeEditedDialog.speaker.way)
-				
-				-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-				
-				-- --debugPrint(1,dioal.Desc)
-				-- openSpeakDialogWindow = false
-				
-				-- currentSpeakDialog = dioal
-				-- openSpeakDialogWindow = true
-				
-				
-				-- end
+			
 				
 				
 				
@@ -919,7 +867,7 @@ function DialogTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedDialog.Tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedDialog.Tag ~= "" then
 				
 				local arraydialogTemp = {}
 				table.insert(arraydialogTemp,activeEditedDialog)
@@ -933,11 +881,11 @@ function DialogTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedDialog.Tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedDialog.Tag ~= "" then
 			
 			editor_json_tag = activeEditedDialog.Tag
 			editor_json = JSON:encode_pretty(activeEditedDialog)
@@ -973,10 +921,10 @@ function PhoneDialogTabs()
 	
 	
 	
-	if ImGui.BeginTabItem("Phone Dialog") then
+	if ImGui.BeginTabItem(getLang("editor_phone_dialog")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadPhoneDialogtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadPhoneDialogtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -996,7 +944,7 @@ function PhoneDialogTabs()
 			ImGui.EndCombo()
 		end
 		
-		if(ImGui.Button("Load Phone Dialog")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedPhoneDialog =loadPhoneDialog
 			
@@ -1013,7 +961,7 @@ function PhoneDialogTabs()
 		end
 		if(loadPhoneDialog.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadPhoneDialog = {}
 				loadPhoneDialogtag = ""
 				activeEditedPhoneDialog = {}
@@ -1034,11 +982,11 @@ function PhoneDialogTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedPhoneDialog.speaker = ImGui.InputText("Speaker", activeEditedPhoneDialog.speaker, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPhoneDialog.speaker = ImGui.InputText(getLang("editor_speaker"), activeEditedPhoneDialog.speaker, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedPhoneDialog.tag = ImGui.InputText("Tag", activeEditedPhoneDialog.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPhoneDialog.tag = ImGui.InputText(getLang("editor_tag"), activeEditedPhoneDialog.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedPhoneDialog.unlock = ImGui.Checkbox("Unlocked ?", activeEditedPhoneDialog.unlock)
+		activeEditedPhoneDialog.unlock = ImGui.Checkbox(getLang("editor_unlock"), activeEditedPhoneDialog.unlock)
 		
 		--npcchara = "Judy"
 		
@@ -1049,7 +997,7 @@ function PhoneDialogTabs()
 			
 			if(activeEditedPhoneDialog.tag ~= nil and activeEditedPhoneDialog.tag ~= "")then
 				
-				if ImGui.Button("Save for Build an Datapack") then
+				if ImGui.Button(getLang("editor_save_for_build")) then
 					
 					
 					
@@ -1058,7 +1006,7 @@ function PhoneDialogTabs()
 					
 				end
 				ImGui.SameLine()
-				if ImGui.Button("Test") and activeEditedPhoneDialog.tag ~= "" then
+				if ImGui.Button(getLang("editor_test_in_game")) and activeEditedPhoneDialog.tag ~= "" then
 					
 					
 					
@@ -1069,7 +1017,7 @@ function PhoneDialogTabs()
 						
 						if(activeEditedPhoneDialog.unlock == false ) then
 							
-							if(getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == 0 ) then
+							if(getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == nil ) then
 								
 								setScore(activeEditedPhoneDialog.tag,"unlocked",0)
 								
@@ -1079,7 +1027,7 @@ function PhoneDialogTabs()
 							
 							else
 							
-							if(getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == 0 ) then
+							if(getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.tag,"unlocked") == nil) then
 								
 								setScore(activeEditedPhoneDialog.tag,"unlocked",1)
 								
@@ -1093,7 +1041,7 @@ function PhoneDialogTabs()
 							
 							if(activeEditedPhoneDialog.conversation[z].unlock == false ) then
 								
-								if(getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == 0 ) then
+								if(getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == nil ) then
 									
 									setScore(activeEditedPhoneDialog.conversation[z].tag,"unlocked",0)
 									
@@ -1102,7 +1050,7 @@ function PhoneDialogTabs()
 								
 								else
 								
-								if(getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == 0 ) then
+								if(getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.conversation[z].tag,"unlocked") == nil ) then
 									
 									setScore(activeEditedPhoneDialog.conversation[z].tag,"unlocked",1)
 									
@@ -1117,7 +1065,7 @@ function PhoneDialogTabs()
 								
 								if(activeEditedPhoneDialog.conversation[z].message[y].unlock == false ) then
 									
-									if(getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") == 0 ) then
+									if(getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") ==  nil ) then
 										
 										setScore(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked",0)
 										
@@ -1125,7 +1073,7 @@ function PhoneDialogTabs()
 									
 									else
 									
-									if(getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") == 0 ) then
+									if(getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") == 0 or getScoreKey(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked") == nil ) then
 										
 										setScore(activeEditedPhoneDialog.conversation[z].message[y].tag,"unlocked",1)
 										
@@ -1156,7 +1104,7 @@ function PhoneDialogTabs()
 					
 				end
 				ImGui.SameLine()
-				if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedPhoneDialog.tag ~= "" then
+				if ImGui.Button(getLang("editor_export")) and activeEditedPhoneDialog.tag ~= "" then
 					
 					local arraydialogTemp = {}
 					table.insert(arraydialogTemp,activeEditedPhoneDialog)
@@ -1171,14 +1119,14 @@ function PhoneDialogTabs()
 				
 				
 				else
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 			end
 			
 			
 		end
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedPhoneDialog.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedPhoneDialog.tag ~= "" then
 			
 			editor_json_tag = activeEditedPhoneDialog.tag
 			editor_json = JSON:encode_pretty(activeEditedPhoneDialog)
@@ -1226,10 +1174,10 @@ function InteractTabs()
 	
 	
 	
-	if ImGui.BeginTabItem("Interact") then
+	if ImGui.BeginTabItem(getLang("editor_Interact")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadInteracttag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadInteracttag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -1254,7 +1202,7 @@ function InteractTabs()
 		end
 		
 		
-		if(ImGui.Button("Load Interact")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedInteract = loadInteract.interact
 			
@@ -1277,7 +1225,7 @@ function InteractTabs()
 		end
 		if(loadInteract.interact ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadInteract = {}
 				loadInteracttag = ""
 				activeEditedInteract = {}
@@ -1306,27 +1254,27 @@ function InteractTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedInteract.name = ImGui.InputText("Name", activeEditedInteract.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedInteract.name = ImGui.InputText(getLang("editor_Name"), activeEditedInteract.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedInteract.tag = ImGui.InputText("Tag", activeEditedInteract.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		ImGui.Text("Timer is in case you do this interaction with an companion, how much time this companion will stay with you")
-		activeEditedInteract.timer = ImGui.InputInt("Timer", activeEditedInteract.timer, 1,10, ImGuiInputTextFlags.None)
-		ImGui.Text("SortTag is an group for sort Interaction. If the interact is for an AV that is flying, put av_interact")
-		activeEditedInteract.sorttag = ImGui.InputText("SortTag", activeEditedInteract.sorttag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		ImGui.Text("Display is How you want the interaction been displayed (event_interact : like an ingame interaction,place : like an custom place interaction, phone_service : like an contact in phone)")
-		activeEditedInteract.display = ImGui.InputText("Display", activeEditedInteract.display, 100, ImGuiInputTextFlags.AutoSelectAll)
-		ImGui.Text("Type is How you want the interaction been showed (interact : like an ingame interaction,hint : like an hint interaction (at the bottom of the screen)")
+		activeEditedInteract.tag = ImGui.InputText(getLang("editor_tag"), activeEditedInteract.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Text(getLang("editor_Interact_Timer_msg"))
+		activeEditedInteract.timer = ImGui.InputInt(getLang("editor_Interact_Timer"), activeEditedInteract.timer, 1,10, ImGuiInputTextFlags.None)
+		ImGui.Text(getLang("editor_Interact_SortTag_msg"))
+		activeEditedInteract.sorttag = ImGui.InputText(getLang("editor_Interact_SortTag"), activeEditedInteract.sorttag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Text(getLang("editor_Interact_Display_msg"))
+		activeEditedInteract.display = ImGui.InputText(getLang("editor_Interact_Display_msg"), activeEditedInteract.display, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Text(getLang("editor_Interact_Type_msg"))
 		
 		if(activeEditedInteract.type == nil ) then
 			activeEditedInteract.type = ""
 		end
 		
-		activeEditedInteract.type = ImGui.InputText("Type", activeEditedInteract.type, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedInteract.type = ImGui.InputText(getLang("editor_Interact_Type"), activeEditedInteract.type, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		if(activeEditedInteract.type == "hint") then
 			
-			activeEditedInteract.hold = ImGui.Checkbox("Hold for trigger it ?", activeEditedInteract.hold)
-			activeEditedInteract.key = ImGui.InputText("Key", activeEditedInteract.key, 100, ImGuiInputTextFlags.AutoSelectAll)
+			activeEditedInteract.hold = ImGui.Checkbox(getLang("editor_Interact_hold"), activeEditedInteract.hold)
+			activeEditedInteract.key = ImGui.InputText(getLang("editor_Interact_key"), activeEditedInteract.key, 100, ImGuiInputTextFlags.AutoSelectAll)
 		end
 		
 		
@@ -1335,7 +1283,7 @@ function InteractTabs()
 		ImGui.Spacing()
 		
 		
-		triggerNode("Trigger condition :",activeEditedInteract,"trigger")
+		triggerNode(getLang("trigger_condition"),activeEditedInteract,"trigger")
 		
 		
 		
@@ -1343,12 +1291,12 @@ function InteractTabs()
 		if(tableHasKey(activeEditedInteract["trigger"])) then
 			
 			
-			requirementNode("Trigger Requirement :",activeEditedInteract,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedInteract,"requirement","trigger")
 			
 			if(#activeEditedInteract["requirement"] > 0) then
-				actionNode("Action :",activeEditedInteract,"action")
+				actionNode(getLang("trigger_action"),activeEditedInteract,"action")
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -1361,7 +1309,7 @@ function InteractTabs()
 		
 		if(activeEditedInteract.tag ~= nil and activeEditedInteract.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -1370,14 +1318,14 @@ function InteractTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedInteract.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedInteract.tag ~= "" then
 				
 				arrayInteract[activeEditedInteract.tag] = {}
 				arrayInteract[activeEditedInteract.tag].interact = activeEditedInteract
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedInteract.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedInteract.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedInteract.tag..".json", "w"))
@@ -1390,10 +1338,10 @@ function InteractTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedInteract.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedInteract.tag ~= "" then
 			
 			editor_json_tag = activeEditedInteract.tag
 			editor_json = JSON:encode_pretty(activeEditedInteract)
@@ -1424,10 +1372,10 @@ function EventTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Event") then
+	if ImGui.BeginTabItem(getLang("editor_Event")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadEventtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadEventtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -1450,7 +1398,7 @@ function EventTabs()
 			
 			ImGui.EndCombo()
 		end
-		if(ImGui.Button("Load Event")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedEvent = loadEvent.event
 			
@@ -1470,7 +1418,7 @@ function EventTabs()
 		
 		if(loadEvent.event ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadEvent = {}
 				loadEventtag = ""
 				activeEditedEvent = {}
@@ -1496,29 +1444,29 @@ function EventTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedEvent.name = ImGui.InputText("Name", activeEditedEvent.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedEvent.name = ImGui.InputText(getLang("editor_Name"), activeEditedEvent.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedEvent.tag = ImGui.InputText("Tag", activeEditedEvent.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		ImGui.Text("Available ways : world / init / ambush / phone_service")
-		activeEditedEvent.way = ImGui.InputText("Way", activeEditedEvent.way, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedEvent.tag = ImGui.InputText(getLang("editor_tag"), activeEditedEvent.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Text(getLang("editor_Event_way_msg"))
+		activeEditedEvent.way = ImGui.InputText(getLang("editor_Event_way"), activeEditedEvent.way, 100, ImGuiInputTextFlags.AutoSelectAll)
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
 		
-		triggerNode("Trigger condition :",activeEditedEvent,"trigger")
+		triggerNode(getLang("trigger_condition"),activeEditedEvent,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(activeEditedEvent["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",activeEditedEvent,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedEvent,"requirement","trigger")
 			
 			if(#activeEditedEvent["requirement"] > 0) then
-				actionNode("Action :",activeEditedEvent,"action")
+				actionNode(getLang("trigger_action"),activeEditedEvent,"action")
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -1532,7 +1480,7 @@ function EventTabs()
 		
 		if(activeEditedEvent.tag ~= nil and activeEditedEvent.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -1541,7 +1489,7 @@ function EventTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedEvent.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedEvent.tag ~= "" then
 				
 				
 				
@@ -1557,7 +1505,7 @@ function EventTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedEvent.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedEvent.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedEvent.tag..".json", "w"))
@@ -1570,10 +1518,10 @@ function EventTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedEvent.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedEvent.tag ~= "" then
 			
 			editor_json_tag = activeEditedEvent.tag
 			editor_json = JSON:encode_pretty(activeEditedEvent)
@@ -1612,10 +1560,10 @@ function FixerTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Fixer") then
+	if ImGui.BeginTabItem(getLang("editor_Fixer")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadFixertag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadFixertag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -1676,7 +1624,7 @@ function FixerTabs()
 		
 		if(loadFixer.Tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadFixer = {}
 				loadFixertag = ""
 				activeEditedFixer = {}
@@ -1718,12 +1666,12 @@ function FixerTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedFixer.Name = ImGui.InputText("Name", activeEditedFixer.Name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedFixer.LOC_X = ImGui.InputFloat("X", activeEditedFixer.LOC_X, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedFixer.LOC_Y = ImGui.InputFloat("Y", activeEditedFixer.LOC_Y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedFixer.LOC_Z = ImGui.InputFloat("Z", activeEditedFixer.LOC_Z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedFixer.range = ImGui.InputFloat("Range", activeEditedFixer.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		if ImGui.Button("Copy XYZ from Player location", 300, 0) then
+		activeEditedFixer.Name = ImGui.InputText(getLang("editor_Name"), activeEditedFixer.Name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFixer.LOC_X = ImGui.InputFloat(getLang("editor_x"), activeEditedFixer.LOC_X, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedFixer.LOC_Y = ImGui.InputFloat(getLang("editor_y"), activeEditedFixer.LOC_Y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedFixer.LOC_Z = ImGui.InputFloat(getLang("editor_z"), activeEditedFixer.LOC_Z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedFixer.range = ImGui.InputFloat(getLang("editor_range"), activeEditedFixer.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		if ImGui.Button(getLang("editor_Name"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedFixer.LOC_X = vec4.x
@@ -1754,7 +1702,7 @@ function FixerTabs()
 		end
 		
 		
-		if ImGui.BeginCombo("Faction", defaultfaction) then
+		if ImGui.BeginCombo(getLang("editor_Faction"), defaultfaction) then
 			
 			
 			for k,v in pairs(arrayFaction) do
@@ -1773,9 +1721,9 @@ function FixerTabs()
 		
 		
 		--activeEditedFixer.Faction = ImGui.InputText("Faction", activeEditedFixer.Faction, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedFixer.Tag = ImGui.InputText("Tag", activeEditedFixer.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFixer.Tag = ImGui.InputText(getLang("editor_tag"), activeEditedFixer.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		if ImGui.BeginCombo("NPC", npcchara) then
+		if ImGui.BeginCombo(getLang("editor_NPC"), npcchara) then
 			
 			
 			for i,v in ipairs(arrayPnjDb) do
@@ -1794,8 +1742,8 @@ function FixerTabs()
 		
 		
 		
-		activeEditedFixer.exist = ImGui.Checkbox("This fixer exist in the game story ?", activeEditedFixer.exist)
-		activeEditedFixer.npcexist = ImGui.Checkbox("This fixer exist already as NPC in game ?", activeEditedFixer.npcexist)
+		activeEditedFixer.exist = ImGui.Checkbox(getLang("editor_Fixer_exist"), activeEditedFixer.exist)
+		activeEditedFixer.npcexist = ImGui.Checkbox(getLang("editor_Fixer_npc_exist"), activeEditedFixer.npcexist)
 		
 		
 		
@@ -1805,21 +1753,21 @@ function FixerTabs()
 		ImGui.Spacing()
 		
 		
-		triggerNode("Trigger condition :",activeEditedFixer,"trigger")
+		triggerNode(getLang("trigger_condition"),activeEditedFixer,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(activeEditedFixer["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",activeEditedFixer,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedFixer,"requirement","trigger")
 			
 			if(#activeEditedFixer["requirement"] > 0) then
 				actionNode("Spawn Action :",activeEditedFixer,"spawn_action")
 				
 				actionNode("Despawn Action :",activeEditedFixer,"despawn_action")
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -1830,7 +1778,7 @@ function FixerTabs()
 		
 		if(activeEditedFixer.Tag ~= nil and activeEditedFixer.Tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -1839,7 +1787,7 @@ function FixerTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedFixer.Tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedFixer.Tag ~= "" then
 				
 				
 				
@@ -1857,7 +1805,7 @@ function FixerTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedFixer.Tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedFixer.Tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedFixer.Tag..".json", "w"))
@@ -1870,10 +1818,10 @@ function FixerTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedFixer.Tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedFixer.Tag ~= "" then
 			
 			editor_json_tag = activeEditedFixer.Tag
 			editor_json = JSON:encode_pretty(activeEditedFixer)
@@ -1911,10 +1859,10 @@ function FactionTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Faction") then
+	if ImGui.BeginTabItem(getLang("editor_Faction")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadFactiontag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadFactiontag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -1937,7 +1885,7 @@ function FactionTabs()
 			
 			ImGui.EndCombo()
 		end
-		if(ImGui.Button("Load Faction")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedFaction = loadFaction
 			
@@ -1958,7 +1906,7 @@ function FactionTabs()
 		end
 		if(loadFaction.Tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadFaction = {}
 				loadFactiontag = ""
 				activeEditedFaction = {}
@@ -1986,15 +1934,15 @@ function FactionTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedFaction.Name = ImGui.InputText("Name", activeEditedFaction.Name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedFaction.Tag = ImGui.InputText("Tag", activeEditedFaction.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedFaction.Logo = ImGui.InputText("Logo", activeEditedFaction.Logo, 100, ImGuiInputTextFlags.AutoSelectAll)
-		--activeEditedFaction.DistrictTag = ImGui.InputText("Tag", activeEditedFaction.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFaction.Name = ImGui.InputText(getLang("editor_Name"), activeEditedFaction.Name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFaction.Tag = ImGui.InputText(getLang("editor_tag"), activeEditedFaction.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFaction.Logo = ImGui.InputText(getLang("editor_Faction_Logo"), activeEditedFaction.Logo, 100, ImGuiInputTextFlags.AutoSelectAll)
+		--activeEditedFaction.DistrictTag = ImGui.InputText(getLang("editor_tag"), activeEditedFaction.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		
 		
-		if ImGui.BeginCombo("District of the faction", defaultDistrict) then
+		if ImGui.BeginCombo(getLang("editor_district"), defaultDistrict) then
 			
 			
 			for i,v in ipairs(arrayDistricts) do
@@ -2021,17 +1969,17 @@ function FactionTabs()
 		
 		
 		
-		listStringNode("Attitude Group","Put attitude group here. \n It will make the possibility to the mod to determine if an npc in game is in an Faction when you look it.\n You can find attitude Group into the directory : quest_mod/data/db/attitudegroup",activeEditedFaction,"AttitudeGroup")
-		listStringNode("Rivals","Put Faction Tag Rivals here.",activeEditedFaction,"Rivals")
-		listStringNode("Spawnable NPC","Put TweakIDs npc here, it can be used for make spawnable npc for ambush.  \n You can find Character.Path (TweakIDs) into the directory : quest_mod/data/db/CharacterTable.xlsx",activeEditedFaction,"SpawnableNPC")
-		listStringNode("Spawnable Vehicule","Put TweakIDs vehicle here, it can be used for make spawnable vehicle for ambush. \n You can find Vehicule.Path (TweakIDs) into the directory : quest_mod/data/db/vehicles.json",activeEditedFaction,"SpawnableVehicule")
+		listStringNode(getLang("editor_Faction_AttitudeGroup"),getLang("editor_Faction_AttitudeGroup_msg"),activeEditedFaction,"AttitudeGroup")
+		listStringNode(getLang("editor_Faction_Rivals"),getLang("editor_Faction_Rivals_msg"),activeEditedFaction,"Rivals")
+		listStringNode(getLang("editor_Faction_SpawnableNPC"),getLang("editor_Faction_SpawnableNPC_msg"),activeEditedFaction,"SpawnableNPC")
+		listStringNode(getLang("editor_Faction_SpawnableVehicule"),getLang("editor_Faction_SpawnableVehicule_msg"),activeEditedFaction,"SpawnableVehicule")
 		
-		listVIPNode("VIP","Put name of the VIP here, it can be used for make spawnable VIP. \n You can find Character Names into the directory : quest_mod/data/db/CharacterTable.xlsx",activeEditedFaction,"VIP")
+		listVIPNode(getLang("editor_Faction_SpawnableVehicule"),getLang("editor_Faction_SpawnableVehicule_msg"),activeEditedFaction,"VIP")
 		
 		
 		if(activeEditedFaction.Tag ~= nil and activeEditedFaction.Tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -2040,7 +1988,7 @@ function FactionTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedFaction.Tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedFaction.Tag ~= "" then
 				
 				
 				
@@ -2059,7 +2007,7 @@ function FactionTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedFaction.Tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedFaction.Tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedFaction.Tag..".json", "w"))
@@ -2072,10 +2020,10 @@ function FactionTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedFaction.Tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedFaction.Tag ~= "" then
 			
 			editor_json_tag = activeEditedFaction.Tag
 			editor_json = JSON:encode_pretty(activeEditedFaction)
@@ -2108,10 +2056,10 @@ function RadioTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Radio") then
+	if ImGui.BeginTabItem(getLang("editor_Radio")) then
 		
-		loadRadiotag = ImGui.InputText("Load an Radio(by tag). Don't touch anything if you want make an new", loadRadiotag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		if ImGui.BeginCombo("Load an script", loadRadiotag) then -- Remove the ## if you'd like for the title to display above combo box
+		
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadRadiotag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -2136,7 +2084,7 @@ function RadioTabs()
 		end
 		
 		
-		if(ImGui.Button("Load Radio")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedRadio = loadRadio.radio
 			
@@ -2152,7 +2100,7 @@ function RadioTabs()
 		
 		if(loadRadio.radio ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadRadio = {}
 				loadRadiotag = ""
 				activeEditedRadio = {}
@@ -2173,10 +2121,10 @@ function RadioTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedRadio.name = ImGui.InputText("Name", activeEditedRadio.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedRadio.tag = ImGui.InputText("Tag", activeEditedRadio.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedRadio.name = ImGui.InputText(getLang("editor_Name"), activeEditedRadio.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedRadio.tag = ImGui.InputText(getLang("editor_tag"), activeEditedRadio.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedRadio.only_in_car = ImGui.Checkbox("Can be played only in car ?", activeEditedRadio.only_in_car)
+		activeEditedRadio.only_in_car = ImGui.Checkbox(getLang("editor_Radio_only_in_car"), activeEditedRadio.only_in_car)
 		
 		
 		
@@ -2186,20 +2134,20 @@ function RadioTabs()
 		
 		
 		
-		listSongNode("Tracks","Put tracks here. \n tracks file is like xxxx.mp3. You need to put the audio file into \\yourdatapack\\song\\  folder. Here it's just to reference it",activeEditedRadio,"tracks")
+		listSongNode(getLang("editor_Radio_tracks"),getLang("editor_Radio_tracks_msg"),activeEditedRadio,"tracks")
 		
 		
 		
 		
 		if(activeEditedRadio.tag ~= nil and activeEditedRadio.tag ~= "")then
 			
-			ImGui.Text("Warning :")
+			ImGui.Text(getLang("editor_Radio_warning01"))
 			
-			ImGui.Text("You can't test them until you wrapped it into an datapack and add your song file !")
+			ImGui.Text(getLang("editor_Radio_warning02"))
 			ImGui.Spacing()
 			
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -2210,7 +2158,7 @@ function RadioTabs()
 			ImGui.SameLine()
 			
 			ImGui.SameLine()
-			if ImGui.Button("Test (it will only show in radio List but nothing will play") and activeEditedRadio.tag ~= "" then
+			if ImGui.Button(getLang("editor_Radio_test")) and activeEditedRadio.tag ~= "" then
 				
 				
 				
@@ -2223,7 +2171,7 @@ function RadioTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedRadio.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedRadio.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedRadio.tag..".json", "w"))
@@ -2235,10 +2183,10 @@ function RadioTabs()
 				
 			end
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedRadio.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedRadio.tag ~= "" then
 			
 			editor_json_tag = activeEditedRadio.tag
 			editor_json = JSON:encode_pretty(activeEditedRadio)
@@ -2268,10 +2216,10 @@ function LangTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Language Pack") then
+	if ImGui.BeginTabItem(getLang("editor_Lang")) then
 		
 		
-		activeEditedLang.name = ImGui.InputText("Filename", activeEditedLang.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedLang.name = ImGui.InputText(getLang("editor_Lang_Filename"), activeEditedLang.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		ImGui.Spacing()
@@ -2279,7 +2227,7 @@ function LangTabs()
 		ImGui.Spacing()
 		
 		
-		listDictionnaryNode("Key/Value","If in dialog text or text element, you write the key instead of an text, it will use the value associated to key. You can use it for translate IRP or the datapack. ",activeEditedLang,"data")
+		listDictionnaryNode(getLang("editor_Lang_Key"),getLang("editor_Lang_Key_msg"),activeEditedLang,"data")
 		
 		
 		
@@ -2289,7 +2237,7 @@ function LangTabs()
 			
 			
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -2300,7 +2248,7 @@ function LangTabs()
 			ImGui.SameLine()
 			
 			
-			if ImGui.Button("Test") and activeEditedLang.name ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedLang.name ~= "" then
 				
 				
 				for key, value in pairs(activeEditedLang["data"]) do 
@@ -2310,15 +2258,15 @@ function LangTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedLang.name ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedLang.name ~= "" then
 				
 				else
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 			end
 		end
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedLang.name ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedLang.name ~= "" then
 			
 			editor_json_tag = activeEditedLang.name
 			editor_json = JSON:encode_pretty(name)
@@ -2336,7 +2284,7 @@ function LangTabs()
 end
 
 function ItemTabs()
-	if ImGui.BeginTabItem("Housing") then
+	if ImGui.BeginTabItem(getLang("editor_Housing")) then
 		
 		if(currentHouse ~=nil) then
 			
@@ -2344,8 +2292,9 @@ function ItemTabs()
 			
 			ItemNode()
 			
+		
 			
-			if ImGui.Button("Export Housing and items") then 
+			if ImGui.Button(getLang("editor_Housing_Export")) then 
 				
 				
 				if(#currentItemSpawned > 0) then
@@ -2381,7 +2330,7 @@ function ItemTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Save Housing and items for Datapack") then 
+			if ImGui.Button(getLang("editor_Housing_Save")) then 
 				
 				
 				if(#currentItemSpawned > 0) then
@@ -2436,21 +2385,406 @@ function ItemTabs()
 				
 			end
 			ImGui.Spacing()
-			if ImGui.Button("Buy this place", 300, 0) then
-				updateHouseStatut(currentHouse.tag,1)
+			if ImGui.Button(getLang("editor_Housing_Buy"), 300, 0) then
+				
+				setScore(currentHouse.tag,"Statut",1)
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Sell this place", 300, 0) then
-				updateHouseStatut(currentHouse.tag,0)
+			if ImGui.Button(getLang("editor_Housing_Sell"), 300, 0) then
+				
+				setScore(currentHouse.tag,"Statut",0)
 			end	
 			
 			ImGui.SameLine()
-			if ImGui.Button("Open business In this place", 300, 0) then
-				updateHouseStatut(currentHouse.tag,2)
+			if ImGui.Button(getLang("editor_Housing_OpenBusiness"), 300, 0) then
+				
+				setScore(currentHouse.tag,"Statut",2)
 			end	
 			
 			ImGui.Spacing()
-			if ImGui.Button("Open in Json Editor") and #currentItemSpawned > 0 then
+			
+			
+			ImGui.Separator()
+			
+			ImGui.Text("Template")
+			
+			if ImGui.Button(getLang("editor_Housing_template_set_center_player_pos")) then 
+			
+				currentHouseCenter = {}
+				local vec4 = Game.GetPlayer():GetWorldPosition()
+				currentHouseCenter.x = vec4.x
+				currentHouseCenter.y = vec4.y
+				currentHouseCenter.z = vec4.z
+			
+			end
+			if(currentHouseCenter ~= nil) then
+			
+			newHousingTemplateTag = ImGui.InputText("Housing Template "..getLang("editor_tag"), newHousingTemplateTag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			
+			if(newHousingTemplateTag ~= "") then
+				if ImGui.Button(getLang("editor_Housing_template_test")) then 
+					
+					if(#currentItemSpawned > 0) then
+						local toexport = {}
+						toexport.items = {}
+						
+						
+						for i=1,#currentItemSpawned do
+							
+							local obj = {}
+							obj.Id = currentItemSpawned[i].Id
+							obj.Tag = currentItemSpawned[i].Tag
+							obj.HouseTag = currentItemSpawned[i].HouseTag
+							obj.ItemPath = currentItemSpawned[i].ItemPath
+							obj.X = currentItemSpawned[i].X - currentHouseCenter.x
+							obj.Y = currentItemSpawned[i].Y - currentHouseCenter.y
+							obj.Z = currentItemSpawned[i].Z - currentHouseCenter.z
+							obj.Yaw = currentItemSpawned[i].Yaw
+							obj.Pitch = currentItemSpawned[i].Pitch
+							obj.Roll = currentItemSpawned[i].Roll
+							obj.Title = currentItemSpawned[i].Title
+							table.insert(toexport.items,obj)
+							deleteHousing(currentItemSpawned[i].Id)
+						end
+						
+						toexport.center = currentHouseCenter
+						toexport.tag = newHousingTemplateTag
+						
+						despawnItemFromHouse()
+						
+						if(#toexport.items > 0) then
+							
+							
+							
+							
+							for i,v in ipairs(toexport.items) do
+								
+								local obj = {}
+								obj.Id = v.Id
+								obj.Tag = v.Tag
+								obj.HouseTag = currentHouse.tag
+								obj.ItemPath = v.ItemPath
+								obj.X = currentHouseCenter.x +v.X
+								obj.Y = currentHouseCenter.y + v.Y
+								obj.Z = currentHouseCenter.z + v.Z
+								obj.Yaw = v.Yaw
+								obj.Pitch = v.Pitch
+								obj.Roll = v.Roll
+								obj.Title = v.Title
+								obj.fromTemplate = true
+								
+								
+								saveHousing(obj)
+				
+								local housing = getHousing(obj.Tag,obj.X,obj.Y,obj.Z)
+								obj.Id = housing.Id
+								
+								local poss = Vector4.new( obj.X, obj.Y,  obj.Z,1)
+								
+								
+								local angless = EulerAngles.new(obj.Roll, obj.Pitch,  obj.Yaw)
+								
+								
+								obj.entityId = spawnItem(obj, poss, angless)
+								
+								
+								table.insert(currentItemSpawned,obj)
+								
+							end
+							
+							
+						end
+					
+					
+					arrayHousingTemplate[newHousingTemplateTag] = {}
+					arrayHousingTemplate[newHousingTemplateTag].template = toexport
+					currentHousingTemplate = toexport
+					currentHousingTemplatetag=toexport.tag
+					
+					end
+						
+				end
+					
+								
+				if ImGui.Button(getLang("editor_Housing_template_export")) then 
+					
+					
+					if(#currentItemSpawned > 0) then
+						local toexport = {}
+						toexport.items = {}
+						
+						
+						for i=1,#currentItemSpawned do
+							
+							local obj = {}
+							obj.Id = currentItemSpawned[i].Id
+							obj.Tag = currentItemSpawned[i].Tag
+							obj.HouseTag = currentItemSpawned[i].HouseTag
+							obj.ItemPath = currentItemSpawned[i].ItemPath
+							obj.X = currentItemSpawned[i].X - currentHouseCenter.x
+							obj.Y = currentItemSpawned[i].Y - currentHouseCenter.y
+							obj.Z = currentItemSpawned[i].Z - currentHouseCenter.z
+							obj.Yaw = currentItemSpawned[i].Yaw
+							obj.Pitch = currentItemSpawned[i].Pitch
+							obj.Roll = currentItemSpawned[i].Roll
+							obj.Title = currentItemSpawned[i].Title
+							table.insert(toexport.items,obj)
+							
+						end
+						
+						toexport.center = currentHouseCenter
+						toexport.tag = newHousingTemplateTag
+						
+						local file = assert(io.open("json/report/"..activeEditedPlace.tag.."_housing_template.json", "w"))
+						local stringg = JSON:encode_pretty(toexport)
+						--debug--debugPrint(1,stringg)
+						file:write(stringg)
+						file:close()
+					end
+					
+				end
+				
+				
+				if ImGui.Button(getLang("editor_Housing_template_save")) then 
+					
+					
+					if(#currentItemSpawned > 0) then
+						local toexport = {}
+						toexport.items = {}
+						
+						
+						for i=1,#currentItemSpawned do
+							
+							local obj = {}
+							obj.Id = currentItemSpawned[i].Id
+							obj.Tag = currentItemSpawned[i].Tag
+							obj.HouseTag = currentItemSpawned[i].HouseTag
+							obj.ItemPath = currentItemSpawned[i].ItemPath
+							obj.X = currentItemSpawned[i].X - currentHouseCenter.x
+							obj.Y = currentItemSpawned[i].Y - currentHouseCenter.y
+							obj.Z = currentItemSpawned[i].Z - currentHouseCenter.z
+							obj.Yaw = currentItemSpawned[i].Yaw
+							obj.Pitch = currentItemSpawned[i].Pitch
+							obj.Roll = currentItemSpawned[i].Roll
+							obj.Title = currentItemSpawned[i].Title
+							table.insert(toexport.items,obj)
+							
+						end
+						
+						toexport.center = currentHouseCenter
+						toexport.tag = newHousingTemplateTag
+						
+						
+						
+						if(#myDatapackHousingTemplate > 0) then
+							
+							local exist = false
+							
+							for i=1,#myDatapackHousingTemplate do
+								if(myDatapackHousingTemplate[i].tag == toexport.tag) then
+									
+									myDatapackHousingTemplate[i] =toexport
+									exist = true
+									
+								end
+							end
+							
+							
+							if(exist == false)then
+								table.insert(myDatapackHousingTemplate, toexport)
+							end
+							
+							else
+							table.insert(myDatapackHousingTemplate, toexport)
+						end
+					end
+					
+				end
+				
+			end
+			
+			if ImGui.BeginCombo(getLang("editor_Housing_load_template"), currentHousingTemplatetag) then -- Remove the ## if you'd like for the title to display above combo box
+			
+			
+					
+					for k,v in pairs(arrayHousingTemplate) do
+						
+						if ImGui.Selectable(k, false) then
+							
+							
+							currentHousingTemplate = v.template
+							currentHousingTemplatetag=k
+							newHousingTemplateTag = k
+							ImGui.SetItemDefaultFocus()
+						end
+						
+						
+						
+						
+					end
+					
+					
+					ImGui.EndCombo()
+				end
+				
+			if(currentHousingTemplate ~= nil) then
+					if ImGui.Button(getLang("editor_Housing_apply_template")) then 
+						
+						
+						if(#currentHousingTemplate.items > 0) then
+							
+							
+							
+							
+							for i,v in ipairs(currentHousingTemplate.items) do
+								
+								local obj = {}
+								obj.Id = v.Id
+								obj.Tag = v.Tag
+								obj.HouseTag = currentHouse.tag
+								obj.ItemPath = v.ItemPath
+								obj.X = currentHouseCenter.x +v.X
+								obj.Y = currentHouseCenter.y + v.Y
+								obj.Z = currentHouseCenter.z + v.Z
+								obj.Yaw = v.Yaw
+								obj.Pitch = v.Pitch
+								obj.Roll = v.Roll
+								obj.Title = v.Title
+								obj.fromTemplate = true
+								obj.template = template.tag
+								
+								saveHousing(obj)
+				
+								local housing = getHousing(obj.Tag,obj.X,obj.Y,obj.Z)
+								obj.Id = housing.Id
+								
+								local poss = Vector4.new( obj.X, obj.Y,  obj.Z,1)
+								
+								
+								local angless = EulerAngles.new(obj.Roll, obj.Pitch,  obj.Yaw)
+								
+								
+								obj.entityId = spawnItem(obj, poss, angless)
+								
+								
+								table.insert(currentItemSpawned,obj)
+								
+							end
+							
+							
+						end
+						
+					end
+					
+					if ImGui.Button(getLang("editor_Housing_edit_template")) then 
+						openEditHousingTemplate = true
+					end
+					if ImGui.Button(getLang("editor_Housing_clear_template")) then 
+			
+						currentHousingTemplate = nil
+						if(#currentItemSpawned > 0) then
+								
+								for i=1,#currentItemSpawned do
+									
+									if(currentItemSpawned[i].fromTemplate ~= nil and currentItemSpawned[i].fromTemplate == true) then
+										deleteHousing(currentItemSpawned[i].Id)
+										despawnItemFromId(currentItemSpawned[i].Id)
+										
+									end
+									
+									
+								end
+								
+								
+						end
+						
+						
+					end
+				
+				
+				end
+			
+			end
+			
+			if ImGui.Button(getLang("editor_Housing_clear_all"), 300, 0) then
+				if(#currentItemSpawned > 0) then
+						
+						
+						for i=1,#currentItemSpawned do
+							
+							deleteHousing(currentItemSpawned[i].Id)
+							
+							
+						end
+						
+						despawnItemFromHouse()
+				end
+			end	
+			
+			ImGui.Spacing()
+			ImGui.Separator()
+			
+			if(ActualPlayerMultiData ~= nil and #ActualPlayerMultiData.currentPlaces > 0 and ActualPlayerMultiData.instance.CanBuild == true) then
+			
+			ImGui.Text("Multiplayer Place : ".. ActualPlayerMultiData.currentPlaces[1].name)
+			
+			if(currentHouseCenter ~= nil) then
+			
+				
+			if(currentHousingTemplate ~= nil) then
+					if ImGui.Button(getLang("editor_Housing_apply_template_multi")) then 
+						
+						
+						if(#currentHousingTemplate.items > 0) then
+							
+							local itemlist = {}
+							
+							
+							for i,v in ipairs(currentHousingTemplate.items) do
+								
+								local obj = {}
+								obj.Id = 0
+								obj.HouseId = 0
+								obj.Tag = v.Tag
+								obj.HouseTag = ActualPlayerMultiData.currentPlaces[1].tag
+								obj.ItemPath = v.ItemPath
+								obj.X = currentHouseCenter.x +v.X
+								obj.Y = currentHouseCenter.y + v.Y
+								obj.Z = currentHouseCenter.z + v.Z
+								obj.Yaw = v.Yaw
+								obj.Pitch = v.Pitch
+								obj.Roll = v.Roll
+								obj.Title = v.Title
+								
+								table.insert(itemlist,obj)
+								
+								
+								
+							end
+							
+							
+							SetItemList(itemlist)
+							
+						end
+						
+					end
+						
+					if ImGui.Button(getLang("editor_Housing_clear_all_multi"), 300, 0) then
+						DeleteAllItem(ActualPlayerMultiData.currentPlaces[1].tag)
+					end	
+			
+				
+				end
+			
+			end
+			
+			
+			ImGui.Spacing()
+			ImGui.Separator()
+			
+			
+			end
+			if ImGui.Button(getLang("editor_open_json_editor")) and #currentItemSpawned > 0 then
 				local toexport = {}
 				
 				
@@ -2490,102 +2824,6 @@ function ItemTabs()
 	end
 end
 
-function ThemeTabs()
-	if(activeEditedTheme.name == nil) then
-		activeEditedTheme.name = ""
-		
-		activeEditedTheme["data"] = {}
-		
-		
-		
-		
-	end
-	
-	if ImGui.BeginTabItem("Theme Pack") then
-		
-		
-		activeEditedTheme.name = ImGui.InputText("Filename", activeEditedTheme.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		
-		
-		ImGui.Spacing()
-		
-		if ImGui.Button("Toggle Color Picker", 300, 0) then
-			colorPickerModeRGB = false
-			if(openColorPicker == false)then
-				openColorPicker = true
-				else
-				openColorPicker = false
-			end
-			
-			
-			
-		end
-		ImGui.Spacing()
-		ImGui.Spacing()
-		
-		
-		listThemeNode("Key/Color","Make your own theme",activeEditedTheme,"data")
-		
-		
-		
-		
-		
-		if(activeEditedTheme.name ~= nil and activeEditedTheme.name ~= "")then
-			
-			if ImGui.Button("Save for Build an Datapack") then
-				
-				
-				
-				table.insert(myDatapackTheme,activeEditedTheme)
-				
-				
-			end
-			ImGui.SameLine()
-			
-			
-			if ImGui.Button("Test") and activeEditedTheme.name ~= "" then
-				
-				
-				for key, value in pairs(activeEditedTheme["data"]) do 
-					
-					IRPtheme[key] = value
-				end
-				
-			end
-			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedTheme.name ~= "" then
-				
-				
-				local file = assert(io.open("json/report/"..activeEditedTheme.name..".json", "w"))
-				local stringg = JSON:encode_pretty(activeEditedTheme["data"])
-				--debug--debugPrint(1,stringg)
-				file:write(stringg)
-				file:close()
-				
-				
-			end
-			else
-			ImGui.Text("You need an Filename before testing or export !")
-		end
-		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedTheme.name ~= "" then
-			
-			editor_json_tag = activeEditedTheme.name
-			editor_json = JSON:encode_pretty(activeEditedTheme)
-			editor_json_obj = activeEditedTheme
-			editor_json_obj_name = "activeEditedTheme"
-			editor_json_view = true
-			
-			
-		end
-		
-		ImGui.EndTabItem()
-		
-		
-	end
-	
-end
-
 
 function InterfacesTabs()
 	if(activeEditedInterfaces.tag == nil) then
@@ -2603,10 +2841,10 @@ function InterfacesTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Interfaces Pack") then
+	if ImGui.BeginTabItem(getLang("editor_Interfaces")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", LoadInterfacetag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), LoadInterfacetag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -2630,7 +2868,7 @@ function InterfacesTabs()
 			ImGui.EndCombo()
 		end
 		
-		if(ImGui.Button("Load Interface")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedInterfaces = LoadInterface.ui
 			
@@ -2653,7 +2891,7 @@ function InterfacesTabs()
 		
 		if(LoadInterface.ui ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				LoadInterface = {}
 				LoadInterfacetag = ""
 				activeEditedInterfaces = {}
@@ -2680,12 +2918,12 @@ function InterfacesTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedInterfaces.title = ImGui.InputText("Title", activeEditedInterfaces.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedInterfaces.tag = ImGui.InputText("Tag", activeEditedInterfaces.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedInterfaces.width = ImGui.InputFloat("Width", activeEditedInterfaces.width, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedInterfaces.heigh = ImGui.InputFloat("Heigh", activeEditedInterfaces.heigh, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedInterfaces.x = ImGui.InputFloat("X", activeEditedInterfaces.x, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedInterfaces.y = ImGui.InputFloat("Y", activeEditedInterfaces.y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedInterfaces.title = ImGui.InputText(getLang("editor_title"), activeEditedInterfaces.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedInterfaces.tag = ImGui.InputText(getLang("editor_tag"), activeEditedInterfaces.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedInterfaces.width = ImGui.InputFloat(getLang("editor_Interfaces_Width"), activeEditedInterfaces.width, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedInterfaces.heigh = ImGui.InputFloat(getLang("editor_Interfaces_Heigh"), activeEditedInterfaces.heigh, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedInterfaces.x = ImGui.InputFloat(getLang("editor_x"), activeEditedInterfaces.x, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedInterfaces.y = ImGui.InputFloat(getLang("editor_y"), activeEditedInterfaces.y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
 		
 		
@@ -2693,12 +2931,12 @@ function InterfacesTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		controlsNode("Controls","Define your controls (button,label..) here",activeEditedInterfaces,"controls")
+		controlsNode(getLang("editor_Interfaces_Controls"),getLang("editor_Interfaces_Controls_msg"),activeEditedInterfaces,"controls")
 		
 		
 		if(activeEditedInterfaces.tag ~= nil and activeEditedTheme.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -2709,7 +2947,7 @@ function InterfacesTabs()
 			ImGui.SameLine()
 			
 			
-			if ImGui.Button("Test") and activeEditedInterfaces.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedInterfaces.tag ~= "" then
 				
 				openInterface = false
 				currentInterface = activeEditedInterfaces
@@ -2717,7 +2955,7 @@ function InterfacesTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedInterfaces.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedInterfaces.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedInterfaces.tag..".json", "w"))
@@ -2729,10 +2967,10 @@ function InterfacesTabs()
 				
 			end
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedInterfaces.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedInterfaces.tag ~= "" then
 			
 			editor_json_tag =  activeEditedInterfaces.tag
 			editor_json = JSON:encode_pretty(activeEditedInterfaces)
@@ -2762,10 +3000,10 @@ function HelpTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Help Pack") then
+	if ImGui.BeginTabItem(getLang("editor_Help")) then
 		
-		loadHelptag = ImGui.InputText("Load an Help(by tag). Don't touch anything if you want make an new", loadHelptag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		if ImGui.BeginCombo("Load an script", loadHelptag) then -- Remove the ## if you'd like for the title to display above combo box
+		
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadHelptag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -2788,7 +3026,7 @@ function HelpTabs()
 			
 			ImGui.EndCombo()
 		end
-		if(ImGui.Button("Load Help")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditHelp = loadHelp
 			
@@ -2803,7 +3041,7 @@ function HelpTabs()
 		
 		if(loadHelp.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadHelp = {}
 				loadHelptag = ""
 				activeEditHelp = {}
@@ -2814,21 +3052,21 @@ function HelpTabs()
 		end
 		
 		
-		activeEditHelp.title = ImGui.InputText("Title", activeEditHelp.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditHelp.tag = ImGui.InputText("Tag", activeEditHelp.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditHelp.title = ImGui.InputText(getLang("editor_title"), activeEditHelp.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditHelp.tag = ImGui.InputText(getLang("editor_tag"), activeEditHelp.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		listStringNode("Sections","Add different section of text for your help.",activeEditHelp,"section",true)
+		listStringNode(getLang("editor_Help_Sections"),getLang("editor_Help_Sections_msg"),activeEditHelp,"section",true)
 		
 		
 		
 		
 		if(activeEditHelp.title ~= nil and activeEditHelp.title ~= "" and #activeEditHelp["section"] > 0)then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -2839,14 +3077,14 @@ function HelpTabs()
 			
 			ImGui.SameLine()
 			
-			if ImGui.Button("Test") and activeEditHelp.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditHelp.tag ~= "" then
 				
 				
 				table.insert(arrayHelp,activeEditHelp)
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") then
+			if ImGui.Button(getLang("editor_export")) then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditHelp.tag..".json", "w"))
@@ -2861,7 +3099,7 @@ function HelpTabs()
 			ImGui.Text("You need an Tag, an Title and at least one section before testing or export !")
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditHelp.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditHelp.tag ~= "" then
 			
 			editor_json_tag =  activeEditHelp.tag
 			editor_json = JSON:encode_pretty(activeEditHelp)
@@ -2909,12 +3147,12 @@ function PlaceTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Place") then
+	if ImGui.BeginTabItem(getLang("editor_Place")) then
 		
 		
 		
 		
-		if ImGui.BeginCombo("Load an script", loadPlacetag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadPlacetag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -2938,7 +3176,7 @@ function PlaceTabs()
 			ImGui.EndCombo()
 		end
 		ImGui.SameLine()
-		if(ImGui.Button("Load Place")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedPlace = loadPlace
 			
@@ -2978,7 +3216,7 @@ function PlaceTabs()
 		
 		if(loadPlace.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadPlace = {}
 				loadPlacetag = ""
 				activeEditedPlace = {}
@@ -3078,13 +3316,13 @@ function PlaceTabs()
 		ImGui.Spacing()
 		
 		
-		activeEditedPlace.name = ImGui.InputText("Name", activeEditedPlace.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPlace.tag = ImGui.InputText("Tag", activeEditedPlace.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPlace.posX = ImGui.InputFloat("X", activeEditedPlace.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.posY = ImGui.InputFloat("Y", activeEditedPlace.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.posZ = ImGui.InputFloat("Z", activeEditedPlace.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.name = ImGui.InputText(getLang("editor_Name"), activeEditedPlace.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPlace.tag = ImGui.InputText(getLang("editor_tag"), activeEditedPlace.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPlace.posX = ImGui.InputFloat(getLang("editor_x"), activeEditedPlace.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.posY = ImGui.InputFloat(getLang("editor_y"), activeEditedPlace.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.posZ = ImGui.InputFloat(getLang("editor_z"), activeEditedPlace.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		ImGui.Spacing()
-		if ImGui.Button("Copy Player's XYZ for XYZ", 300, 0) then
+		if ImGui.Button(getLang("editor_copy_player_location"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedPlace.posX = vec4.x
@@ -3095,11 +3333,11 @@ function PlaceTabs()
 		end
 		
 		
-		activeEditedPlace.EnterX = ImGui.InputFloat("Entrance X", activeEditedPlace.EnterX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.EnterY = ImGui.InputFloat("Entrance Y", activeEditedPlace.EnterY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.EnterZ = ImGui.InputFloat("Entrance Z", activeEditedPlace.EnterZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.EnterX = ImGui.InputFloat(getLang("editor_Place_EnterX"), activeEditedPlace.EnterX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.EnterY = ImGui.InputFloat(getLang("editor_Place_EnterY"), activeEditedPlace.EnterY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.EnterZ = ImGui.InputFloat(getLang("editor_Place_EnterZ"), activeEditedPlace.EnterZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
-		if ImGui.Button("Copy Player's XYZ for Entrance", 300, 0) then
+		if ImGui.Button(getLang("editor_Place_Enter_copy"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedPlace.EnterX = vec4.x
@@ -3109,11 +3347,11 @@ function PlaceTabs()
 			
 		end
 		
-		activeEditedPlace.ExitX = ImGui.InputFloat("Exit X", activeEditedPlace.ExitX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.ExitY = ImGui.InputFloat("Exit Y", activeEditedPlace.ExitY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.ExitZ = ImGui.InputFloat("Exit Z", activeEditedPlace.ExitZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.ExitX = ImGui.InputFloat(getLang("editor_Place_ExitX"), activeEditedPlace.ExitX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.ExitY = ImGui.InputFloat(getLang("editor_Place_ExitY"), activeEditedPlace.ExitY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.ExitZ = ImGui.InputFloat(getLang("editor_Place_ExitZ"), activeEditedPlace.ExitZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
-		if ImGui.Button("Copy Player's XYZ for Exit", 300, 0) then
+		if ImGui.Button(getLang("editor_Place_Exit_copy"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedPlace.ExitX = vec4.x
@@ -3124,8 +3362,8 @@ function PlaceTabs()
 		end
 		
 		ImGui.Spacing()
-		activeEditedPlace.range = ImGui.InputFloat("Area (range)", activeEditedPlace.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.Zrange = ImGui.InputFloat("Z area (vertical range)", activeEditedPlace.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.range = ImGui.InputFloat(getLang("editor_Place_range"), activeEditedPlace.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.Zrange = ImGui.InputFloat(getLang("editor_Place_Zrange"), activeEditedPlace.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
 		if ImGui.BeginCombo("##My ComboBox2", placetype) then -- Remove the ## if you'd like for the title to display above combo box
 			
@@ -3168,19 +3406,19 @@ function PlaceTabs()
 		
 		
 		
-		ImGui.Text("Coef is an multiplier for interaction that will cost or give money.")
-		ImGui.Text("For example an beer who cost 5 will cost 10 in an place who have an coef of 2.")
+		ImGui.Text(getLang("editor_Place_Coef_msg01"))
+		ImGui.Text(getLang("editor_Place_Coef_msg02"))
 		
 		
-		activeEditedPlace.coef = ImGui.InputFloat("Coef (Prestige)", activeEditedPlace.coef, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedPlace.isbuyable = ImGui.Checkbox("Can be buyed ?", activeEditedPlace.isbuyable)
+		activeEditedPlace.coef = ImGui.InputFloat(getLang("editor_Place_Coef"), activeEditedPlace.coef, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedPlace.isbuyable = ImGui.Checkbox(getLang("editor_Place_isbuyable"), activeEditedPlace.isbuyable)
 		if(activeEditedPlace.isbuyable == true) then
 			
-			activeEditedPlace.price = ImGui.InputFloat("Price : ", activeEditedPlace.price, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-			activeEditedPlace.isrentable = ImGui.Checkbox("Can have an business in ? (need to be buyed before)", activeEditedPlace.isbuyable)
+			activeEditedPlace.price = ImGui.InputFloat(getLang("editor_Place_price"), activeEditedPlace.price, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+			activeEditedPlace.isrentable = ImGui.Checkbox(getLang("editor_Place_isrentable"), activeEditedPlace.isbuyable)
 			if(activeEditedPlace.isrentable == true) then
-				ImGui.Text("For get the salary from an business, you need to be in the place. Possible to get an salary every real 5 minutes.")
-				activeEditedPlace.rent = ImGui.InputFloat("Business salary", activeEditedPlace.price, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+				ImGui.Text(getLang("editor_Place_isrentable_msg"))
+				activeEditedPlace.rent = ImGui.InputFloat(getLang("editor_Place_rent"), activeEditedPlace.rent, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 				
 			end
 		end
@@ -3198,19 +3436,19 @@ function PlaceTabs()
 		ImGui.Spacing()
 		
 		
-		triggerNode("Trigger condition :",activeEditedPlace,"trigger")
+		triggerNode(getLang("trigger_condition"),activeEditedPlace,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(activeEditedPlace["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",activeEditedPlace,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedPlace,"requirement","trigger")
 			
 			if(#activeEditedPlace["requirement"] > 0) then
-				actionNode("Action :",activeEditedPlace,"action")
+				actionNode(getLang("trigger_action"),activeEditedPlace,"action")
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -3232,7 +3470,7 @@ function PlaceTabs()
 				
 				
 				
-				if ImGui.Button("Save for Build an Datapack") then
+				if ImGui.Button(getLang("editor_save_for_build")) then
 					
 					
 					
@@ -3243,7 +3481,7 @@ function PlaceTabs()
 				
 				ImGui.SameLine()
 				
-				if ImGui.Button("Test") and activeEditedPlace.tag ~= "" then
+				if ImGui.Button(getLang("editor_test_in_game")) and activeEditedPlace.tag ~= "" then
 					
 					
 					arrayHouse[activeEditedPlace.tag] = {}
@@ -3258,7 +3496,7 @@ function PlaceTabs()
 				end
 				
 				ImGui.SameLine()
-				if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedPlace.tag ~= "" then
+				if ImGui.Button(getLang("editor_export")) and activeEditedPlace.tag ~= "" then
 					
 					
 					local file = assert(io.open("json/report/"..activeEditedPlace.tag..".json", "w"))
@@ -3271,18 +3509,18 @@ function PlaceTabs()
 				end
 				else
 				
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 				
 			end
 			
 			else
 			
-			ImGui.Text("You need an requirement (so it need one trigger too) before testing or export !")
+			ImGui.Text(getLang("editor_Place_warning"))
 			
 		end
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedPlace.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedPlace.tag ~= "" then
 			
 			editor_json_tag =  activeEditedPlace.tag
 			editor_json = JSON:encode_pretty(activeEditedPlace)
@@ -3295,9 +3533,9 @@ function PlaceTabs()
 		
 		
 		
-		ImGui.Text("For unlock Items Tabs : ")
-		ImGui.Text("You need to download and enable housing datapack")
-		ImGui.Text("The custom place need to be loaded in game (Test Button or datapack loaded) before make export the items and housing furnitures !")
+		ImGui.Text(getLang("editor_Place_msg01"))
+		ImGui.Text(getLang("editor_Place_msg02"))
+		ImGui.Text(getLang("editor_Place_msg03"))
 		
 		
 		
@@ -3320,10 +3558,10 @@ function FunctionTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Function") then
+	if ImGui.BeginTabItem(getLang("editor_Function")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadFunctiontag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadFunctiontag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -3346,7 +3584,7 @@ function FunctionTabs()
 			
 			ImGui.EndCombo()
 		end
-		if(ImGui.Button("Load Function")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedFunction = loadFunction.func
 			
@@ -3363,7 +3601,7 @@ function FunctionTabs()
 		
 		if(loadFunction.func ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadFunction = {}
 				loadFunctiontag = ""
 				activeEditedFunction = {}
@@ -3385,21 +3623,21 @@ function FunctionTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedFunction.name = ImGui.InputText("Name", activeEditedFunction.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFunction.name = ImGui.InputText(getLang("editor_Name"), activeEditedFunction.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedFunction.tag = ImGui.InputText("Tag", activeEditedFunction.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedFunction.tag = ImGui.InputText(getLang("editor_tag"), activeEditedFunction.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
 		
-		actionNode("Action :",activeEditedFunction,"action")
+		actionNode(getLang("trigger_action"),activeEditedFunction,"action")
 		
 		
 		
 		if(activeEditedFunction.tag ~= nil and activeEditedFunction.tag ~= "")then
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -3408,7 +3646,7 @@ function FunctionTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedFunction.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedFunction.tag ~= "" then
 				
 				arrayFunction[activeEditedFunction.tag] = {}
 				arrayFunction[activeEditedFunction.tag].func = activeEditedFunction
@@ -3416,7 +3654,7 @@ function FunctionTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedFunction.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedFunction.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedFunction.tag..".json", "w"))
@@ -3438,10 +3676,10 @@ function FunctionTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedFunction.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedFunction.tag ~= "" then
 			
 			editor_json_tag =  activeEditedFunction.tag
 			editor_json = JSON:encode_pretty(activeEditedFunction)
@@ -3507,10 +3745,10 @@ function NodeTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Node") then
+	if ImGui.BeginTabItem(getLang("editor_unload")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadNodetag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadNodetag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -3534,7 +3772,7 @@ function NodeTabs()
 			ImGui.EndCombo()
 		end
 		
-		if(ImGui.Button("Load Node")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedNode = loadNode
 			
@@ -3556,7 +3794,7 @@ function NodeTabs()
 		
 		if(loadNode.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadNode = {}
 				loadNodetag = ""
 				activeEditedNode = {}
@@ -3571,18 +3809,18 @@ function NodeTabs()
 		ImGui.Spacing()
 		
 		
-		activeEditedNode.name = ImGui.InputText("Name", activeEditedNode.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedNode.tag = ImGui.InputText("Tag", activeEditedNode.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedNode.name = ImGui.InputText(getLang("editor_Name"), activeEditedNode.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedNode.tag = ImGui.InputText(getLang("editor_tag"), activeEditedNode.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		ImGui.Text("if (sort) is 'metro', the node will be displayed into metro tab in Phone")
-		activeEditedNode.sort = ImGui.InputText("Sort", activeEditedNode.sort, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Text(getLang("editor_Node_sort_msg"))
+		activeEditedNode.sort = ImGui.InputText(getLang("editor_Node_sort"), activeEditedNode.sort, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		ImGui.Text("XYZ are the true position of the node")
-		activeEditedNode.X = ImGui.InputFloat("X", activeEditedNode.X, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedNode.Y = ImGui.InputFloat("Y", activeEditedNode.Y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedNode.Z = ImGui.InputFloat("Z", activeEditedNode.Z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Text(getLang("editor_Node_xyz_msg"))
+		activeEditedNode.X = ImGui.InputFloat(getLang("editor_x"), activeEditedNode.X, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedNode.Y = ImGui.InputFloat(getLang("editor_y"), activeEditedNode.Y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedNode.Z = ImGui.InputFloat(getLang("editor_z"), activeEditedNode.Z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
-		if ImGui.Button("Copy XYZ from Player location", 300, 0) then
+		if ImGui.Button(getLang("editor_copy_player_location"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedNode.X = vec4.x
@@ -3592,13 +3830,13 @@ function NodeTabs()
 			
 		end
 		
-		ImGui.Text("GameplayXYZ are the position of the gameplay for the node, for example the station counter for an metro node. It's just another position in the node for Gameplay")
+		ImGui.Text(getLang("editor_Node_gameplayxyz_msg"))
 		
-		activeEditedNode.GameplayX = ImGui.InputFloat("GameplayX", activeEditedNode.GameplayX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedNode.GameplayY = ImGui.InputFloat("GameplayY", activeEditedNode.GameplayY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedNode.GameplayZ = ImGui.InputFloat("GameplayZ", activeEditedNode.GameplayZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedNode.GameplayX = ImGui.InputFloat(getLang("editor_Node_gameplayx"), activeEditedNode.GameplayX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedNode.GameplayY = ImGui.InputFloat(getLang("editor_Node_gameplayy"), activeEditedNode.GameplayY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedNode.GameplayZ = ImGui.InputFloat(getLang("editor_Node_gameplayz"), activeEditedNode.GameplayZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
-		if ImGui.Button("Copy GameplayXYZ from Player location", 300, 0) then
+		if ImGui.Button(getLang("editor_Node_gameplayxyz_copy"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			activeEditedNode.GameplayX = vec4.x
@@ -3610,7 +3848,7 @@ function NodeTabs()
 		
 		if(activeEditedNode.tag ~= nil and activeEditedNode.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -3619,7 +3857,7 @@ function NodeTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedNode.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedNode.tag ~= "" then
 				
 				local testtemp = getNode(activeEditedNode.tag)
 				
@@ -3642,7 +3880,7 @@ function NodeTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedNode.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedNode.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedNode.tag..".json", "w"))
@@ -3660,10 +3898,10 @@ function NodeTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedNode.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedNode.tag ~= "" then
 			
 			editor_json_tag =  activeEditedNode.tag
 			editor_json = JSON:encode_pretty(activeEditedNode)
@@ -3693,11 +3931,11 @@ function CircuitTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Circuit") then
+	if ImGui.BeginTabItem(getLang("editor_Circuit")) then
 		
 		
 		
-		if ImGui.BeginCombo("Load an script", loadCircuittag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadCircuittag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -3724,7 +3962,7 @@ function CircuitTabs()
 		
 		
 		
-		if(ImGui.Button("Load Circuit")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedCircuit = loadCircuit
 			
@@ -3738,7 +3976,7 @@ function CircuitTabs()
 		
 		if(activeEditedCircuit.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadCircuit = {}
 				loadCircuittag = ""
 				activeEditedCircuit = {}
@@ -3759,13 +3997,13 @@ function CircuitTabs()
 		
 		
 		
-		activeEditedCircuit.tag = ImGui.InputText("Tag", activeEditedCircuit.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedCircuit.tag = ImGui.InputText(getLang("editor_tag"), activeEditedCircuit.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		listStringNode("Nodes","Put nodes tag here. \n The order of how you put them is important",activeEditedCircuit,"nodes")
+		listStringNode(getLang("editor_Circuit_Nodes"),getLang("editor_Circuit_Nodes_msg"),activeEditedCircuit,"nodes")
 		
 		if(activeEditedCircuit.tag ~= nil and activeEditedCircuit.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -3774,7 +4012,7 @@ function CircuitTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedCircuit.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedCircuit.tag ~= "" then
 				
 				local testtemp = getCircuit(activeEditedCircuit.tag)
 				
@@ -3797,7 +4035,7 @@ function CircuitTabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedCircuit.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedCircuit.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedCircuit.tag..".json", "w"))
@@ -3815,10 +4053,10 @@ function CircuitTabs()
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedCircuit.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedCircuit.tag ~= "" then
 			
 			editor_json_tag =  activeEditedCircuit.tag
 			editor_json = JSON:encode_pretty(activeEditedCircuit)
@@ -3862,10 +4100,10 @@ function PathTabs()
 		editorPathTarget = "player"
 	end
 	
-	if ImGui.BeginTabItem("Path") then
+	if ImGui.BeginTabItem(getLang("editor_Path")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadPathtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadPathtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -3891,7 +4129,7 @@ function PathTabs()
 		
 		
 		
-		if(ImGui.Button("Load Path")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedPath = loadPath
 			
@@ -3922,7 +4160,7 @@ function PathTabs()
 		
 		if(loadPath.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadPath = {}
 				loadPathtag = ""
 				activeEditedPath = {}
@@ -3956,19 +4194,19 @@ function PathTabs()
 		
 		
 		
-		activeEditedPath.desc = ImGui.InputText("Name", activeEditedPath.desc, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPath.tag = ImGui.InputText("Tag", activeEditedPath.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPath.startNode = ImGui.InputText("Start Node Tag", activeEditedPath.startNode, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPath.endNode = ImGui.InputText("End Node Tag", activeEditedPath.endNode, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPath.recordRotation = ImGui.Checkbox("Record Rotation ?", activeEditedPath.recordRotation)
-		activeEditedPath.recordRelative = ImGui.Checkbox("Relative to ?", activeEditedPath.recordRelative)
+		activeEditedPath.desc = ImGui.InputText(getLang("editor_Name"), activeEditedPath.desc, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPath.tag = ImGui.InputText(getLang("editor_tag"), activeEditedPath.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPath.startNode = ImGui.InputText(getLang("editor_Path_StartNode"), activeEditedPath.startNode, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPath.endNode = ImGui.InputText(getLang("editor_Path_EndNode"), activeEditedPath.endNode, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPath.recordRotation = ImGui.Checkbox(getLang("editor_Path_recordRotation"), activeEditedPath.recordRotation)
+		activeEditedPath.recordRelative = ImGui.Checkbox(getLang("editor_Path_recordRelative"), activeEditedPath.recordRelative)
 		
 		if ImGui.BeginTabBar("EditorTabs", ImGuiTabBarFlags.NoTooltip) then
 		
-			if ImGui.BeginTabItem("Record") then
+			if ImGui.BeginTabItem(getLang("editor_Path_Record")) then
 				if saveLocationEnabled == false then
 					
-					if ImGui.BeginCombo("Record Target :", recorderEntity) then
+					if ImGui.BeginCombo(getLang("editor_Path_RecordTarget"), recorderEntity) then
 						
 						
 						for i,v in ipairs(recorderEntityList) do
@@ -3993,7 +4231,7 @@ function PathTabs()
 					
 					if(activeEditedPath.tag ~= nil and activeEditedPath.tag ~= "") then
 						
-						if ImGui.Button("Record Path")then
+						if ImGui.Button(getLang("editor_Path_RecordPath"))then
 							Game.t1()
 							recordRotation = activeEditedPath.recordRotation
 							recordRelative = activeEditedPath.recordRelative
@@ -4007,11 +4245,11 @@ function PathTabs()
 						
 						
 						else
-						ImGui.Text("You need an Tag before edit the item !")
+						ImGui.Text(getLang("editor_Path_mgs"))
 						
 					end
 					else
-					if ImGui.Button("Stop record Path")then
+					if ImGui.Button(getLang("editor_Path_Record_Stop"))then
 						saveLocationEnabled = false
 						activeEditedPath["locations"] = tempLocation
 						tempLocation = {}
@@ -4021,14 +4259,14 @@ function PathTabs()
 				ImGui.EndTabItem()
 			end
 			
-			if ImGui.BeginTabItem("Play") then
+			if ImGui.BeginTabItem(getLang("editor_Path_Play")) then
 				if(#activeEditedPath["locations"]>0) then
 							
 							
 						
 							
 							
-							if ImGui.BeginCombo("Test Path on Target :", editorPathTarget) then
+							if ImGui.BeginCombo(getLang("editor_Path_PlayTarget"), editorPathTarget) then
 						
 						
 								for i,v in ipairs(pathPlayerEntityList) do
@@ -4046,10 +4284,10 @@ function PathTabs()
 								ImGui.EndCombo()
 							end
 							
-							editorPathTarget = ImGui.InputText("Use Custom entity", editorPathTarget, 100, ImGuiInputTextFlags.AutoSelectAll)
+							editorPathTarget = ImGui.InputText(getLang("editor_Path_PlayTargetCustom"), editorPathTarget, 100, ImGuiInputTextFlags.AutoSelectAll)
 							
 							
-							sliderPathTarget, used = ImGui.SliderInt("Current Frame", sliderPathTarget, 1, #activeEditedPath["locations"], "%d")
+							sliderPathTarget, used = ImGui.SliderInt(getLang("editor_Path_CurrentFrame"), sliderPathTarget, 1, #activeEditedPath["locations"], "%d")
 							if used then
 								local frame =activeEditedPath["locations"][sliderPathTarget]
 								
@@ -4077,18 +4315,18 @@ function PathTabs()
 							
 							
 							
-							if ImGui.Button("Delete frame "..sliderPathTarget)then
+							if ImGui.Button(getLang("editor_Path_DeleteFrame")..sliderPathTarget)then
 							table.remove(activeEditedPath["locations"],sliderPathTarget)
 							sliderPathTarget = sliderPathTarget - 1
 							if(sliderPathTarget <= 0) then sliderPathTarget = 1 end
 							end
 							
-							if ImGui.Button("Copy frame before")then
+							if ImGui.Button(getLang("editor_Path_CopyFrameBefore"))then
 							table.insert(activeEditedPath["locations"],sliderPathTarget-1,activeEditedPath["locations"][sliderPathTarget])
 							sliderPathTarget = sliderPathTarget - 1
 							end
 							
-							if ImGui.Button("Copy frame after")then
+							if ImGui.Button(getLang("editor_Path_CopyFrameAfter"))then
 							table.insert(activeEditedPath["locations"],sliderPathTarget+1,activeEditedPath["locations"][sliderPathTarget])
 							sliderPathTarget = sliderPathTarget + 1
 							end
@@ -4097,11 +4335,11 @@ function PathTabs()
 								activeEditedPath["locations"][sliderPathTarget]["action"] = {}
 							end
 							
-							actionNode("Current Frame Action :",activeEditedPath["locations"][sliderPathTarget],"action")
+							actionNode(getLang("editor_Path_CurrentFrameAction"),activeEditedPath["locations"][sliderPathTarget],"action")
 							
 							
 							
-							if ImGui.Button("Play Path")then
+							if ImGui.Button(getLang("editor_Path_PlayPath"))then
 								arrayPath[activeEditedPath.tag] = {}
 								arrayPath[activeEditedPath.tag].gamepath = activeEditedPath
 								arrayPath[activeEditedPath.tag].file = path
@@ -4123,7 +4361,7 @@ spdlog.error(dump(actionlist))
 							
 							else
 							
-								ImGui.Text("No recorded data !")
+								ImGui.Text(getLang("editor_Path_NoRecord"))
 							
 						end
 			ImGui.EndTabItem()
@@ -4136,7 +4374,7 @@ spdlog.error(dump(actionlist))
 		
 		if(activeEditedPath.tag ~= nil and activeEditedPath.tag ~= "")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -4145,7 +4383,7 @@ spdlog.error(dump(actionlist))
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedPath.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedPath.tag ~= "" then
 				
 				arrayPath[activeEditedPath.tag] = {}
 				arrayPath[activeEditedPath.tag].gamepath = activeEditedPath
@@ -4156,7 +4394,7 @@ spdlog.error(dump(actionlist))
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedPath.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedPath.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedPath.tag..".json", "w"))
@@ -4174,12 +4412,12 @@ spdlog.error(dump(actionlist))
 			end
 			
 			else
-			ImGui.Text("You need an Tag before testing or export !")
+			ImGui.Text(getLang("editor_export_warning"))
 		end
 		
 		ImGui.Spacing()
 		
-		if ImGui.Button("Open in Json Editor") and  activeEditedPath.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedPath.tag ~= "" then
 			
 			editor_json_tag =  activeEditedPath.tag
 			editor_json = JSON:encode_pretty(activeEditedPath)
@@ -4212,10 +4450,10 @@ function POITabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("POI") then
+	if ImGui.BeginTabItem(getLang("editor_POI")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", LoadPOItag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), LoadPOItag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -4245,7 +4483,7 @@ function POITabs()
 		
 		
 		
-		if(ImGui.Button("Load POI")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedPOI = loadPOI
 			
@@ -4263,7 +4501,7 @@ function POITabs()
 		
 		if(loadPOI.desc ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadPOI = {}
 				loadPOItag = ""
 				activeEditedPOI = {}
@@ -4287,15 +4525,16 @@ function POITabs()
 		
 		
 		
-		activeEditedPOI.desc = ImGui.InputText("POI Name", activeEditedPOI.desc, 100, ImGuiInputTextFlags.AutoSelectAll)
-		activeEditedPOI.tag = ImGui.InputText("Tag", activeEditedPOI.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPOI.desc = ImGui.InputText(getLang("editor_Name"), activeEditedPOI.desc, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPOI.tag = ImGui.InputText(getLang("editor_tag"), activeEditedPOI.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedPOI.isFor = ImGui.InputInt(getLang("editor_POI_isFor"),activeEditedPOI.isFor, 1, 10, ImGuiInputTextFlags.None)
 		
 		
-		listLocationsNode("Locations list","locations list",activeEditedPOI,"locations")
+		listLocationsNode(getLang("editor_POI_locations"),"locations list",activeEditedPOI,"locations")
 		
 		if(activeEditedPOI.tag ~= nil and activeEditedPOI.tag ~= "" and activeEditedPOI.tag ~= "OBSOLETE")then
 			
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -4304,7 +4543,7 @@ function POITabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") and activeEditedPOI.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedPOI.tag ~= "" then
 				
 				local testtemp = getPOI(activeEditedPOI.tag)
 				
@@ -4324,7 +4563,7 @@ function POITabs()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedPOI.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedPOI.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedPOI.tag..".json", "w"))
@@ -4348,7 +4587,7 @@ function POITabs()
 			end
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedPOI.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedPOI.tag ~= "" then
 			
 			editor_json_tag =  activeEditedPOI.tag
 			editor_json = JSON:encode_pretty(activeEditedPOI)
@@ -4392,10 +4631,10 @@ function CustomNPCTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Custom NPC") then
+	if ImGui.BeginTabItem(getLang("editor_CustomNPC")) then
 		
 		
-		if ImGui.BeginCombo("Load an script", loadCustomNPCtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadCustomNPCtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -4420,7 +4659,7 @@ function CustomNPCTabs()
 		end
 		
 		
-		if(ImGui.Button("Load Custom NPC")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedCustomNPC = loadCustomNPC
 			
@@ -4454,7 +4693,7 @@ function CustomNPCTabs()
 		
 		if(loadCustomNPC.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadCustomNPC = {}
 				loadCustomNPCtag = ""
 				activeEditedCustomNPC = {}
@@ -4492,9 +4731,9 @@ function CustomNPCTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedCustomNPC.name = ImGui.InputText("Name", activeEditedCustomNPC.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedCustomNPC.name = ImGui.InputText(getLang("editor_Name"), activeEditedCustomNPC.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedCustomNPC.tag = ImGui.InputText("Tag", activeEditedCustomNPC.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedCustomNPC.tag = ImGui.InputText(getLang("editor_tag"), activeEditedCustomNPC.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		if ImGui.BeginCombo("TweakDB", npcchara) then
@@ -4514,20 +4753,20 @@ function CustomNPCTabs()
 			ImGui.EndCombo()
 		end
 		
-		activeEditedCustomNPC.appeareance = ImGui.InputText("Appeareance", activeEditedCustomNPC.appeareance, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedCustomNPC.appeareance = ImGui.InputText(getLang("editor_CustomNPC_appeareance"), activeEditedCustomNPC.appeareance, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedCustomNPC.repeat_routine = ImGui.Checkbox("Repeat Routine", activeEditedCustomNPC.repeat_routine)
+		activeEditedCustomNPC.repeat_routine = ImGui.Checkbox(getLang("editor_CustomNPC_repeat_routine"), activeEditedCustomNPC.repeat_routine)
 		
-		activeEditedCustomNPC.auto_despawn = ImGui.Checkbox("Auto Despawn", activeEditedCustomNPC.auto_despawn)
+		activeEditedCustomNPC.auto_despawn = ImGui.Checkbox(getLang("editor_CustomNPC_auto_despawn"), activeEditedCustomNPC.auto_despawn)
 		
-		activeEditedCustomNPC.useBetaSpawn = ImGui.Checkbox("Use Beta Spawn (can make some troubles !!!)", activeEditedCustomNPC.useBetaSpawn)
+		activeEditedCustomNPC.useBetaSpawn = ImGui.Checkbox(getLang("editor_CustomNPC_useBetaSpawn"), activeEditedCustomNPC.useBetaSpawn)
 		
-		activeEditedCustomNPC.location.x = ImGui.InputFloat("X", activeEditedCustomNPC.location.x, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedCustomNPC.location.y = ImGui.InputFloat("Y", activeEditedCustomNPC.location.y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedCustomNPC.location.z = ImGui.InputFloat("Z", activeEditedCustomNPC.location.z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		activeEditedCustomNPC.location.radius = ImGui.InputFloat("Radius", activeEditedCustomNPC.location.radius, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedCustomNPC.location.x = ImGui.InputFloat(getLang("editor_x"), activeEditedCustomNPC.location.x, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedCustomNPC.location.y = ImGui.InputFloat(getLang("editor_y"), activeEditedCustomNPC.location.y, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedCustomNPC.location.z = ImGui.InputFloat(getLang("editor_z"), activeEditedCustomNPC.location.z, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		activeEditedCustomNPC.location.radius = ImGui.InputFloat(getLang("editor_range"), activeEditedCustomNPC.location.radius, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
-		if ImGui.Button("Copy XYZ from Player location", 300, 0) then
+		if ImGui.Button(getLang("editor_copy_player_location"), 300, 0) then
 			
 			local vec4 = Game.GetPlayer():GetWorldPosition()
 			
@@ -4542,14 +4781,14 @@ function CustomNPCTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		triggerNode("Trigger condition :",activeEditedCustomNPC,"triggers")
+		triggerNode(getLang("trigger_condition"),activeEditedCustomNPC,"triggers")
 		
 		
 		
 		
 		if(tableHasKey(activeEditedCustomNPC["triggers"])) then
 			
-			requirementNode("Trigger Requirement :",activeEditedCustomNPC,"requirement","triggers")
+			requirementNode(getLang("trigger_condition_requirement"),activeEditedCustomNPC,"requirement","triggers")
 			
 			if(#activeEditedCustomNPC["requirement"] > 0) then
 				actionNode("Spawn Action :",activeEditedCustomNPC,"spawnaction")
@@ -4560,7 +4799,7 @@ function CustomNPCTabs()
 				
 				actionNode("Despawn Action :",activeEditedCustomNPC,"despawnaction")
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -4577,7 +4816,7 @@ function CustomNPCTabs()
 		
 		
 		if((#activeEditedCustomNPC["requirement"] > 0) and activeEditedCustomNPC.tag ~= nil and activeEditedCustomNPC.tag ~= "")then
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -4587,7 +4826,7 @@ function CustomNPCTabs()
 			end
 			ImGui.SameLine()
 			
-			if ImGui.Button("Test") and activeEditedCustomNPC.tag ~= "" then
+			if ImGui.Button(getLang("editor_test_in_game")) and activeEditedCustomNPC.tag ~= "" then
 				
 				local current = getCustomNPCByTag(activeEditedCustomNPC.tag)
 				
@@ -4616,10 +4855,10 @@ function CustomNPCTabs()
 				
 				
 				else
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedCustomNPC.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedCustomNPC.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedCustomNPC.tag..".json", "w"))
@@ -4641,7 +4880,7 @@ function CustomNPCTabs()
 			
 		end
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedCustomNPC.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedCustomNPC.tag ~= "" then
 			
 			editor_json_tag =  activeEditedCustomNPC.tag
 			editor_json = JSON:encode_pretty(activeEditedCustomNPC)
@@ -4673,11 +4912,11 @@ function ShardTab()
 		
 	end
 	
-	if ImGui.BeginTabItem("Shard") then
+	if ImGui.BeginTabItem(getLang("editor_Shard")) then
 		
 		
 		
-		if ImGui.BeginCombo("Load an script", loadShardtag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadShardtag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -4702,7 +4941,7 @@ function ShardTab()
 		end
 		
 		
-		if(ImGui.Button("Load Shard")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedShard = loadShard
 			
@@ -4724,7 +4963,7 @@ function ShardTab()
 		
 		if(loadShard.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadShard = {}
 				loadShardtag = ""
 				activeEditedShard = {}
@@ -4750,20 +4989,20 @@ function ShardTab()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		activeEditedShard.title = ImGui.InputText("Title", activeEditedShard.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedShard.title = ImGui.InputText(getLang("editor_title"), activeEditedShard.title, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedShard.tag = ImGui.InputText("Tag", activeEditedShard.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedShard.tag = ImGui.InputText(getLang("editor_tag"), activeEditedShard.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedShard.description = ImGui.InputTextMultiline("Description", activeEditedShard.description, 100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedShard.description = ImGui.InputTextMultiline(getLang("editor_desc"), activeEditedShard.description, 100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
 		
-		activeEditedShard.locked = ImGui.Checkbox("Is Locked ?", activeEditedShard.locked)
-		activeEditedShard.crypted = ImGui.Checkbox("Is Crypted ?", activeEditedShard.crypted)
+		activeEditedShard.locked = ImGui.Checkbox(getLang("editor_Shard_locked"), activeEditedShard.locked)
+		activeEditedShard.crypted = ImGui.Checkbox(getLang("editor_Shard_crypted"), activeEditedShard.crypted)
 		
-		activeEditedShard.new = ImGui.Checkbox("Is New ?", activeEditedShard.new)
+		activeEditedShard.new = ImGui.Checkbox(getLang("editor_Shard_new"), activeEditedShard.new)
 		
 		
 		if(activeEditedShard.tag ~= nil and activeEditedShard.tag ~= "")then
-			if ImGui.Button("Save for Build an Datapack") then
+			if ImGui.Button(getLang("editor_save_for_build")) then
 				
 				
 				
@@ -4772,7 +5011,7 @@ function ShardTab()
 				
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Test") then
+			if ImGui.Button(getLang("editor_test_in_game")) then
 				
 				local current = getShardByTag(activeEditedShard.tag)
 				
@@ -4788,10 +5027,10 @@ function ShardTab()
 				
 				
 				else
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 			end
 			ImGui.SameLine()
-			if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedShard.tag ~= "" then
+			if ImGui.Button(getLang("editor_export")) and activeEditedShard.tag ~= "" then
 				
 				
 				local file = assert(io.open("json/report/"..activeEditedShard.tag..".json", "w"))
@@ -4813,7 +5052,7 @@ function ShardTab()
 		end
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and activeEditedShard.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and activeEditedShard.tag ~= "" then
 			
 			editor_json_tag = activeEditedShard.tag
 			editor_json = JSON:encode_pretty(activeEditedShard)
@@ -4833,41 +5072,41 @@ end
 
 function DatapackBuilder()
 	
-	if ImGui.BeginTabItem("Build Datapack") then
+	if ImGui.BeginTabItem(getLang("editor_Build")) then
 		
-		myDatapack.name = ImGui.InputText("Name", myDatapack.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		myDatapack.desc = ImGui.InputText("Description", myDatapack.desc, 500, ImGuiInputTextFlags.AutoSelectAll)
-		myDatapack.author = ImGui.InputText("Author", myDatapack.author, 100, ImGuiInputTextFlags.AutoSelectAll)
+		myDatapack.name = ImGui.InputText(getLang("editor_Name"), myDatapack.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		myDatapack.desc = ImGui.InputText(getLang("editor_desc"), myDatapack.desc, 500, ImGuiInputTextFlags.AutoSelectAll)
+		myDatapack.author = ImGui.InputText(getLang("editor_Build_Author"), myDatapack.author, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
-		myDatapack.tag = ImGui.InputText("Tag", myDatapack.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		myDatapack.version = ImGui.InputText("Version (format X.X.X)", myDatapack.version, 100 , ImGuiInputTextFlags.AutoSelectAll)
+		myDatapack.tag = ImGui.InputText(getLang("editor_tag"), myDatapack.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		myDatapack.version = ImGui.InputText(getLang("editor_Build_Version"), myDatapack.version, 100 , ImGuiInputTextFlags.AutoSelectAll)
 		
-		listStringNode("Flags","Put flags here. \n possible flags :\n cm_version:x.x.x \n cm_version_strict:x.x.x \n compile \n beta \n amm \n amm_version:x.x.x \n amm_version_strict:x.x.x \n mod:test \n nfsw \n datapack:test \n datapack_version:test:x.x.x \n datapack_version_strict:test:x.x.x",myDatapack,"flags")
+		listStringNode(getLang("editor_Build_Flags"),getLang("editor_Build_Flags_msg"),myDatapack,"flags")
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		ImGui.Text("Saved Quest : "..tostring(#myDatapackQuest))
-		ImGui.Text("Saved Dialog : "..tostring(#myDatapackDialog))
-		ImGui.Text("Saved Event : "..tostring(#myDatapackEvent))
-		ImGui.Text("Saved Interact : "..tostring(#myDatapackInteract))
-		ImGui.Text("Saved Fixer : "..tostring(#myDatapackFixer))
-		ImGui.Text("Saved Faction : "..tostring(#myDatapackFaction))
-		ImGui.Text("Saved Function : "..tostring(#myDatapackFunction))
-		ImGui.Text("Saved Node : "..tostring(#myDatapackNode))
-		ImGui.Text("Saved Path : "..tostring(#myDatapackPath))
-		ImGui.Text("Saved Circuit : "..tostring(#myDatapackCircuit))
-		ImGui.Text("Saved Place : "..tostring(#myDatapackPlace))
-		ImGui.Text("Saved Housing for Place : "..tostring(#myDatapackHousing))
-		ImGui.Text("Saved Radio : "..tostring(#myDatapackRadio))
-		ImGui.Text("Saved Languages File : "..tostring(#myDatapackLanguage))
-		ImGui.Text("Saved Help File : "..tostring(#myDatapackHelp))
-		ImGui.Text("Saved Interface : "..tostring(#myDatapackInterfaces))
-		ImGui.Text("Saved Custom NPC : "..tostring(#myDatapackCustomNPC))
-		ImGui.Text("Saved Shard : "..tostring(#myDatapackShard))
-		ImGui.Text("Saved Phone Conversation : "..tostring(#myDatapackPhoneDialog))
-		ImGui.Text("Saved POI : "..tostring(#myDatapackPOI))
-		ImGui.Text("Saved Scene : "..tostring(#myDatapackScene))
+		ImGui.Text(getLang("editor_Build_myDatapackQuest")..tostring(#myDatapackQuest))
+		ImGui.Text(getLang("editor_Build_myDatapackDialog")..tostring(#myDatapackDialog))
+		ImGui.Text(getLang("editor_Build_myDatapackEvent")..tostring(#myDatapackEvent))
+		ImGui.Text(getLang("editor_Build_myDatapackInteract")..tostring(#myDatapackInteract))
+		ImGui.Text(getLang("editor_Build_myDatapackFixer")..tostring(#myDatapackFixer))
+		ImGui.Text(getLang("editor_Build_myDatapackFaction")..tostring(#myDatapackFaction))
+		ImGui.Text(getLang("editor_Build_myDatapackFunction")..tostring(#myDatapackFunction))
+		ImGui.Text(getLang("editor_Build_myDatapackNode")..tostring(#myDatapackNode))
+		ImGui.Text(getLang("editor_Build_myDatapackPath")..tostring(#myDatapackPath))
+		ImGui.Text(getLang("editor_Build_myDatapackCircuit")..tostring(#myDatapackCircuit))
+		ImGui.Text(getLang("editor_Build_myDatapackPlace")..tostring(#myDatapackPlace))
+		ImGui.Text(getLang("editor_Build_myDatapackHousing")..tostring(#myDatapackHousing))
+		ImGui.Text(getLang("editor_Build_myDatapackRadio")..tostring(#myDatapackRadio))
+		ImGui.Text(getLang("editor_Build_myDatapackLanguage")..tostring(#myDatapackLanguage))
+		ImGui.Text(getLang("editor_Build_myDatapackHelp")..tostring(#myDatapackHelp))
+		ImGui.Text(getLang("editor_Build_myDatapackInterfaces")..tostring(#myDatapackInterfaces))
+		ImGui.Text(getLang("editor_Build_myDatapackCustomNPC")..tostring(#myDatapackCustomNPC))
+		ImGui.Text(getLang("editor_Build_myDatapackShard")..tostring(#myDatapackShard))
+		ImGui.Text(getLang("editor_Build_myDatapackPhoneDialog")..tostring(#myDatapackPhoneDialog))
+		ImGui.Text(getLang("editor_Build_myDatapackPOI")..tostring(#myDatapackPOI))
+		ImGui.Text(getLang("editor_Build_myDatapackScene")..tostring(#myDatapackScene))
 		
 		ImGui.Spacing()
 		ImGui.Spacing()
@@ -4875,7 +5114,7 @@ function DatapackBuilder()
 		
 		
 		if(myDatapack.tag ~= nil and myDatapack.tag ~= "")then
-			if ImGui.Button("Build into quest_mod/json/mydatapack") and myDatapack.tag ~= "" then
+			if ImGui.Button(getLang("editor_Build_Build")) and myDatapack.tag ~= "" then
 				
 				myDatapack.file = myDatapack.tag..".zip"
 				
@@ -5535,14 +5774,14 @@ function DatapackBuilder()
 			
 			
 			else
-			ImGui.Text("You need an Tag before build it !")
+			ImGui.Text(getLang("editor_Build_Msg"))
 		end
 		
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		if ImGui.Button("Clean Saved Items") then
+		if ImGui.Button(getLang("editor_Build_Clean")) then
 			
 			myDatapack = {}
 			myDatapack.name = ""
@@ -5585,10 +5824,10 @@ end
 
 function SettingTab()
 	
-	if ImGui.BeginTabItem("Editor Setting") then
-		ImGui.Text("Camera")
-		if editorcam then ImGui.Text("Current Mode : Editor Camera") else ImGui.Text("Current Mode : Player Camera") end
-		if ImGui.Button("Toggle between free camera and player camera ") then
+	if ImGui.BeginTabItem(getLang("editor_Setting")) then
+		ImGui.Text(getLang("editor_Setting_Camera"))
+		if editorcam then ImGui.Text(getLang("editor_Setting_Camera_Mode1")) else ImGui.Text(getLang("editor_Setting_Camera_Mode2")) end
+		if ImGui.Button(getLang("editor_Setting_Camera_Switch")) then
 			editorcam = not editorcam
 		end
 		
@@ -5765,11 +6004,8 @@ function SettingTab()
 				
 				
 			end
+			questMod.EntityManager["editor_cam"] = nil
 			
-			local index = getIndexFromManager("editor_cam")
-			if(index ~= 1) then
-			table.remove(questMod.EntityManager,index)
-			end
 			
 			
 			editorView.x,change = ImGui.DragFloat("##editorViewx", editorView.x, camstep, -9999, 9999, "%.3f Camera Side")
@@ -5795,7 +6031,7 @@ function SettingTab()
 			
 		end
 		
-		if ImGui.Button("Reset Camera", 100, 0) then
+		if ImGui.Button(getLang("editor_Setting_Camera_Reset"), 100, 0) then
 			
 			
 			local fppComp = Game.GetPlayer():GetFPPCameraComponent()
@@ -5805,7 +6041,7 @@ function SettingTab()
 			
 		end
 		
-		if ImGui.Button("Look at in Camera", 100, 0) then
+		if ImGui.Button(getLang("editor_Setting_Camera_lookat"), 100, 0) then
 			
 			
 			enableCamera("editor_cam")
@@ -5813,7 +6049,7 @@ function SettingTab()
 			
 			
 		end
-		if ImGui.Button("exit Camera", 100, 0) then
+		if ImGui.Button(getLang("editor_Setting_Camera_exit"), 100, 0) then
 			
 			
 			stopCamera("editor_cam")
@@ -5821,7 +6057,7 @@ function SettingTab()
 			
 			
 		end
-		if ImGui.Button("Freeze Time", 100, 0) then
+		if ImGui.Button(getLang("editor_Setting_Freeze_Time"), 100, 0) then
 			if(editorFreeze == true) then
 				editorFreeze= false
 				
@@ -5837,7 +6073,7 @@ function SettingTab()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
-		ImGui.Text("Player Position :")
+		ImGui.Text(getLang("editor_Setting_PlayerPosition"))
 		curPos.x,change2 = ImGui.DragFloat("##curPosx", curPos.x, camstep, -9999, 9999, "%.3f Player Pos X")
 		if change2 then
 			teleportTo(Game.GetPlayer(), curPos, 1,true)
@@ -5857,21 +6093,21 @@ function SettingTab()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		ImGui.Spacing()
-		ImGui.Text("Active Script Running :")
+		ImGui.Text(getLang("editor_Setting_RunningScript"))
 		
-		if ImGui.Button("Toggle automatic thread running") then
+		if ImGui.Button(getLang("editor_Setting_ScriptRunToggle")) then
 			autoScript = not autoScript
 		end
-		ImGui.Text("Automatic Mode : "..tostring(autoScript))
+		ImGui.Text(getLang("editor_Setting_ScriptAutoMode")..tostring(autoScript))
 		
-		if ImGui.Button("Reset pending actions (Script)") then
+		if ImGui.Button(getLang("editor_Setting_ResetScript")) then
 			workerTable = {}
 			despawnAll()
 		end
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		if ImGui.Button("Manual script Step") then
+		if ImGui.Button(getLang("editor_Setting_ScriptManualStep")) then
 			CompileCachedThread()
 			ScriptExecutionEngine()
 		end
@@ -5964,12 +6200,12 @@ function SceneTabs()
 		
 	end
 	
-	if ImGui.BeginTabItem("Scene") then
+	if ImGui.BeginTabItem(getLang("editor_Scene")) then
 		
 		
 		
 		
-		if ImGui.BeginCombo("Load an script", loadScenetag) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("editor_load_script"), loadScenetag) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			
 			
@@ -5993,7 +6229,7 @@ function SceneTabs()
 			ImGui.EndCombo()
 		end
 		ImGui.SameLine()
-		if(ImGui.Button("Load Scene")) then
+		if(ImGui.Button(getLang("editor_load"))) then
 			
 			activeEditedScene = loadScene
 			
@@ -6018,7 +6254,7 @@ function SceneTabs()
 		
 		if(activeEditedScene.tag ~= nil) then
 			ImGui.SameLine()
-			if(ImGui.Button("Unload")) then
+			if(ImGui.Button(getLang("editor_unload"))) then
 				loadScene = {}
 				loadScenetag = ""
 				activeEditedScene = {}
@@ -6054,13 +6290,13 @@ function SceneTabs()
 		
 		
 		
-		activeEditedScene.tag = ImGui.InputText("Tag", activeEditedScene.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		activeEditedScene.tag = ImGui.InputText(getLang("editor_tag"), activeEditedScene.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		ImGui.Spacing()
 		
 		
 		
-		activeEditedScene.isbraindance = ImGui.Checkbox("Is Braindance ?(WIP)", activeEditedScene.isbraindance)
+		activeEditedScene.isbraindance = ImGui.Checkbox(getLang("editor_Scene_isbraindance"), activeEditedScene.isbraindance)
 		
 		
 		
@@ -6070,9 +6306,9 @@ function SceneTabs()
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		actionNode("At Start Actions : (theses action are for setup an scene)",activeEditedScene,"init_action")
+		actionNode(getLang("editor_Scene_init_action"),activeEditedScene,"init_action")
 		ImGui.SameLine()
-		if ImGui.Button("Play Start Actions", 300, 0) then
+		if ImGui.Button(getLang("editor_Scene_init_action_play"), 300, 0) then
 			
 			runActionList(activeEditedScene["init_action"], activeEditedScene["tag"].."_editor", "interact",false,"editor")
 		end
@@ -6087,18 +6323,18 @@ function SceneTabs()
 		ImGui.Spacing()
 		
 		
-		actionNode("At End Actions : (theses action are for end an scene)",activeEditedScene,"end_action")
+		actionNode(getLang("editor_Scene_end_action"),activeEditedScene,"end_action")
 		ImGui.SameLine()
-		if ImGui.Button("Play End Actions", 300, 0) then
+		if ImGui.Button(getLang("editor_Scene_end_action_play"), 300, 0) then
 			
 			runActionList(activeEditedScene["end_action"], activeEditedScene["tag"].."_editor", "interact",false,"editor")
 		end
 		ImGui.Spacing()
 		ImGui.Spacing()
 		
-		actionNode("At Reset Actions : (theses action are for clean before start an scene)",activeEditedScene,"reset_action")
+		actionNode(getLang("editor_Scene_reset_action"),activeEditedScene,"reset_action")
 		ImGui.SameLine()
-		if ImGui.Button("Play Reset Actions", 300, 0) then
+		if ImGui.Button(getLang("editor_Scene_reset_action_play"), 300, 0) then
 			
 			runActionList(activeEditedScene["reset_action"], activeEditedScene["tag"].."_editor", "interact",false,"editor")
 		end
@@ -6117,7 +6353,7 @@ function SceneTabs()
 				
 				
 				
-				if ImGui.Button("Save for Build an Datapack") then
+				if ImGui.Button(getLang("editor_save_for_build")) then
 					
 					
 					
@@ -6128,7 +6364,7 @@ function SceneTabs()
 				
 				ImGui.SameLine()
 				
-				if ImGui.Button("Play the Scene") and activeEditedScene.tag ~= "" then
+				if ImGui.Button(getLang("editor_Scene_play")) and activeEditedScene.tag ~= "" then
 					
 					
 					arrayScene[activeEditedScene.tag] = {}
@@ -6154,7 +6390,7 @@ function SceneTabs()
 				end
 				
 				ImGui.SameLine()
-				if ImGui.Button("Export this object in quest_mod/json/report folder") and activeEditedScene.tag ~= "" then
+				if ImGui.Button(getLang("editor_export")) and activeEditedScene.tag ~= "" then
 					
 					
 					local file = assert(io.open("json/report/"..activeEditedScene.tag..".json", "w"))
@@ -6167,20 +6403,20 @@ function SceneTabs()
 				end
 				else
 				
-				ImGui.Text("You need an Tag before testing or export !")
+				ImGui.Text(getLang("editor_export_warning"))
 				
 			end
 			
 			else
 			
-			ImGui.Text("You need at least 1 init action, 1 step, 1 end action and 1 reset action before testing or export !")
+			ImGui.Text(getLang("editor_Scene_msg"))
 			
 		end
 		
 		
 		
 		ImGui.Spacing()
-		if ImGui.Button("Open in Json Editor") and  activeEditedScene.tag ~= "" then
+		if ImGui.Button(getLang("editor_open_json_editor")) and  activeEditedScene.tag ~= "" then
 			
 			editor_json_tag =  activeEditedScene.tag
 			editor_json = JSON:encode_pretty(activeEditedScene)
@@ -6199,6 +6435,156 @@ function SceneTabs()
 	
 	
 end
+
+
+
+
+
+function ScoreEditor()
+	
+	
+	if ImGui.BeginTabItem(getLang("editor_score")) then
+	
+	
+	ImGui.Text("Add an new score : ")
+	ImGui.Spacing()
+	editorCurrentScore = ImGui.InputText(getLang("Score"), editorCurrentScore, 100, ImGuiInputTextFlags.AutoSelectAll)
+	ImGui.Spacing()
+	editorCurrentScoreKey = ImGui.InputText(getLang("Key"), editorCurrentScoreKey, 100, ImGuiInputTextFlags.AutoSelectAll)
+	ImGui.Spacing()
+	editorCurrentScoreValue = ImGui.InputFloat("Value",editorCurrentScoreValue, 1, 10,"%.2f", ImGuiInputTextFlags.None)
+	ImGui.Spacing()
+	
+	if ImGui.Button(getLang("Add Score")) then
+				
+				
+					if(currentSave.Score[editorCurrentScore] == nil) then currentSave.Score[editorCurrentScore] = {} end
+					currentSave.Score[editorCurrentScore][editorCurrentScoreKey] = editorCurrentScoreValue
+					
+					
+	end
+				
+	
+	
+	ImGui.Spacing()
+			
+			
+	ImGui.Separator()
+	
+		
+		for variabletag,variable in pairs(currentSave.Score) do
+			if ImGui.TreeNode(variabletag) then
+			for key,value in pairs (variable) do
+				
+				if ImGui.TreeNode(key) then
+				
+				currentSave.Score[variabletag][key] = ImGui.InputFloat("##"..variabletag..key,value, 1, 10,"%.2f", ImGuiInputTextFlags.None)
+				ImGui.Spacing()
+				if ImGui.Button(getLang("editor_reset")) then
+				
+				
+				
+					currentSave.Score[variabletag][key] = nil
+					
+					
+				end
+				
+				ImGui.TreePop()
+				end
+				end
+			ImGui.TreePop()
+			end
+		end
+		
+		
+		
+		ImGui.EndTabItem()
+		
+		
+	end
+	
+end
+
+
+
+
+function VariableEditor()
+	
+	
+	if ImGui.BeginTabItem(getLang("editor_variable")) then
+		
+		ImGui.Text("Add an new variable : ")
+		ImGui.Spacing()
+		editorCurrentVariable = ImGui.InputText(getLang("Variable"), editorCurrentVariable, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Spacing()
+		editorCurrentVariableKey = ImGui.InputText(getLang("Key"), editorCurrentVariableKey, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Spacing()
+		editorCurrentVariableValue = ImGui.InputText("Value",editorCurrentVariableValue, 100, ImGuiInputTextFlags.AutoSelectAll)
+		ImGui.Spacing()
+		
+		if ImGui.Button(getLang("Add Variable")) then
+					
+					
+						if(currentSave.Variable[editorCurrentVariable] == nil) then currentSave.Variable[editorCurrentVariable] = {} end
+						currentSave.Variable[editorCurrentVariable][editorCurrentVariableKey] = editorCurrentVariableValue
+						
+						
+		end
+				
+	
+	
+	ImGui.Spacing()
+			
+			
+	ImGui.Separator()
+		
+		
+		for variabletag,variable in pairs(currentSave.Variable) do
+			if ImGui.TreeNode(variabletag) then
+			for key,value in pairs (variable) do
+				
+				
+				if ImGui.TreeNode(key) then
+				
+				
+				currentSave.Variable[variabletag][key] = ImGui.InputText("##"..variabletag..key,value, 100, ImGuiInputTextFlags.AutoSelectAll)
+				ImGui.Spacing()
+				if ImGui.Button(getLang("editor_reset")) then
+				
+				
+				
+					currentSave.Variable[variabletag][key] = nil
+					
+					
+				end
+				ImGui.TreePop()
+				end
+				end
+			ImGui.TreePop()
+			end
+		end
+		
+		
+		
+		
+		ImGui.EndTabItem()
+		
+		
+	end
+	
+end
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6685,11 +7071,11 @@ function RoomNewWindows()
 		
 		
 		
-		currentSelectRoom.name = ImGui.InputText("Name", currentSelectRoom.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectRoom.tag = ImGui.InputText("Tag", currentSelectRoom.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectRoom.posX = ImGui.InputFloat("X", currentSelectRoom.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		currentSelectRoom.posY = ImGui.InputFloat("Y", currentSelectRoom.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		currentSelectRoom.posZ = ImGui.InputFloat("Z", currentSelectRoom.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.name = ImGui.InputText(getLang("editor_Name"), currentSelectRoom.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectRoom.tag = ImGui.InputText(getLang("editor_tag"), currentSelectRoom.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectRoom.posX = ImGui.InputFloat(getLang("editor_x"), currentSelectRoom.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.posY = ImGui.InputFloat(getLang("editor_y"), currentSelectRoom.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.posZ = ImGui.InputFloat(getLang("editor_z"), currentSelectRoom.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		currentSelectRoom.range = ImGui.InputFloat("Area (range)", currentSelectRoom.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		currentSelectRoom.Zrange = ImGui.InputFloat("Z area (vertical range)", currentSelectRoom.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
@@ -6708,18 +7094,18 @@ function RoomNewWindows()
 		currentSelectRoom.canDo = ImGui.Checkbox("Can do interaction in this room ?(Other than drink or eat)", currentSelectRoom.canDo)
 		
 		
-		triggerNode("Trigger condition :",currentSelectRoom,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectRoom,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(currentSelectRoom["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectRoom,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectRoom,"requirement","trigger")
 			if(#currentSelectRoom["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectRoom,"action")
+				actionNode(getLang("trigger_action"),currentSelectRoom,"action")
 				if(currentSelectRoom.tag ~= nil and currentSelectRoom.tag ~= "" and currentSelectRoom.name ~= nil and currentSelectRoom.name ~= "") then
 					
 					
@@ -6763,7 +7149,7 @@ function RoomNewWindows()
 					
 				end
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -6804,12 +7190,12 @@ function SceneStepNewWindows()
 		
 		
 		
-		currentSelectSceneStep.tag = ImGui.InputText("Tag", currentSelectSceneStep.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectSceneStep.tag = ImGui.InputText(getLang("editor_tag"), currentSelectSceneStep.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		
 		
-		actionNode("Action :",currentSelectSceneStep,"action")
+		actionNode(getLang("trigger_action"),currentSelectSceneStep,"action")
 		
 		
 		if(currentSelectSceneStep.tag ~= nil and currentSelectSceneStep.tag ~= "" and #currentSelectSceneStep.action > 0) then
@@ -6876,12 +7262,12 @@ function SceneStepEditWindows()
 		
 		
 		
-		currentSelectSceneStep.tag = ImGui.InputText("Tag", currentSelectSceneStep.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectSceneStep.tag = ImGui.InputText(getLang("editor_tag"), currentSelectSceneStep.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		
 		
-		actionNode("Action :",currentSelectSceneStep,"action")
+		actionNode(getLang("trigger_action"),currentSelectSceneStep,"action")
 		
 		
 		if(currentSelectSceneStep.tag ~= nil and currentSelectSceneStep.tag ~= "" and #currentSelectSceneStep.action > 0) then
@@ -6955,11 +7341,11 @@ function RoomEditWindows()
 		
 		
 		
-		currentSelectRoom.name = ImGui.InputText("Name", currentSelectRoom.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectRoom.tag = ImGui.InputText("Tag", currentSelectRoom.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectRoom.posX = ImGui.InputFloat("X", currentSelectRoom.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		currentSelectRoom.posY = ImGui.InputFloat("Y", currentSelectRoom.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
-		currentSelectRoom.posZ = ImGui.InputFloat("Z", currentSelectRoom.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.name = ImGui.InputText(getLang("editor_Name"), currentSelectRoom.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectRoom.tag = ImGui.InputText(getLang("editor_tag"), currentSelectRoom.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectRoom.posX = ImGui.InputFloat(getLang("editor_x"), currentSelectRoom.posX, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.posY = ImGui.InputFloat(getLang("editor_y"), currentSelectRoom.posY, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		currentSelectRoom.posZ = ImGui.InputFloat(getLang("editor_z"), currentSelectRoom.posZ, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		currentSelectRoom.range = ImGui.InputFloat("Area (range)", currentSelectRoom.range, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		currentSelectRoom.Zrange = ImGui.InputFloat("Z area (vertical range)", currentSelectRoom.Zrange, 1, 10, "%.1f", ImGuiInputTextFlags.None)
 		
@@ -6978,18 +7364,18 @@ function RoomEditWindows()
 			
 			
 		end
-		triggerNode("Trigger condition :",currentSelectRoom,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectRoom,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(currentSelectRoom["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectRoom,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectRoom,"requirement","trigger")
 			if(#currentSelectRoom["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectRoom,"action")
+				actionNode(getLang("trigger_action"),currentSelectRoom,"action")
 				if(currentSelectRoom.tag ~= nil and currentSelectRoom.tag ~= "" and currentSelectRoom.name ~= nil and currentSelectRoom.name ~= "") then
 					
 					
@@ -7042,7 +7428,7 @@ function RoomEditWindows()
 					
 				end
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -7085,7 +7471,7 @@ function OptionsNewWindows()
 		
 		
 		
-		triggerNode("Trigger condition :",currentEditorOptions.value,"trigger")
+		triggerNode(getLang("trigger_condition"),currentEditorOptions.value,"trigger")
 		
 		EditorAddColor = ImGui.Checkbox("Custom color ?", EditorAddColor)
 		
@@ -7131,9 +7517,9 @@ function OptionsNewWindows()
 		
 		if(tableHasKey(currentEditorOptions.value["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentEditorOptions.value,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentEditorOptions.value,"requirement","trigger")
 			
-			actionNode("Action :",currentEditorOptions.value,"action")
+			actionNode(getLang("trigger_action"),currentEditorOptions.value,"action")
 			
 			
 		end
@@ -7497,6 +7883,122 @@ function EditItemsWindows()
 	CPS:setThemeEnd()
 end
 
+
+
+function EditTemplatePositionWindows()
+	CPS:setThemeBegin()
+	
+	ImGui.SetNextWindowPos(200, 150, ImGuiCond.Appearing) -- set window position x, y
+	ImGui.SetNextWindowSize(500, 500, ImGuiCond.Appearing) -- set window size w, h
+	
+	ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 8)
+	ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 8, 7)
+	
+	
+	if ImGui.Begin("Housing Template Position Edition") then
+		
+		
+		
+		
+		
+		
+		posstep =  ImGui.DragFloat("##post", posstep, 0.1, 0.1, 10, "%.3f Position Step")
+		
+		
+		
+		rotstep =  ImGui.DragFloat("##rost", rotstep, 0.1, 0.1, 10, "%.3f Rotation Step")
+		
+		
+		editHousingTemplateX =  ImGui.DragFloat("##x", editHousingTemplateX, posstep, -9999, 9999, "%.3f X")
+		
+		editHousingTemplateY = ImGui.DragFloat("##y", editHousingTemplateY, posstep, -9999, 9999, "%.3f Y")
+			
+		editHousingTemplateZ = ImGui.DragFloat("##z", editHousingTemplateZ, posstep, -9999, 9999, "%.3f Z")
+		
+		
+		
+		
+		editHousingTemplateYaw =  ImGui.DragFloat("##yaw", editHousingTemplateYaw, rotstep, -9999, 9999, "%.3f YAW")
+		
+		editHousingTemplatePitch = ImGui.DragFloat("##pitch", editHousingTemplatePitch, rotstep, -9999, 9999, "%.3f PITCH")
+		
+		editHousingTemplateRoll = ImGui.DragFloat("##roll", editHousingTemplateRoll, rotstep, -9999, 9999, "%.3f ROLL")
+		
+		
+
+		
+		
+		if ImGui.Button("Apply", 300, 0) then
+				
+				
+				
+						if(#currentItemSpawned > 0) then
+								
+								for i,v in ipairs(currentItemSpawned) do
+									
+									if(v.fromTemplate ~= nil and v.fromTemplate == true) then
+										
+										local poss = Vector4.new( v.X + editHousingTemplateX, v.Y + editHousingTemplateY,  v.Z + editHousingTemplateZ,1)
+			
+			
+										local angless = EulerAngles.new(v.Roll + editHousingTemplateRoll, v.Pitch + editHousingTemplatePitch,  v.Yaw + editHousingTemplateYaw)
+										
+										
+										
+										
+										updateItemPosition(v, poss, angless, true)
+										
+									end
+									
+									
+								end
+								
+								
+						end
+						
+						
+						editHousingTemplateX = 0
+						editHousingTemplateY = 0
+						editHousingTemplateZ = 0
+
+						editHousingTemplateYaw = 0
+						editHousingTemplatePitch = 0
+						editHousingTemplateRoll = 0
+						
+						
+					
+				
+						
+			end
+	
+		
+			if ImGui.Button("Close", 300, 0) then
+				
+				editHousingTemplateY = 0
+				editHousingTemplateZ = 0
+
+				editHousingTemplateYaw = 0
+				editHousingTemplatePitch = 0
+				editHousingTemplateRoll = 0
+
+				openEditHousingTemplate = false
+				
+				
+			end
+		
+		
+		
+		
+	end
+	
+	
+	
+	
+	ImGui.PopStyleVar(2)
+	ImGui.End()
+	CPS:setThemeEnd()
+end
+
 function OptionsEditWindows()
 	CPS:setThemeBegin()
 	
@@ -7515,7 +8017,7 @@ function OptionsEditWindows()
 		
 		
 		
-		triggerNode("Trigger condition :",currentEditorOptions.value,"trigger")
+		triggerNode(getLang("trigger_condition"),currentEditorOptions.value,"trigger")
 		
 		EditorAddColor = ImGui.Checkbox("Custom color ?", EditorAddColor)
 		
@@ -7562,9 +8064,9 @@ function OptionsEditWindows()
 		
 		if(tableHasKey(currentEditorOptions.value["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentEditorOptions.value,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentEditorOptions.value,"requirement","trigger")
 			
-			actionNode("Action :",currentEditorOptions.value,"action")
+			actionNode(getLang("trigger_action"),currentEditorOptions.value,"action")
 			
 			
 		end
@@ -7672,12 +8174,12 @@ function ControlsEditWindows()
 				currentEditorControls.child.parent = ""
 				
 			end
-			currentEditorControls.child.tag = ImGui.InputText("Tag", currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-			triggerNode("Trigger condition :",currentEditorControls.child,"trigger")
+			currentEditorControls.child.tag = ImGui.InputText(getLang("editor_tag"), currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			triggerNode(getLang("trigger_condition"),currentEditorControls.child,"trigger")
 			
 			if(tableHasKey(currentEditorControls.child["trigger"])) then
 				
-				requirementNode("Trigger Requirement :",currentEditorControls.child,"requirement","trigger")
+				requirementNode(getLang("trigger_condition_requirement"),currentEditorControls.child,"requirement","trigger")
 				
 				
 				if(currentEditorControls.child.value == nil) then
@@ -7741,7 +8243,7 @@ function ControlsEditWindows()
 						
 					end
 					ImGui.Text("Tag is the tag fo the score you want target. Key is the field of the score that you want display (Score or Quantity)")
-					currentEditorControls.child.value.tag = ImGui.InputText("Tag", currentEditorControls.child.value.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+					currentEditorControls.child.value.tag = ImGui.InputText(getLang("editor_tag"), currentEditorControls.child.value.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 					currentEditorControls.child.value.key = ImGui.InputText("Key (Score/Quantity)", currentEditorControls.child.value.key, 100, ImGuiInputTextFlags.AutoSelectAll)
 				end
 				
@@ -7753,7 +8255,7 @@ function ControlsEditWindows()
 						
 					end
 					ImGui.Text("Tag is the tag fo the variable you want target. Key is the field of the variable that you want display")
-					currentEditorControls.child.value.tag = ImGui.InputText("Tag",currentEditorControls.child.value.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+					currentEditorControls.child.value.tag = ImGui.InputText(getLang("editor_tag"),currentEditorControls.child.value.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 					currentEditorControls.child.value.key = ImGui.InputText("Key",	currentEditorControls.child.value.key, 100, ImGuiInputTextFlags.AutoSelectAll)
 				end
 				
@@ -7781,7 +8283,7 @@ function ControlsEditWindows()
 			end
 			
 			currentEditorControls.child.tweak = ImGui.InputText("TweakID", currentEditorControls.child.tweak, 100, ImGuiInputTextFlags.AutoSelectAll)
-			currentEditorControls.child.tag = ImGui.InputText("Tag", currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			currentEditorControls.child.tag = ImGui.InputText(getLang("editor_tag"), currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 			
 			triggerNode("Condition :",currentEditorControls.child,"trigger")
 			
@@ -7833,7 +8335,7 @@ function ControlsEditWindows()
 				
 			end
 			currentEditorControls.child.title = ImGui.InputText("Title", currentEditorControls.child.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-			currentEditorControls.child.tag = ImGui.InputText("Tag", currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			currentEditorControls.child.tag = ImGui.InputText(getLang("editor_tag"), currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 			
 			triggerNode("Condition :",currentEditorControls.child,"trigger")
 			
@@ -7849,10 +8351,10 @@ function ControlsEditWindows()
 						
 					end
 					
-					actionNode("Action :",currentEditorControls.child,"action")
+					actionNode(getLang("trigger_action"),currentEditorControls.child,"action")
 					
 					else
-					ImGui.Text("Need requirement for unlock action")
+					ImGui.Text(getLang("need_requirement"))
 				end
 				
 				
@@ -7879,12 +8381,12 @@ function ControlsEditWindows()
 				
 			end
 			
-			currentEditorControls.child.tag = ImGui.InputText("Tag", currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
-			triggerNode("Trigger condition :",currentEditorControls.child,"trigger")
+			currentEditorControls.child.tag = ImGui.InputText(getLang("editor_tag"), currentEditorControls.child.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			triggerNode(getLang("trigger_condition"),currentEditorControls.child,"trigger")
 			
 			if(tableHasKey(currentEditorControls.child["trigger"])) then
 				
-				requirementNode("Trigger Requirement :",currentEditorControls.child,"requirement","trigger")
+				requirementNode(getLang("trigger_condition_requirement"),currentEditorControls.child,"requirement","trigger")
 				
 				
 				
@@ -8033,7 +8535,7 @@ function ObjectiveNewWindows()
 		
 		
 		currentSelectObjective.title = ImGui.InputText("Title", currentSelectObjective.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectObjective.tag = ImGui.InputText("Tag", currentSelectObjective.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectObjective.tag = ImGui.InputText(getLang("editor_tag"), currentSelectObjective.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		if ImGui.BeginCombo("State :", defaultJournalEntryState) then
@@ -8058,18 +8560,18 @@ function ObjectiveNewWindows()
 		
 		currentSelectObjective.isoptionnal = ImGui.Checkbox("Is Optionnal ?", currentSelectObjective.isoptionnal)
 		
-		triggerNode("Trigger condition :",currentSelectObjective,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectObjective,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(currentSelectObjective["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectObjective,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectObjective,"requirement","trigger")
 			if(#currentSelectObjective["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectObjective,"action")
+				actionNode(getLang("trigger_action"),currentSelectObjective,"action")
 				actionNode("Fail Action :",currentSelectObjective,"failaction")
 				actionNode("Resume Action :",currentSelectObjective,"resume_action")
 				
@@ -8106,7 +8608,7 @@ function ObjectiveNewWindows()
 				
 				end
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -8146,7 +8648,7 @@ function ObjectiveEditWindows()
 		
 		
 		currentSelectObjective.title = ImGui.InputText("Title", currentSelectObjective.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectObjective.tag = ImGui.InputText("Tag", currentSelectObjective.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectObjective.tag = ImGui.InputText(getLang("editor_tag"), currentSelectObjective.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		
 		if ImGui.BeginCombo("State :", defaultJournalEntryState) then
@@ -8171,18 +8673,18 @@ function ObjectiveEditWindows()
 		
 		currentSelectObjective.isoptionnal = ImGui.Checkbox("Is Optionnal ?", currentSelectObjective.isoptionnal)
 		
-		triggerNode("Trigger condition :",currentSelectObjective,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectObjective,"trigger")
 		
 		
 		
 		
 		if(tableHasKey(currentSelectObjective["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectObjective,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectObjective,"requirement","trigger")
 			if(#currentSelectObjective["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectObjective,"action")
+				actionNode(getLang("trigger_action"),currentSelectObjective,"action")
 				actionNode("Fail Action :",currentSelectObjective,"failaction")
 				actionNode("Resume Action :",currentSelectObjective,"resume_action")
 				
@@ -8221,7 +8723,7 @@ function ObjectiveEditWindows()
 				
 				end
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 			end
 			
 			
@@ -8264,7 +8766,7 @@ function ConversationNewWindows()
 		
 		
 		currentSelectConversation.name = ImGui.InputText("Title", currentSelectConversation.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectConversation.tag = ImGui.InputText("Tag", currentSelectConversation.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectConversation.tag = ImGui.InputText(getLang("editor_tag"), currentSelectConversation.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		currentSelectConversation.unlock = ImGui.Checkbox("Is Unlocked ?", currentSelectConversation.unlock)
 		
@@ -8352,7 +8854,7 @@ function ConversationEditWindows()
 		
 		
 		currentSelectConversation.name = ImGui.InputText("Title", currentSelectConversation.name, 100, ImGuiInputTextFlags.AutoSelectAll)
-		currentSelectConversation.tag = ImGui.InputText("Tag", currentSelectConversation.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		currentSelectConversation.tag = ImGui.InputText(getLang("editor_tag"), currentSelectConversation.tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		currentSelectConversation.unlock = ImGui.Checkbox("Is Unlocked ?", currentSelectConversation.unlock)
 		
@@ -8442,7 +8944,7 @@ function MessageNewWindows()
 		
 		
 		
-		currentSelectMessage.tag = ImGui.InputText("Tag", currentSelectMessage.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
+		currentSelectMessage.tag = ImGui.InputText(getLang("editor_tag"), currentSelectMessage.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
 		
 		currentSelectMessage.text = ImGui.InputTextMultiline("Text", currentSelectMessage.text ,100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
 		
@@ -8547,7 +9049,7 @@ function MessageEditWindows()
 		
 		
 		
-		currentSelectMessage.tag = ImGui.InputText("Tag", currentSelectMessage.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
+		currentSelectMessage.tag = ImGui.InputText(getLang("editor_tag"), currentSelectMessage.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
 		
 		currentSelectMessage.text = ImGui.InputTextMultiline("Text", currentSelectMessage.text ,100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
 		
@@ -8654,7 +9156,7 @@ function ChoiceNewWindows()
 		
 		
 		
-		currentSelectChoice.tag = ImGui.InputText("Tag", currentSelectChoice.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
+		currentSelectChoice.tag = ImGui.InputText(getLang("editor_tag"), currentSelectChoice.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
 		
 		currentSelectChoice.text = ImGui.InputTextMultiline("Text", currentSelectChoice.text ,100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
 		
@@ -8665,16 +9167,16 @@ function ChoiceNewWindows()
 		
 		
 		
-		triggerNode("Trigger condition :",currentSelectChoice,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectChoice,"trigger")
 		
 		
 		if(tableHasKey(currentSelectChoice["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectChoice,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectChoice,"requirement","trigger")
 			if(#currentSelectChoice["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectChoice,"action")
+				actionNode(getLang("trigger_action"),currentSelectChoice,"action")
 				
 				
 				if(
@@ -8711,7 +9213,7 @@ function ChoiceNewWindows()
 				
 				
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 				
 			end
 			
@@ -8749,7 +9251,7 @@ function ChoiceEditWindows()
 		
 		
 		
-		currentSelectChoice.tag = ImGui.InputText("Tag", currentSelectChoice.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
+		currentSelectChoice.tag = ImGui.InputText(getLang("editor_tag"), currentSelectChoice.tag, 100, ImGuiInputTextFlags.AutoSelectAll)	
 		
 		currentSelectChoice.text = ImGui.InputTextMultiline("Text", currentSelectChoice.text ,100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
 		
@@ -8760,16 +9262,16 @@ function ChoiceEditWindows()
 		
 		
 		
-		triggerNode("Trigger condition :",currentSelectChoice,"trigger")
+		triggerNode(getLang("trigger_condition"),currentSelectChoice,"trigger")
 		
 		
 		if(tableHasKey(currentSelectChoice["trigger"])) then
 			
-			requirementNode("Trigger Requirement :",currentSelectChoice,"requirement","trigger")
+			requirementNode(getLang("trigger_condition_requirement"),currentSelectChoice,"requirement","trigger")
 			if(#currentSelectChoice["requirement"] > 0) then
 				
 				
-				actionNode("Action :",currentSelectChoice,"action")
+				actionNode(getLang("trigger_action"),currentSelectChoice,"action")
 				
 				
 				if(
@@ -8806,7 +9308,7 @@ function ChoiceEditWindows()
 				
 				
 				else
-				ImGui.Text("Need requirement for unlock action")
+				ImGui.Text(getLang("need_requirement"))
 				
 			end
 			
@@ -9783,7 +10285,7 @@ function listSongNode(title,help,obj,parent)
 		
 		ImGui.Text("New song :")
 		
-		genericItem.name = ImGui.InputText("Name",genericItem.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		genericItem.name = ImGui.InputText(getLang("editor_Name"),genericItem.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		genericItem.file = ImGui.InputText("File", genericItem.file, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		if ImGui.Button("Add", 300, 0) then
@@ -9826,7 +10328,7 @@ function listLocationsNode(title,help,obj,parent)
 					
 					ImGui.Text("Location :")
 					
-					genericLocation.Tag = ImGui.InputText("Tag",genericLocation.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+					genericLocation.Tag = ImGui.InputText(getLang("editor_tag"),genericLocation.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 					genericLocation.inVehicule = ImGui.Checkbox("in Vehicule", genericLocation.inVehicule)
 					
 					
@@ -9838,8 +10340,8 @@ function listLocationsNode(title,help,obj,parent)
 						
 						for i,v in ipairs(arrayDistricts) do
 							
-							if ImGui.Selectable(v.Name, (genericLocation.district == v)) then
-								genericLocation.district = v
+							if ImGui.Selectable(v.Name, (genericLocation.district == v.EnumName)) then
+								genericLocation.district = v.EnumName
 								ImGui.SetItemDefaultFocus()
 							end
 							
@@ -9855,7 +10357,7 @@ function listLocationsNode(title,help,obj,parent)
 						
 						for i,v in ipairs(arraySubDistrict) do
 							
-							if ImGui.Selectable(v.Name, (genericLocation.subdistrict == v)) then
+							if ImGui.Selectable(v, (genericLocation.subdistrict == v)) then
 								genericLocation.subdistrict = v
 								ImGui.SetItemDefaultFocus()
 							end
@@ -9918,7 +10420,7 @@ function listLocationsNode(title,help,obj,parent)
 		
 		ImGui.Text("Location :")
 		
-		genericLocation.Tag = ImGui.InputText("Tag",genericLocation.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
+		genericLocation.Tag = ImGui.InputText(getLang("editor_tag"),genericLocation.Tag, 100, ImGuiInputTextFlags.AutoSelectAll)
 		genericLocation.inVehicule = ImGui.Checkbox("in Vehicule", genericLocation.inVehicule)
 		
 		
@@ -9928,15 +10430,17 @@ function listLocationsNode(title,help,obj,parent)
 		if ImGui.BeginCombo("##locationdistrict", genericLocation.district) then
 			
 			
+			
+			
 			for i,v in ipairs(arrayDistricts) do
-				
-				if ImGui.Selectable(v.Name, (genericLocation.district == v)) then
-					genericLocation.district = v
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
+							
+							if ImGui.Selectable(v.Name, (genericLocation.district == v.EnumName)) then
+								genericLocation.district = v.EnumName
+								ImGui.SetItemDefaultFocus()
+							end
+							
+							
+						end
 			
 			ImGui.EndCombo()
 		end
@@ -10034,7 +10538,7 @@ function listVIPNode(title,help,obj,parent)
 		
 		ImGui.Text("New VIP :")
 		
-		genericVIP.name = ImGui.InputText("Name",genericVIP.name, 100, ImGuiInputTextFlags.AutoSelectAll)
+		genericVIP.name = ImGui.InputText(getLang("editor_Name"),genericVIP.name, 100, ImGuiInputTextFlags.AutoSelectAll)
 		genericVIP.score = ImGui.InputInt("Score", genericVIP.score, 1,10, ImGuiInputTextFlags.None)
 		
 		if ImGui.Button("Add", 300, 0) then
@@ -10107,7 +10611,7 @@ function triggerFactory(entity,selectedTrigger)
 			
 			
 			
-			local splitContentRequ = splitByChunk(entity["helper"],20)
+			local splitContentRequ = splitByChunk(getLang(entity["helper"]),20)
 			
 			for i,v in ipairs(splitContentRequ) do
 				ImGui.TextColored(0.36, 0.96, 1, 1, v)--content
@@ -10120,7 +10624,7 @@ function triggerFactory(entity,selectedTrigger)
 		end
 		
 		if(string.find(entity["name"], "position") ~= nil) then
-			if ImGui.Button("Copy XYZ from Player location", 300, 0) then
+			if ImGui.Button(getLang("editor_copy_player_location"), 300, 0) then
 				
 				local vec4 = Game.GetPlayer():GetWorldPosition()
 				entity["x"] = vec4.x
@@ -10416,7 +10920,7 @@ function actionFactory(entity)
 			
 			
 			
-			local splitContentRequ = splitByChunk(entity["helper"],20)
+			local splitContentRequ = splitByChunk(getLang(entity["helper"]),20)
 			
 			for i,v in ipairs(splitContentRequ) do
 				ImGui.TextColored(0.36, 0.96, 1, 1, v)--content
@@ -10634,6 +11138,21 @@ function actionFactory(entity)
 			if(entity["name"] == "spawn_npc" ) then
 				
 				entity = SpawnNPCUI(entity)
+			end
+			
+			if(entity["name"] == "move" ) then
+				
+				entity = MoveEntityUI(entity)
+			end
+			
+			if(entity["name"] == "teleport" ) then
+				
+				entity = TeleportEntityUI(entity)
+			end
+			
+			if(entity["name"] == "spawn_item" ) then
+				
+				entity = SpawnItemUI(entity)
 			end
 			
 			if(entity["name"] == "spawn_camera" or entity["name"] == "move_camera") then
@@ -11087,371 +11606,7 @@ function SpawnNPCUI(entity)
 	
 	
 	
-	
-	ImGui.Text("Position source : ") 
-	ImGui.SameLine()
-	if ImGui.BeginCombo("##npcposition", entity["position"]) then -- Remove the ## if you'd like for the title to display above combo box
-		
-		
-		
-		for i,v in ipairs(npcposition) do
-			
-			if ImGui.Selectable(v, (entity["position"] == v)) then
-				
-				
-				entity["position"] = v
-				
-				
-				ImGui.SetItemDefaultFocus()
-			end
-			
-			
-		end
-		
-		ImGui.EndCombo()
-	end
-	
-	ImGui.Spacing()
-	
-	
-	if(
-		entity["position"] == "relative_to_entity" or 
-		entity["position"] =="poi" or 
-		entity["position"] =="node" or 
-		entity["position"] == "mappin" or 
-		entity["position"] == "fasttravel" or 
-		entity["position"] == "custom_place" or
-		entity["position"] == "custom_room"
-		
-	)then
-	
-	ImGui.Text("Position Tag : ") 
-	entity["position_tag"] = ImGui.InputText("##position_tag", entity["position_tag"], 100, ImGuiInputTextFlags.None)
-	
-	
-	
-	ImGui.Spacing()
-	end
-	
-	
-	if(entity["position"] == "relative_to_entity")then
-		
-		ImGui.Text("Position Way : ") 
-		if ImGui.BeginCombo("##npcpositionway", entity["position_way"]) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(npcpositionway) do
-				
-				if ImGui.Selectable(v, (entity["position_way"] == v)) then
-					
-					
-					entity["position_way"] = v
-					
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		
-		ImGui.Spacing()
-		
-		ImGui.Text("Distance : ") 
-		ImGui.SameLine()
-		entity["position_distance"] = ImGui.InputInt("##position_distance", entity["position_distance"], 1, 10, ImGuiInputTextFlags.None)
-		
-		ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "poi")then
-		
-		
-		
-		ImGui.Text("Leave Position Tag to empty if you don't need to find an precise POI or Location ") 
-		ImGui.SameLine()
-		
-		ImGui.Text("District Enum Name : (leave blank if unused)") 
-		ImGui.SameLine()
-		entity["position_poi_district"] = ImGui.InputText("##position_poi_district", entity["position_poi_district"], 100, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("SubDistrict Enum Name : (leave blank if unused)") 
-		ImGui.SameLine()
-		entity["position_poi_subdistrict"] = ImGui.InputText("##position_poi_subdistrict", entity["position_poi_subdistrict"], 100, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("Is For Car ? ") 
-		ImGui.SameLine()
-		entity["position_poi_is_for_car"] =ImGui.Checkbox("##is_for_car", entity["position_poi_is_for_car"])
-		ImGui.Spacing()
-		
-		ImGui.Text("Use Location Tag instead of POI Tag (for an precise location) ? ") 
-		ImGui.SameLine()
-		entity["position_poi_use_location_tag"] =ImGui.Checkbox("##position_poi_use_location_tag", entity["position_poi_use_location_tag"])
-		ImGui.Spacing()
-		
-		ImGui.Text("POI Detection Range : ") 
-		ImGui.SameLine()
-		entity["position_poi_range"] = ImGui.InputInt("##poirange01", entity["position_poi_range"], 1, 10, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("POI Detection From Position : ") 
-		ImGui.SameLine()
-		entity["position_poi_from_position"] = ImGui.Checkbox("##poirange02", entity["position_poi_from_position"])
-		ImGui.Spacing()
-		
-		ImGui.Text("POI type : ") 
-		ImGui.SameLine()
-		if ImGui.BeginCombo("##poitype", editorCurrentPOIType) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(poitype) do
-				
-				if ImGui.Selectable(v, (entity["position_poi_type"] == i)) then
-					
-					
-					entity["position_poi_type"] = i
-					editorCurrentPOIType = v
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "node" or entity["position"] == "current_node")then
-		
-		ImGui.Text("Node Detection Range : ") 
-		ImGui.SameLine()
-		entity["position_node_current_detection_range"] = ImGui.InputInt("##position_node_current_detection_range", entity["position_node_current_detection_range"], 1, 10, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		ImGui.Text("Use Gameplay Position instead of Default Position : ") 
-		ImGui.SameLine()
-		entity["position_node_usegameplay"] =ImGui.Checkbox("##position_node_usegameplay", entity["position_node_usegameplay"])
-		
-	end
-	
-	if(entity["position"] == "custom_place" or entity["position"] == "current_custom_place")then
-		
-		ImGui.Text("Position House Way : ") 
-		if ImGui.BeginCombo("##npcpositionhouseway", entity["position_house_way"]) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(npcpositionhouseway) do
-				
-				if ImGui.Selectable(v, (entity["position_house_way"] == v)) then
-					
-					
-					entity["position_house_way"] = v
-					
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		
-		ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "at" )then
-		ImGui.Text("Coordinates") 
-		else
-		ImGui.Text("Relative Coordinates to the selected position") 
-	end
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("X : ") 
-	ImGui.SameLine()
-	entity["x"] = ImGui.InputFloat("##xnpcx", entity["x"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	ImGui.Text("Y : ") 
-	ImGui.SameLine()
-	entity["y"] = ImGui.InputFloat("##xnpcy", entity["y"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	ImGui.Text("Z : ") 
-	ImGui.SameLine()
-	entity["z"] = ImGui.InputFloat("##xnpcz", entity["z"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	if ImGui.Button("Copy Player's XYZ", 300, 0) then
-		
-		local vec4 = Game.GetPlayer():GetWorldPosition()
-		entity["x"] = vec4.x
-		entity["y"] = vec4.y
-		entity["z"] = vec4.z
-		
-		
-	end
-	
-	
-	return entity
-end
-
-
-function SpawnCamera(entity)
-	
-	ImGui.Text("Tag : ") 
-	ImGui.SameLine()
-	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
-	
-	
-	
-	if ImGui.BeginCombo("POV Type", scenepovtype) then -- Remove the ## if you'd like for the title to display above combo box
-		
-		for i=1, #scenepov do
-			
-			if ImGui.Selectable(scenepov[i]) then
-				entity["type"] = scenepov[i]
-				
-				scenepovtype = scenepovtype
-				ImGui.SetItemDefaultFocus()
-			end
-			
-			
-			
-		end
-		
-		ImGui.EndCombo()
-	end
-	
-	if(entity["type"] == "entity")then
-		
-		ImGui.Text("Entity : ") 
-		ImGui.SameLine()
-		entity["entity"] = ImGui.InputText("##tag", entity["entity"], 100, ImGuiInputTextFlags.None)
-		
-	end
-	ImGui.Text("Use Surveillance Camera ? : ") 
-	ImGui.SameLine()
-	entity["surveillance"] = ImGui.Checkbox("##surveillance", entity["surveillance"])
-	
-	
-	entity["x"] =  ImGui.DragFloat("##povx", entity["x"], 0.01, -9999, 9999, "%.3f X")
-	entity["y"] =  ImGui.DragFloat("##povy", entity["y"], 0.01, -9999, 9999, "%.3f Y")
-	entity["z"] =  ImGui.DragFloat("##povz", entity["z"], 0.01, -9999, 9999, "%.3f Z")
-	
-	
-	entity["roll"] =  ImGui.DragFloat("##povx", entity["roll"], 0.01, -9999, 9999, "%.3f yaw")
-	entity["pitch"] =  ImGui.DragFloat("##povy", entity["pitch"], 0.01, -9999, 9999, "%.3f pitch")
-	entity["yaw"] =  ImGui.DragFloat("##povz", entity["yaw"], 0.01, -9999, 9999, "%.3f roll")
-	
-	
-	
-	if ImGui.Button("Copy Player's XYZ", 300, 0) then
-		
-		local vec4 = Game.GetPlayer():GetWorldPosition()
-		entity["x"] = vec4.x
-		entity["y"] = vec4.y
-		entity["z"] = vec4.z
-		
-		
-		
-		
-	end
-	
-	if ImGui.Button("Copy Player's Rotation", 300, 0) then
-		
-		local v = Vector4.new(-Game.GetCameraSystem():GetActiveCameraForward().x, -Game.GetCameraSystem():GetActiveCameraForward().y, -Game.GetCameraSystem():GetActiveCameraForward().z, -Game.GetCameraSystem():GetActiveCameraForward().w)
-		local euler = GetSingleton('Vector4'):ToRotation(v)
-		
-		entity["roll"] = euler.pitch
-		entity["pitch"] = euler.roll
-		entity["yaw"] = euler.yaw + 180
-		
-		
-		
-		
-	end
-	
-	
-	if ImGui.Button("Copy Looked Entity's XYZ", 300, 0) then
-		
-		if(objLook ~= nil)then
-			local vec4 = objLook:GetWorldPosition()
-			entity["x"] = vec4.x
-			entity["y"] = vec4.y
-			entity["z"] = vec4.z
-		end
-		
-		
-		
-	end
-	
-	if ImGui.Button("Copy Looked Entity's Rotation", 300, 0) then
-		
-		if(objLook ~= nil)then
-			local qat = objLook:GetWorldOrientation()
-			local euler = GetSingleton('Quaternion'):ToEulerAngles(qat)
-			
-			
-			entity["roll"] = euler.pitch
-			entity["pitch"] = euler.roll
-			entity["yaw"] = euler.yaw + 180
-		end
-		
-		
-		
-	end
-	
-	
-	if ImGui.Button("Try Camera", 300, 0) and entity["tag"] ~= "" then
-		
-		local obj = getEntityFromManager(entity["tag"])
-		local enti = Game.FindEntityByID(obj.id)
-		
-		local position = {}
-		position.x = entity["x"]
-		position.y = entity["y"]
-		position.z = entity["z"]
-		
-		local angle = {}
-		angle.yaw = entity["yaw"]
-		angle.pitch = entity["pitch"]
-		angle.roll = entity["roll"]
-		
-		
-		if(enti ~= nil) then
-			
-			spawnCamera(entity["tag"],entity["type"],entity["entity"],position,angle,false)
-			enableCamera(entity["tag"])
-			else
-			moveCamera(entity["tag"],entity["type"],entity["entity"],position,angle,false)
-		end
-		
-		
-		
-	end
-	
-	
-	if ImGui.Button("Stop Camera", 300, 0) and currentSelectSceneStep.pov.tag ~= "" then
-		
-		
-		despawnEntity(entity["tag"])
-		
-		
-	end
-	
-	
-	
-	
+	entity =  PositionUI(entity)
 	
 	
 	
@@ -11720,6 +11875,250 @@ function SpawnVehicleUI(entity)
 		
 	end
 	
+	entity =  PositionUI(entity)
+	
+	return entity
+end
+
+function SetMappinUI(entity)
+	
+	ImGui.Text("Tag : ") 
+	ImGui.SameLine()
+	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Type of Mappin : ") 
+	ImGui.SameLine()
+	if ImGui.BeginCombo("##mappinTypeEnum", entity["typemap"]) then -- Remove the ## if you'd like for the title to display above combo box
+		
+		
+		
+		for i,v in ipairs(mappinTypeEnum) do
+			
+			if ImGui.Selectable(v, (entity["typemap"] == v)) then
+				
+				
+				entity["typemap"] = v
+				
+				
+				ImGui.SetItemDefaultFocus()
+			end
+			
+			
+		end
+		
+		ImGui.EndCombo()
+	end
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("See throught wall ? ") 
+	ImGui.SameLine()
+	entity["wall"] =ImGui.Checkbox("##wall", entity["wall"])
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Active ? ") 
+	ImGui.SameLine()
+	entity["active"] =ImGui.Checkbox("##active", entity["active"])
+	
+	ImGui.Spacing()
+	
+	
+	ImGui.Text("Group : ") 
+	ImGui.SameLine()
+	entity["mapgroup"] = ImGui.InputText("##mapgroup", entity["mapgroup"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Title : ") 
+	ImGui.SameLine()
+	entity["title"] = ImGui.InputText("##title", entity["title"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Description : ") 
+	ImGui.SameLine()
+	entity["desc"] = ImGui.InputText("##desc", entity["desc"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	
+	entity =  PositionUI(entity)
+	return entity
+end
+
+function MoveEntityUI(entity)
+	
+	ImGui.Text("Tag : ") 
+	ImGui.SameLine()
+	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Is a Group ? : ") 
+	ImGui.SameLine()
+	entity["group"] = ImGui.Checkbox("##group", entity["group"])
+	
+	ImGui.Text("Movement : ") 
+	ImGui.SameLine()
+	entity["move"] = ImGui.InputText("##move", entity["move"], 100, ImGuiInputTextFlags.None)
+	
+		
+	ImGui.Text("Use Move V2 method? ") 
+	ImGui.SameLine()
+	entity["moveV2"] =ImGui.Checkbox("##move2", entity["moveV2"])
+	
+	
+	ImGui.Spacing()
+	if(entity["moveV2"] == true )then
+		ImGui.Text("Destination Rotation") 
+		ImGui.Spacing()
+		
+		ImGui.Text("Roll : ") 
+		ImGui.SameLine()
+		entity["roll"] = ImGui.InputFloat("##xnpcroll", entity["roll"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+		ImGui.Text("Pitch : ") 
+		ImGui.SameLine()
+		entity["pitch"] = ImGui.InputFloat("##xnpcpitch", entity["pitch"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+		ImGui.Text("Yaw : ") 
+		ImGui.SameLine()
+		entity["yaw"] = ImGui.InputFloat("##xnpcyaw", entity["yaw"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+		
+		ImGui.Text("Distance : ") 
+		ImGui.SameLine()
+		entity["distance"] = ImGui.InputFloat("##xnpcdistance", entity["distance"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+		
+		ImGui.Text("Distance Tolerance : ") 
+		ImGui.SameLine()
+		entity["distancetolerance"] = ImGui.InputFloat("##xnpcdistancetolerance", entity["distancetolerance"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+		ImGui.Text("Ignore Navigation ?") 
+		ImGui.SameLine()
+		entity["ignorenavigation"] =ImGui.Checkbox("##ignorenavigation", entity["ignorenavigation"])
+		
+		ImGui.Text("Stop On Obstacle ?") 
+		ImGui.SameLine()
+		entity["stoponobstacle"] =ImGui.Checkbox("##stoponobstacle", entity["stoponobstacle"])
+		
+		ImGui.Text("Out of Way ?") 
+		ImGui.SameLine()
+		entity["outofway"] =ImGui.Checkbox("##outofway", entity["outofway"])
+		
+		
+		
+	end
+	
+	
+	entity =  PositionUI(entity)
+	
+	return entity
+end
+
+function TeleportEntityUI(entity)
+	
+	ImGui.Text("Tag : ") 
+	ImGui.SameLine()
+	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Is a Group ? : ") 
+	ImGui.SameLine()
+	entity["group"] = ImGui.Checkbox("##group", entity["group"])
+	
+	
+	
+	entity =  PositionUI(entity)
+	
+	return entity
+end
+
+function SpawnItemUI(entity)
+	
+	ImGui.Text("Tag : ") 
+	ImGui.SameLine()
+	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	
+	ImGui.Text("Amount : ") 
+	ImGui.SameLine()
+	entity["amount"] = ImGui.InputInt("##amount", entity["amount"], 1, 10, ImGuiInputTextFlags.None)
+	
+	ImGui.Spacing()
+	
+	ImGui.Text("Path : ") 
+	ImGui.SameLine()
+	for i=1, #arrayDBitems do
+					
+		if ImGui.Selectable(arrayDBitems[i].Title) then
+			
+			entity["path"] = arrayDBitems[i].Path
+			
+			ImGui.SetItemDefaultFocus()
+		end
+					
+					
+					
+	end
+	
+	
+	
+	
+	
+	
+	
+	ImGui.Text("Yaw : ") 
+	ImGui.SameLine()
+	entity["yaw"] = ImGui.InputFloat("##xnpcyaw", entity["yaw"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+	ImGui.Spacing()
+	
+	ImGui.Text("Pitch : ") 
+	ImGui.SameLine()
+	entity["pitch"] = ImGui.InputFloat("##xnpcpitch", entity["pitch"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+	ImGui.Spacing()
+	
+	ImGui.Text("Roll : ") 
+	ImGui.SameLine()
+	entity["roll"] = ImGui.InputFloat("##xnpcroll", entity["roll"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
+	ImGui.Spacing()
+	
+
+	if ImGui.Button("Copy Player's Rotation", 300, 0) then
+		
+		local v = Vector4.new(-Game.GetCameraSystem():GetActiveCameraForward().x, -Game.GetCameraSystem():GetActiveCameraForward().y, -Game.GetCameraSystem():GetActiveCameraForward().z, -Game.GetCameraSystem():GetActiveCameraForward().w)
+		local euler = GetSingleton('Vector4'):ToRotation(v)
+		
+		entity["roll"] = euler.pitch
+		entity["pitch"] = euler.roll
+		entity["yaw"] = euler.yaw + 180
+		
+		
+		
+		
+	end
+	
+	entity =  PositionUI(entity)
+	
+	return entity
+end
+
+
+
+function PositionUI(entity)
+	
 	ImGui.Text("Position source : ") 
 	ImGui.SameLine()
 	if ImGui.BeginCombo("##npcposition", entity["position"]) then -- Remove the ## if you'd like for the title to display above combo box
@@ -11748,7 +12147,7 @@ function SpawnVehicleUI(entity)
 	
 	if(
 		entity["position"] == "relative_to_entity" or 
-		entity["position"] == "poi" or 
+		entity["position"] =="poi" or 
 		entity["position"] =="node" or 
 		entity["position"] == "mappin" or 
 		entity["position"] == "fasttravel" or 
@@ -11759,7 +12158,7 @@ function SpawnVehicleUI(entity)
 	
 	ImGui.Text("Position Tag : ") 
 	entity["position_tag"] = ImGui.InputText("##position_tag", entity["position_tag"], 100, ImGuiInputTextFlags.None)
-	
+	ImGui.Text(entity["position_change_helper"]) 
 	
 	
 	ImGui.Spacing()
@@ -11806,12 +12205,12 @@ function SpawnVehicleUI(entity)
 		ImGui.Text("Leave Position Tag to empty if you don't need to find an precise POI or Location ") 
 		ImGui.SameLine()
 		
-		ImGui.Text("District Enum Name : (leave blank if unused)") 
+		ImGui.Text("District Enum Name : (leave blank if unused, put current for get current District, put random for get a random District)") 
 		ImGui.SameLine()
 		entity["position_poi_district"] = ImGui.InputText("##position_poi_district", entity["position_poi_district"], 100, ImGuiInputTextFlags.None)
 		ImGui.Spacing()
 		
-		ImGui.Text("SubDistrict Enum Name : (leave blank if unused)") 
+		ImGui.Text("SubDistrict Enum Name : (leave blank if unused, put current for get current SubDistrict if you are in, put random for get a random subDistrict)") 
 		ImGui.SameLine()
 		entity["position_poi_subdistrict"] = ImGui.InputText("##position_poi_subdistrict", entity["position_poi_subdistrict"], 100, ImGuiInputTextFlags.None)
 		ImGui.Spacing()
@@ -11828,7 +12227,7 @@ function SpawnVehicleUI(entity)
 		
 		ImGui.Text("POI Detection Range : ") 
 		ImGui.SameLine()
-		entity["position_poi_range"] = ImGui.InputInt("##poirange01", entity["position_poi_range"], 1, 10, ImGuiInputTextFlags.None)
+		entity["position_range"] = ImGui.InputInt("##poirange01", entity["position_range"], 1, 10, ImGuiInputTextFlags.None)
 		ImGui.Spacing()
 		
 		ImGui.Text("POI Detection From Position : ") 
@@ -11838,34 +12237,16 @@ function SpawnVehicleUI(entity)
 		
 		ImGui.Text("POI type : ") 
 		ImGui.SameLine()
-		if ImGui.BeginCombo("##poitype", editorCurrentPOIType) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(poitype) do
-				
-				if ImGui.Selectable(v, (entity["position_poi_type"] == i)) then
-					
-					
-					entity["position_poi_type"] = i
-					editorCurrentPOIType = v
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
+		entity["position_poi_type"] =ImGui.InputInt("##position_poi_type", entity["position_poi_type"], 1, 10, ImGuiInputTextFlags.None)
+		
 		ImGui.Spacing()
 	end
 	
-	if(entity["position"] == "node" or entity["position"] == "current_node")then
+	if(entity["position"] == "node")then
 		
 		ImGui.Text("Node Detection Range : ") 
 		ImGui.SameLine()
-		entity["position_node_current_detection_range"] = ImGui.InputInt("##position_node_current_detection_range", entity["position_node_current_detection_range"], 1, 10, ImGuiInputTextFlags.None)
+		entity["position_range"] = ImGui.InputInt("##position_range2", entity["position_range"], 1, 10, ImGuiInputTextFlags.None)
 		ImGui.Spacing()
 		ImGui.Text("Use Gameplay Position instead of Default Position : ") 
 		ImGui.SameLine()
@@ -11873,7 +12254,7 @@ function SpawnVehicleUI(entity)
 		
 	end
 	
-	if(entity["position"] == "custom_place" or entity["position"] == "current_custom_place")then
+	if(entity["position"] == "custom_place")then
 		
 		ImGui.Text("Position House Way : ") 
 		if ImGui.BeginCombo("##npcpositionhouseway", entity["position_house_way"]) then -- Remove the ## if you'd like for the title to display above combo box
@@ -11900,13 +12281,30 @@ function SpawnVehicleUI(entity)
 		ImGui.Spacing()
 	end
 	
+	
+	
+	
+	
+	if(entity["position"] == "player_look_at" )then
+		ImGui.Text("Distance : ") 
+		entity["position_lookatdistance"] = ImGui.InputInt("##position_player_look_at_distance", entity["position_lookatdistance"], 1, 10, ImGuiInputTextFlags.None)
+		ImGui.Spacing()
+		
+	end
+	
+	
+
+	
+	
 	if(entity["position"] == "at" )then
 		ImGui.Text("Coordinates") 
 		else
 		ImGui.Text("Relative Coordinates to the selected position") 
+		
 	end
 	
 	ImGui.Spacing()
+	
 	
 	ImGui.Text("X : ") 
 	ImGui.SameLine()
@@ -11932,6 +12330,163 @@ function SpawnVehicleUI(entity)
 		
 		
 	end
+	
+	return entity
+	
+	
+	
+	
+end
+
+
+function SpawnCamera(entity)
+	
+	ImGui.Text("Tag : ") 
+	ImGui.SameLine()
+	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
+	
+	
+	
+	if ImGui.BeginCombo("POV Type", scenepovtype) then -- Remove the ## if you'd like for the title to display above combo box
+		
+		for i=1, #scenepov do
+			
+			if ImGui.Selectable(scenepov[i]) then
+				entity["type"] = scenepov[i]
+				
+				scenepovtype = scenepovtype
+				ImGui.SetItemDefaultFocus()
+			end
+			
+			
+			
+		end
+		
+		ImGui.EndCombo()
+	end
+	
+	if(entity["type"] == "entity")then
+		
+		ImGui.Text("Entity : ") 
+		ImGui.SameLine()
+		entity["entity"] = ImGui.InputText("##tag", entity["entity"], 100, ImGuiInputTextFlags.None)
+		
+	end
+	ImGui.Text("Use Surveillance Camera ? : ") 
+	ImGui.SameLine()
+	entity["surveillance"] = ImGui.Checkbox("##surveillance", entity["surveillance"])
+	
+	
+	entity["x"] =  ImGui.DragFloat("##povx", entity["x"], 0.01, -9999, 9999, "%.3f X")
+	entity["y"] =  ImGui.DragFloat("##povy", entity["y"], 0.01, -9999, 9999, "%.3f Y")
+	entity["z"] =  ImGui.DragFloat("##povz", entity["z"], 0.01, -9999, 9999, "%.3f Z")
+	
+	
+	entity["roll"] =  ImGui.DragFloat("##povx", entity["roll"], 0.01, -9999, 9999, "%.3f yaw")
+	entity["pitch"] =  ImGui.DragFloat("##povy", entity["pitch"], 0.01, -9999, 9999, "%.3f pitch")
+	entity["yaw"] =  ImGui.DragFloat("##povz", entity["yaw"], 0.01, -9999, 9999, "%.3f roll")
+	
+	
+	
+	if ImGui.Button("Copy Player's XYZ", 300, 0) then
+		
+		local vec4 = Game.GetPlayer():GetWorldPosition()
+		entity["x"] = vec4.x
+		entity["y"] = vec4.y
+		entity["z"] = vec4.z
+		
+		
+		
+		
+	end
+	
+	if ImGui.Button("Copy Player's Rotation", 300, 0) then
+		
+		local v = Vector4.new(-Game.GetCameraSystem():GetActiveCameraForward().x, -Game.GetCameraSystem():GetActiveCameraForward().y, -Game.GetCameraSystem():GetActiveCameraForward().z, -Game.GetCameraSystem():GetActiveCameraForward().w)
+		local euler = GetSingleton('Vector4'):ToRotation(v)
+		
+		entity["roll"] = euler.pitch
+		entity["pitch"] = euler.roll
+		entity["yaw"] = euler.yaw + 180
+		
+		
+		
+		
+	end
+	
+	
+	if ImGui.Button("Copy Looked Entity's XYZ", 300, 0) then
+		
+		if(objLook ~= nil)then
+			local vec4 = objLook:GetWorldPosition()
+			entity["x"] = vec4.x
+			entity["y"] = vec4.y
+			entity["z"] = vec4.z
+		end
+		
+		
+		
+	end
+	
+	if ImGui.Button("Copy Looked Entity's Rotation", 300, 0) then
+		
+		if(objLook ~= nil)then
+			local qat = objLook:GetWorldOrientation()
+			local euler = GetSingleton('Quaternion'):ToEulerAngles(qat)
+			
+			
+			entity["roll"] = euler.pitch
+			entity["pitch"] = euler.roll
+			entity["yaw"] = euler.yaw + 180
+		end
+		
+		
+		
+	end
+	
+	
+	if ImGui.Button("Try Camera", 300, 0) and entity["tag"] ~= "" then
+		
+		local obj = getEntityFromManager(entity["tag"])
+		local enti = Game.FindEntityByID(obj.id)
+		
+		local position = {}
+		position.x = entity["x"]
+		position.y = entity["y"]
+		position.z = entity["z"]
+		
+		local angle = {}
+		angle.yaw = entity["yaw"]
+		angle.pitch = entity["pitch"]
+		angle.roll = entity["roll"]
+		
+		
+		if(enti ~= nil) then
+			
+			spawnCamera(entity["tag"],entity["type"],entity["entity"],position,angle,false)
+			enableCamera(entity["tag"])
+			else
+			moveCamera(entity["tag"],entity["type"],entity["entity"],position,angle,false)
+		end
+		
+		
+		
+	end
+	
+	
+	if ImGui.Button("Stop Camera", 300, 0) and currentSelectSceneStep.pov.tag ~= "" then
+		
+		
+		despawnEntity(entity["tag"])
+		
+		
+	end
+	
+	
+	
+	
+	
+	
 	
 	
 	return entity
@@ -12153,302 +12708,6 @@ function FXUI(entity)
 	
 end
 
-function SetMappinUI(entity)
-	
-	ImGui.Text("Tag : ") 
-	ImGui.SameLine()
-	entity["tag"] = ImGui.InputText("##tag", entity["tag"], 100, ImGuiInputTextFlags.None)
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("Type of Mappin : ") 
-	ImGui.SameLine()
-	if ImGui.BeginCombo("##mappinTypeEnum", entity["typemap"]) then -- Remove the ## if you'd like for the title to display above combo box
-		
-		
-		
-		for i,v in ipairs(mappinTypeEnum) do
-			
-			if ImGui.Selectable(v, (entity["typemap"] == v)) then
-				
-				
-				entity["typemap"] = v
-				
-				
-				ImGui.SetItemDefaultFocus()
-			end
-			
-			
-		end
-		
-		ImGui.EndCombo()
-	end
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("See throught wall ? ") 
-	ImGui.SameLine()
-	entity["wall"] =ImGui.Checkbox("##wall", entity["wall"])
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("Active ? ") 
-	ImGui.SameLine()
-	entity["active"] =ImGui.Checkbox("##active", entity["active"])
-	
-	ImGui.Spacing()
-	
-	
-	ImGui.Text("Group : ") 
-	ImGui.SameLine()
-	entity["mapgroup"] = ImGui.InputText("##mapgroup", entity["mapgroup"], 100, ImGuiInputTextFlags.None)
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("Title : ") 
-	ImGui.SameLine()
-	entity["title"] = ImGui.InputText("##title", entity["title"], 100, ImGuiInputTextFlags.None)
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("Description : ") 
-	ImGui.SameLine()
-	entity["desc"] = ImGui.InputText("##desc", entity["desc"], 100, ImGuiInputTextFlags.None)
-	
-	ImGui.Spacing()
-	
-	
-	
-	ImGui.Text("Position source : ") 
-	ImGui.SameLine()
-	if ImGui.BeginCombo("##mappinsource", entity["position"]) then -- Remove the ## if you'd like for the title to display above combo box
-		
-		
-		
-		for i,v in ipairs(mappinsource) do
-			
-			if ImGui.Selectable(v, (entity["position"] == v)) then
-				
-				
-				entity["position"] = v
-				
-				
-				ImGui.SetItemDefaultFocus()
-			end
-			
-			
-		end
-		
-		ImGui.EndCombo()
-	end
-	
-	ImGui.Spacing()
-	
-	
-	if(
-		entity["position"] == "poi_district" or 
-		entity["position"] == "poi_subdistrict" or 
-		entity["position"] == "relative_to_entity" or 
-		entity["position"] == "on_entity" or 
-		entity["position"] == "on_group" or 
-		entity["position"] == "poi" or 
-		entity["position"] =="node" or 
-		entity["position"] == "mappin" or 
-		entity["position"] == "fasttravel" or 
-		entity["position"] == "custom_place" or
-		entity["position"] == "custom_room"
-		
-	)then
-	
-	ImGui.Text("Position Tag : ") 
-	entity["position_tag"] = ImGui.InputText("##position_tag", entity["position_tag"], 100, ImGuiInputTextFlags.None)
-	
-	
-	
-	ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "poi_district" or entity["position"] == "poi_subdistrict")then
-		ImGui.Text("Random ? ") 
-		ImGui.SameLine()
-		entity["position_random"] =ImGui.Checkbox("##position_random", entity["position_random"])
-	end
-	
-	if(entity["position"] == "poi_district" or entity["position"] == "poi_current_district" or entity["position"] == "poi_subdistrict" or entity["position"] == "poi_current_subdistrict" or entity["position"] == "poi")then
-		ImGui.Text("Leave Position Tag to empty if you don't need to find an precise POI or Location ") 
-		ImGui.SameLine()
-		
-		ImGui.Text("District Enum Name : (leave blank if unused)") 
-		ImGui.SameLine()
-		entity["position_poi_district"] = ImGui.InputText("##position_poi_district", entity["position_poi_district"], 100, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("SubDistrict Enum Name : (leave blank if unused)") 
-		ImGui.SameLine()
-		entity["position_poi_district"] = ImGui.InputText("##position_poi_district", entity["position_poi_district"], 100, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("Is For Car ? ") 
-		ImGui.SameLine()
-		entity["position_poi_is_for_car"] =ImGui.Checkbox("##is_for_car", entity["position_poi_is_for_car"])
-		ImGui.Spacing()
-		
-		ImGui.Text("Use Location Tag instead of POI Tag (for an precise location) ? ") 
-		ImGui.SameLine()
-		entity["position_poi_use_location_tag"] =ImGui.Checkbox("##position_poi_use_location_tag", entity["position_poi_use_location_tag"])
-		ImGui.Spacing()
-		
-		ImGui.Text("POI Detection Range : ") 
-		ImGui.SameLine()
-		entity["position_poi_range"] = ImGui.InputInt("##poirange", entity["position_poi_range"], 1, 10, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("POI Detection From Position : ") 
-		ImGui.SameLine()
-		entity["position_poi_from_position"] = ImGui.InputInt("##poirange", entity["position_poi_range"], 1, 10, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		
-		ImGui.Text("POI type : ") 
-		ImGui.SameLine()
-		if ImGui.BeginCombo("##poitype", editorCurrentPOIType) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(poitype) do
-				
-				if ImGui.Selectable(v, (entity["position_poi_type"] == i)) then
-					
-					
-					entity["position_poi_type"] = i
-					editorCurrentPOIType = v
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "relative_to_entity")then
-		
-		ImGui.Text("Position Way : ") 
-		if ImGui.BeginCombo("##npcpositionway", entity["position_way"]) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(npcpositionway) do
-				
-				if ImGui.Selectable(v, (entity["position_way"] == v)) then
-					
-					
-					entity["position_way"] = v
-					
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		
-		ImGui.Spacing()
-		
-		ImGui.Text("Distance : ") 
-		ImGui.SameLine()
-		entity["position_distance"] = ImGui.InputInt("##position_distance", entity["position_distance"], 1, 10, ImGuiInputTextFlags.None)
-		
-		ImGui.Spacing()
-	end
-	
-	
-	
-	
-	
-	if(entity["position"] == "node" or entity["position"] == "current_node")then
-		
-		ImGui.Text("Node Detection Range : ") 
-		ImGui.SameLine()
-		entity["position_node_current_detection_range"] = ImGui.InputInt("##position_node_current_detection_range", entity["position_node_current_detection_range"], 1, 10, ImGuiInputTextFlags.None)
-		ImGui.Spacing()
-		ImGui.Text("Use Gameplay Position instead of Default Position : ") 
-		ImGui.SameLine()
-		entity["position_node_usegameplay"] =ImGui.Checkbox("##position_node_usegameplay", entity["position_node_usegameplay"])
-		
-	end
-	
-	if(entity["position"] == "custom_place" or entity["position"] == "current_custom_place")then
-		
-		ImGui.Text("Position House Way : ") 
-		if ImGui.BeginCombo("##npcpositionhouseway", entity["position_house_way"]) then -- Remove the ## if you'd like for the title to display above combo box
-			
-			
-			
-			for i,v in ipairs(npcpositionhouseway) do
-				
-				if ImGui.Selectable(v, (entity["position_house_way"] == v)) then
-					
-					
-					entity["position_house_way"] = v
-					
-					
-					ImGui.SetItemDefaultFocus()
-				end
-				
-				
-			end
-			
-			ImGui.EndCombo()
-		end
-		
-		ImGui.Spacing()
-	end
-	
-	if(entity["position"] == "at" )then
-		ImGui.Text("Coordinates") 
-		else
-		ImGui.Text("Relative Coordinates to the selected position") 
-	end
-	
-	ImGui.Spacing()
-	
-	ImGui.Text("X : ") 
-	ImGui.SameLine()
-	entity["x"] = ImGui.InputFloat("##xnpcx", entity["x"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	ImGui.Text("Y : ") 
-	ImGui.SameLine()
-	entity["y"] = ImGui.InputFloat("##xnpcy", entity["y"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	ImGui.Text("Z : ") 
-	ImGui.SameLine()
-	entity["z"] = ImGui.InputFloat("##xnpcz", entity["z"], 1, 10, "%.1f", ImGuiInputTextFlags.None)
-	ImGui.Spacing()
-	
-	if ImGui.Button("Copy Player's XYZ", 300, 0) then
-		
-		local vec4 = Game.GetPlayer():GetWorldPosition()
-		entity["x"] = vec4.x
-		entity["y"] = vec4.y
-		entity["z"] = vec4.z
-		
-		
-	end
-	
-	
-	return entity
-end
-
-
-
-
 
 
 function makeListString(enti)
@@ -12538,7 +12797,7 @@ function openJson()
 		
 		ImGui.Spacing()
 		
-		if ImGui.Button("Export this object in quest_mod/json/report folder") then
+		if ImGui.Button(getLang("editor_export")) then
 			editor_json_malformatted = false
 			editor_json_malformatted_error = ""
 			try {

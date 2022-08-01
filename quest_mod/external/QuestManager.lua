@@ -630,14 +630,17 @@ end
 
 
 
+function QuestManager.ChangeQuestTitle(entryId,desc)
 
+		
+		questDefMap[entryId].title = desc
+	
+end
 
 
 
 function QuestManager.ChangeQuestContent(entryId,desc)
 
-		
-		questDefMap[entryId].description = desc
 		
 		questDefMap[entryId].description = desc
 	

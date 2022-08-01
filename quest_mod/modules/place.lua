@@ -1,4 +1,4 @@
-debugPrint(3,"CyberMod: Custom Place module loaded")
+debugPrint(3,"CyberScript: Custom Place module loaded")
 questMod.module = questMod.module +1
 
 -- 0 : house
@@ -226,7 +226,7 @@ function setCustomLocationPoint()
 		
 		
 		
-			if(h.house.type == 0 and score == 0) then
+			if(h.house.type == 0 and (score == 0 or score == nil)) then
 				variantType = "Zzz05_ApartmentToPurchaseVariant "
 			
 			end
