@@ -1848,10 +1848,24 @@ function FindPOI(tag,district,subdistrict,iscar,poitype,locationtag,fromposition
 								)
 								
 								and
+								
 								(district == nil or district == "" or (district ~= nil and location.district == district)) and
 								(subdistrict == nil or subdistrict == "" or (subdistrict ~= nil and location.subdistrict == subdistrict)) and
 								(iscar == nil or (iscar ~= nil and location.inVehicule == iscar)) and
-								(poitype == nil or poitype == 1 or (poitype == v.poi.isFor)) and
+								
+								
+								(poitype == nil or 
+								
+									(
+										(isArray(poitype) == false and isArray(v.poi.isFor) == false and (poitype == 1 or (poitype == v.poi.isFor))) or
+										(isArray(poitype) == true and isArray(v.poi.isFor) == false and table.contains(poitype,v.poi.isFor)) or
+										(isArray(poitype) == false and isArray(v.poi.isFor) == true and table.contains(v.poi.isFor,poitype)) or
+										(isArray(poitype) == true and isArray(v.poi.isFor) == true and table.compare(poitype, v.poi.isFor))
+									)
+									
+								) and
+							
+							
 							(fromposition == false or	(fromposition == true and check3DPos(curPos, location.x, location.y, location.z, range)))
 							
 							

@@ -1124,6 +1124,49 @@ function debugWindows()
 	end
 	
 	
+	if ImGui.BeginTabItem("Current Bounty") then
+		local status, result = pcall(function()
+			
+			if currentScannerItem ~= nil then
+				ImGui.Text("primaryname : "..currentScannerItem.primaryname)
+				ImGui.Text("secondaryname : "..currentScannerItem.secondaryname)
+				ImGui.Text("entityname : "..currentScannerItem.entityname)
+				ImGui.Text("level : "..tostring(currentScannerItem.level))
+				ImGui.Text("rarity : "..tostring(currentScannerItem.rarity))
+				ImGui.Text("attitude : "..tostring(currentScannerItem.attitude))
+				
+				if currentScannerItem.bounty ~= nil then
+				
+				ImGui.Text("reward : "..tostring(currentScannerItem.bounty.reward))
+				ImGui.Text("streetreward : "..tostring(currentScannerItem.bounty.streetreward))
+				ImGui.Text("danger : "..tostring(currentScannerItem.bounty.danger))
+				ImGui.Text("issuedby : "..tostring(currentScannerItem.bounty.issuedby))
+				
+				
+				for i,v in ipairs(currentScannerItem.bounty.transgressions) do
+					ImGui.Text(v)
+				end
+				
+				for i,v in ipairs(currentScannerItem.bounty.customtransgressions) do
+					ImGui.Text(v)
+				end
+			end
+				
+				else
+				ImGui.Text("No current Bounty")
+			end
+		end)
+		
+		if status == false then
+		
+		
+			print(result)
+			spdlog.error(result)
+		end
+		
+		ImGui.EndTabItem()
+	end
+	
 	
 	CPS.styleEnd(1)
 	ImGui.EndTabBar()

@@ -613,7 +613,7 @@ if(trigger.name == "player_is_targeted") then
 					return false
 				end
 			end
-			if(trigger.name == "player_current_gang") then
+			if(trigger.name == "player_current_gang"or trigger.name == "player_current_faction") then
 				
 				local score = getVariableKey("player","current_gang")
 				if(score ~= nil and score == trigger.value) then
@@ -11291,12 +11291,19 @@ function GenerateTextFromContextValues(context, v)
 	
 	
 	if(v.type == "faction") then
+	
+		if(v.searchprops ~= nil) then
+		
+			value = SearchinTable(arrayFaction, v.searchprops, v.searchvalue,"faction")[v.prop]
+		
+		else
 		if(v.tag ~= "random") then
 			value = arrayFaction[v.tag].faction[v.prop]
 			
 			else
 			value = getRandomPairfromTable(arrayFaction).value.faction[v.prop]
 			
+		end
 		end
 	end
 	
@@ -11305,6 +11312,13 @@ function GenerateTextFromContextValues(context, v)
 	
 	
 	if(v.type == "corpo") then
+	
+	
+		if(v.searchprops ~= nil) then
+		
+			value = SearchinTable(arrayCorpo, v.searchprops, v.searchvalue,nil)[v.prop]
+		
+		else
 		if(v.tag ~= "random") then
 			
 			spdlog.error(dump(arrayCorpo))
@@ -11313,6 +11327,7 @@ function GenerateTextFromContextValues(context, v)
 			else
 			value = getRandomPairfromTable(arrayCorpo)[v.prop]
 			
+		end
 		end
 	end
 	
@@ -11417,7 +11432,15 @@ function GenerateTextFromContextValues(context, v)
 	
 	
 	
+	
+	
 	if(v.type == "mappin") then
+	
+		if(v.searchprops ~= nil) then
+		
+			value = SearchinTable(mappinManager, v.searchprops, v.searchvalue,nil)[v.prop]
+		
+		else
 		if(v.tag ~= "random") then
 			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
 				value = mappinManager[v.tag]["position"][v.prop]
@@ -11444,19 +11467,31 @@ function GenerateTextFromContextValues(context, v)
 			end
 			
 		end
+		end
 	end
 	
 	if(v.type == "fixer") then
-		if(v.tag ~= "random") then
-			value = arrayFixer[v.tag].fixer[v.prop]
+		if(v.searchprops ~= nil) then
+			
+				value = SearchinTable(arrayFixer, v.searchprops, v.searchvalue,"fixer")[v.prop]
 			
 			else
-			value = getRandomPairfromTable(arrayFixer).value.fixer[v.prop]
-			
+			if(v.tag ~= "random") then
+				value = arrayFixer[v.tag].fixer[v.prop]
+				
+				else
+				value = getRandomPairfromTable(arrayFixer).value.fixer[v.prop]
+				
+			end
 		end
 	end
 	
 	if(v.type == "place") then
+		if(v.searchprops ~= nil) then
+			
+				value = SearchinTable(arrayHouse, v.searchprops, v.searchvalue,"house")[v.prop]
+			
+			else
 		if(v.tag ~= "random") then
 			value = arrayHouse[v.tag].house[v.prop]
 			
@@ -11465,8 +11500,10 @@ function GenerateTextFromContextValues(context, v)
 			
 		end
 	end
+	end
 	
 	if(v.type == "poi") then
+	
 		if(v.tag ~= "random") then
 			for o,b in pairs(arrayPOI) do
 				if(#b.poi.locations > 0) then	
@@ -11502,6 +11539,11 @@ function GenerateTextFromContextValues(context, v)
 	end
 	
 	if(v.type == "node") then
+		if(v.searchprops ~= nil) then
+			
+				value = SearchinTable(arrayNode, v.searchprops, v.searchvalue,"node")[v.prop]
+			
+		else
 		if(v.tag ~= "random") then
 			value = arrayNode[v.tag].node[v.prop]
 			
@@ -11510,12 +11552,18 @@ function GenerateTextFromContextValues(context, v)
 			
 		end
 	end
+	end
 	
 	if(v.type == "custom_npc") then
+		if(v.searchprops ~= nil) then
+			
+				value = SearchinTable(arrayCustomNPC, v.searchprops, v.searchvalue,"npc")[v.prop]
+			
+		else
 		if(v.tag ~= "random") then
 			
 			if(v.prop == "x" or v.prop =="y" or v.prop == "z") then
-				value = arrayCustomNPC[v.tag]["location"][v.prop]
+				value = arrayCustomNPC[v.tag].npc["location"][v.prop]
 				
 				
 				else
@@ -11538,9 +11586,15 @@ function GenerateTextFromContextValues(context, v)
 				
 			end
 		end
+		end
 	end
 	
 	if(v.type == "npc") then
+		if(v.searchprops ~= nil) then
+			
+				value = SearchinTable(arrayPnjDb, v.searchprops, v.searchvalue,nil)[v.prop]
+			
+		else
 		if(v.tag ~= "random") then
 			
 			local npc = getNPCByName(v.tag)
@@ -11564,6 +11618,7 @@ function GenerateTextFromContextValues(context, v)
 			
 			
 			
+		end
 		end
 	end
 	
@@ -11665,6 +11720,8 @@ function GenerateTextFromContextValues(context, v)
 	
 	if(v.type == "scannerdata" and ScannerInfoManager[v.tag] ~= nil)then
 		
+		
+		
 		if(v.prop == "primaryname" or v.prop == "secondaryname" or v.prop == "text" or v.prop == "entityname") then
 			
 			
@@ -11734,7 +11791,7 @@ function GenerateTextFromContextValues(context, v)
 			
 			
 			
-			value = currentScannerItem[v.tag][v.prop]
+			value = currentScannerItem[v.prop]
 			
 			
 			
@@ -11744,44 +11801,44 @@ function GenerateTextFromContextValues(context, v)
 			
 			
 			
-			value = currentScannerItem[v.tag][v.prop]
+			value = currentScannerItem[v.prop]
 			
 			
 			
 		end
 		
 		
-		if(v.prop == "reward" or v.prop == "streetreward" or v.prop == "danger" and currentScannerItem[v.tag]["bounty"] ~= nil) then
+		if(v.prop == "reward" or v.prop == "streetreward" or v.prop == "danger" and currentScannerItem["bounty"] ~= nil) then
 			
 			
 			
-			value = currentScannerItem[v.tag]["bounty"][v.prop]
-			
-			
-			
-		end
-		
-		
-		if(v.prop == "issuedby" and currentScannerItem[v.tag]["bounty"] ~= nil ) then
-			
-			
-			
-			value = currentScannerItem[v.tag]["bounty"][v.prop]
+			value = currentScannerItem["bounty"][v.prop]
 			
 			
 			
 		end
 		
 		
+		if(v.prop == "issuedby" and currentScannerItem["bounty"] ~= nil ) then
+			
+			
+			
+			value = currentScannerItem["bounty"][v.prop]
+			
+			
+			
+		end
 		
 		
 		
-		if(v.prop == "customtransgressions" or v.prop == "transgressions" and currentScannerItem[v.tag]["bounty"] ~= nil and #currentScannerItem[v.tag]["bounty"][v.prop] > 0) then
+		
+		
+		if(v.prop == "customtransgressions" or v.prop == "transgressions" and currentScannerItem["bounty"] ~= nil and #currentScannerItem["bounty"][v.prop] > 0) then
 			
 			
-			local index = math.random(1,#currentScannerItem[v.tag]["bounty"][v.prop])
+			local index = math.random(1,#currentScannerItem["bounty"][v.prop])
 			
-			value = currentScannerItem[v.tag]["bounty"][v.prop][index]
+			value = currentScannerItem["bounty"][v.prop][index]
 			
 		end
 		

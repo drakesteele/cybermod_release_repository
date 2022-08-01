@@ -1508,15 +1508,8 @@ end
 end
 
 
-function table.contains(table,value)
-	for i, element in ipairs(table) do
-	 if(value == element) then
-		return true
-	 end
-	end
-	return false
-end
 
+	
 function diffVector(from, to)
 	print(dump(from))
 	print(dump(to))
@@ -1605,11 +1598,77 @@ random_elem.value = myTable[random_elem.key]
 	return random_elem
 end
 
-function isArray(t)
-  local i = 0
-  for _ in pairs(t) do
-    i = i + 1
-    if t[i] == nil then return false end
-  end
-  return true
+
+
+function table.contains(table,value)
+    
+	for i, element in ipairs(table) do
+	 if(value == element) then
+		return true
+	 end
+	end
+	return false
 end
+
+function table.compare(tablepoi, tablepoi2) 
+	
+	for i,v in ipairs(tablepoi) do
+	
+		if table.contains(tablepoi2,v) then
+		
+			return true
+		
+		end
+		
+	end
+	return false
+end
+
+function SearchinTable(tables, prop, value,subitem) 
+	
+	local obj = nil 
+	
+	if(subitem == nil) then
+	
+		for k,v in pairs(tables) do
+		
+			if(v[prop] == value) then
+			
+				obj = v
+				break
+			
+			end
+		
+		end
+	
+	else
+	
+	
+		for k,v in pairs(tables) do
+		
+			if(v[subitem][prop] == value) then
+			
+				obj = v[subitem]
+				break
+			
+			end
+		
+		end
+	
+	
+	end
+	
+	
+	
+	return obj
+end
+
+function isArray(t)
+  if('table' == type(t) and t[1] ~= nil) then
+  return true
+       else
+        return false
+        end
+end
+
+
