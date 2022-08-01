@@ -11260,9 +11260,16 @@ function GeneratefromContext(context)
 	
 	for k,v in pairs(context.values)do
 		
+		if(v.type ~= "object") then
+			local value = GenerateTextFromContextValues(context, v)
+			text = text:gsub("##"..k, value) 
+			
+		else
 		local value = GenerateTextFromContextValues(context, v)
-		text = text:gsub("##"..k, value) 
+		text = value
 		
+		
+		end
 		
 	end
 	
@@ -11288,6 +11295,11 @@ function GenerateTextFromContextValues(context, v)
 		
 	end
 	
+	if(v.type == "object") then
+	
+		value = v.value
+	
+	end
 	
 	
 	if(v.type == "faction") then
@@ -11306,6 +11318,7 @@ function GenerateTextFromContextValues(context, v)
 		end
 		end
 	end
+	
 	
 	
 	
