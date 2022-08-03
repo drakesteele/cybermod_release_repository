@@ -29,7 +29,7 @@ function spawnItemFromHouseTag(houseTag)
 			item.entityId = spawnItem(item, postion, angle)
 			table.insert(currentItemSpawned,item)
 			Cron.After(0.5, function()
-				debugPrint(1,"Spawning item ok")
+				print("Spawning item ok")
 			end)
 		end
 	end

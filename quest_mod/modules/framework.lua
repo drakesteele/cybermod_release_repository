@@ -1237,11 +1237,29 @@ function GetInstances()
 end
 
 
-function connectInstance()
+-- function connectInstance()
+		-- local action = {}
+		-- debugPrint(1,selectedInstance.."||"..selectedInstancePassword)
+		-- action.action = "connectInstance"
+		-- action.parameter = selectedInstance.."||"..selectedInstancePassword
+		-- debugPrint(1,dump(action))
+		-- WriteAction(action)
+		
+		-- waitforactionfinished(0.1,false, function()
+			
+			
+			-- debugPrint(1,"OK")
+		
+		-- end)
+	
+	
+-- end
+
+function connectInstance(instanceid,password)
 		local action = {}
-		debugPrint(1,selectedInstance.."||"..selectedInstancePassword)
+		debugPrint(1,instanceid.."||"..password)
 		action.action = "connectInstance"
-		action.parameter = selectedInstance.."||"..selectedInstancePassword
+		action.parameter = instanceid.."||"..password
 		debugPrint(1,dump(action))
 		WriteAction(action)
 		
@@ -1535,11 +1553,11 @@ end
 --MP
 
 
-function connectMultiplayer()
+function connectMultiplayer(instanceid, password)
 	
 	lastFriendPos = {}
 			
-	connectInstance()
+	connectInstance(instanceid, password)
 	
 	MultiplayerOn = true
 		

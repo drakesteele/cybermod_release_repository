@@ -546,7 +546,7 @@
 		"name": "spawn_item",
 		"tag": "item01",
 		"path": "Character.Judy",
-		
+		"isentity":false,
 		"position": "at",		
 		"position_helper": "at||relative_to_entity||node||player_look_at||poi||mappin||fasttravel||custom_place||custom_room",
 		"position_change_helper": "Write 'current' in position_tag for get current node,mappin, fasttravel, custom_place or custom_room. \n For poi if you write 'current' in position_poi_district you will get the current district, \n if you write 'current in position_poi_subdistrict you will get the current subdistrict. \n also if you write 'random' in position_poi_subdistrict or position_poi_district, you will get an 'random' value",
@@ -2911,6 +2911,29 @@
 		"tag":"mytemplate",
 		"helper": "This action will clear all item that are from a specific template in the current place",
 		"helperTitle": "Housing : clear all item from template "
+	},
+	
+	{
+		"name":"bound_entity_to_entity",
+		"tag":"item01",
+		"entity":"judy01",
+		"x":0,
+		"y":0,
+		"z":3,
+		"yaw":0,
+		"pitch":0,
+		"roll":0,
+		"copyrotation":true,
+		"isitem":true,
+		"helper": "This action will bound entity position to another entity",
+		"helperTitle": "Entity : Bound Entity Position to another one "
+	},
+	
+	{
+		"name":"unbound_entity",
+		"tag":"item01",
+		"helper": "This action will unbound entity position",
+		"helperTitle": "Entity : Unbound Entity Position  "
 	}
 	
 	

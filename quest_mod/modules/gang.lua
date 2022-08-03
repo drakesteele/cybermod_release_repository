@@ -518,7 +518,7 @@ end
 
 
 
-function isHostileDistrict(currentDistrict)
+function isHostileDistrict()
 	
 	local factiontable = {}
 	local score = 0
@@ -528,27 +528,32 @@ function isHostileDistrict(currentDistrict)
 			
 				local gangs = getGangfromDistrict(currentDistricts2.districtLabels[2],20)
 				
-				for i=1,#gangs do
-				
-					local factionscore =  getScorebyTag(gangs[i].tag)
-					score = score + factionscore
+				if(#gangs > 0 ) then
+					for i=1,#gangs do
 					
-				
+						local factionscore = getScoreKey("Affinity",gangs[i].tag)
+						if factionscore == nil then factionscore = 0 end
+						score = score + factionscore
+						
+					
+					end
 				end
 				
 		else
 				
 				
 				local gangs = getGangfromDistrict(currentDistricts2.districtLabels[1],20)
-				
+				if(#gangs > 0 ) then
 				for i=1,#gangs do
 				
 					
-						local factionscore =  getScorebyTag(gangs[i].tag)
+						local factionscore =  getScoreKey("Affinity",gangs[i].tag)
+						if factionscore == nil then factionscore = 0 end
 						score = score + factionscore
 					
 					
 				
+				end
 				end
 				
 				
@@ -563,13 +568,13 @@ end
 
 function TestScoreIsHostile(score)
 	
-	if(score == 0) then --neutre
-		
-		return 1
-		
-		elseif (score > 0) then -- friendly
+	if (score > 0) then --friendly
 		
 		return 0
+		
+		elseif (score == 0) then -- neutre
+		
+		return 1
 		
 		elseif (score < 0) then --Hostile
 		
@@ -690,7 +695,7 @@ function GangAffinityCalculator()
 		
 		
 		local isquestok = Game.GetQuestsSystem():GetFactStr(affinity.fact)
-	--	print("testing fact "..affinity.fact.." result "..isquestok)
+		print("testing fact "..affinity.fact.." result "..isquestok)
 		if(isquestok == 1)then
 			
 			

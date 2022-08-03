@@ -112,7 +112,7 @@ function resetVar()
 	
 ScrollSpeed = 0.020
 ScriptedEntityAffinity = false
-AmbushMin = 5
+AmbushMin = 5 
 AmbushMax = 10
 AmbushEnabled = true
 AutoAmbush = true
@@ -124,9 +124,10 @@ playerTargeted = false
 entityTargetPlayer = {}
 
 
+
 AMM = nil
 AMMversion = nil
-datapackObjectType = { "circuit","dialog","event","faction","fixer","function","housing","help","interact","interfaces","lang","mission","node","npc","phone_dialog","place","poi","radio","shard","sound","texture","scene","housing_template"}
+datapackObjectType = { "circuit","dialog","event","faction","fixer","function","housing","help","interact","interfaces","lang","mission","node","npc","phone_dialog","place","poi","radio","shard","sound","texture","scene","housing_template","hud"}
 cacheupdate = false
 passwordView =ImGuiInputTextFlags.Password
 menuName = "CyberScript"
@@ -170,6 +171,7 @@ moveY=0
 moveZ=0
 debugOptions= false
 
+arrayBoundedEntity = {}
 
 currentScannerItem = nil
 currentScannerEntity = nil
@@ -319,6 +321,11 @@ locationWindowsY = 355
 
 currentHouseCenter = nil
 newHousingTemplateTag = ""
+newHousingTemplateName = ""
+newHousingTemplatePrice = 0
+newHousingTemplateDescription = ""
+newHousingTemplateTarget = ""
+
 menuWindowsX = 400
 menuWindowsY = 200
 currentHousingTemplate = nil

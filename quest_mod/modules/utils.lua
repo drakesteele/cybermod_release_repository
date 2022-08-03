@@ -37,11 +37,11 @@ function checkVersionNumber(current,new) --true means the current is outdated
 	end
 	
 	if
-	(tonumber(majorn) == 9999 and current ~= new ) or 
-	(tonumber(majorc) == 9999 and current ~= new) or 
-	(tonumber(majorn) > tonumber(majorc)) or 
-	((tonumber(majorn) == tonumber(majorc)) and (tonumber(minorn) > tonumber(minorc))) or 
-	(patchn ~= nil and patchc ~= nil and (tonumber(majorn) == tonumber(majorc)) and (tonumber(minorn) == tonumber(minorc)) and (tonumber(patchn) > tonumber(patchc))) then
+		(tonumber(majorn) == 9999 and current ~= new ) or 
+		(tonumber(majorc) == 9999 and current ~= new) or 
+		(tonumber(majorn) > tonumber(majorc)) or 
+		((tonumber(majorn) == tonumber(majorc)) and (tonumber(minorn) > tonumber(minorc))) or 
+		(patchn ~= nil and patchc ~= nil and (tonumber(majorn) == tonumber(majorc)) and (tonumber(minorn) == tonumber(minorc)) and (tonumber(patchn) > tonumber(patchc))) then
 		
 		return true
 		
@@ -61,6 +61,142 @@ end
 
 
 
+function locateValue( tab, value )
+    local path = ''  --  placeholder
+    
+    for key, val in pairs( tab ) do
+      
+        if key == value then  --  found location
+           
+            return tab[key]  --  concatenate
+
+        elseif type( tab[key] ) == 'table' then  --  go further down the rabbit hole
+            local found = locatePath( tab[key], value )
+            
+            if found ~= '' then  --  found relevant path
+                return tab[key][found]  --  concatenate location
+
+            end  --  found
+        end  --  recursion
+    end  --  pairs
+    return path
+end  --  function
+
+function locatePath( tab, value )
+    local path = ''  --  placeholder
+    
+    for key, val in pairs( tab ) do
+      
+        if key == value then  --  found location
+           
+            return key --  concatenate
+
+        elseif type( tab[key] ) == 'table' then  --  go further down the rabbit hole
+            local found = locatePath( tab[key], value )
+           
+            if found ~= '' then  --  found relevant path
+               
+              return found
+            end  --  found
+        end  --  recursion
+    end  --  pairs
+    return path
+end  --  function
+
+function locatePathString( tab, value )
+    local path = {}  --  placeholder
+    
+    for key, val in pairs( tab ) do
+      
+        if key == value then  --  found location
+           
+            table.insert(path,key) --  concatenate
+
+        elseif type( tab[key] ) == 'table' then  --  go further down the rabbit hole
+            local found = locatePath( tab[key], value )
+           
+            if found ~= '' then  --  found relevant path
+               
+                 table.insert(path,key) 
+                table.insert(path,found) 
+            end  --  found
+        end  --  recursion
+    end  --  pairs
+    return path
+end  --  function
+
+
+function splitDot(s, sep)
+    local fields = {}
+    
+    local sep = sep or " "
+    local pattern = string.format("([^%s]+)", sep)
+    string.gsub(s, pattern, function(c) fields[#fields + 1] = c end)
+    
+    return fields
+end
+function stringToPath(table, path)
+local split  = splitDot(path, '.')
+local result = {}
+    if(#split > 0) then
+        
+    for i,v in ipairs(split) do
+            if(i == 1) then
+               
+                result = table[v]
+                
+                else
+                
+                result = result[v]
+                
+                end
+           
+            
+            
+        
+    end
+    end
+    return result
+    
+    
+end
+
+function SetValuestringToPath(table, path,value)
+local split  = split(path, '.')
+local result = {}
+    if(#split > 0) then
+        
+    for i,v in ipairs(split) do
+            if(i == 1) then
+               
+                result = table[v]
+                
+                else
+                
+                result = result[v]
+                
+                end
+            
+           
+            
+            
+        
+    end
+    end
+   
+    
+    
+end
+function setValueToTablePath(obj, keys, value)
+    for i = 1, #keys - 1 do
+        obj = obj[keys[i]]
+    end
+
+    -- Merely "obj = value" would affect only this local variable
+    -- (as above in the loop), rather than modify the table.
+    -- So the last index has to be done separately from the loop:
+    obj[keys[#keys]] = value
+end
 
 function table_contains(tables,value,checkkey)
 	local result = false
@@ -68,39 +204,39 @@ function table_contains(tables,value,checkkey)
 	if(tables ~= nil) then
 		if(checkkey == false) then
 			if(tables[1] == nil) then
-			
-				for k,v in pairs(tables) do
 				
+				for k,v in pairs(tables) do
+					
 					if(v == value) then
 						result = true
 					end
 				end
-
+				
+				else
+				
+				for i,v in ipairs(tables) do
+					
+					if(v == value) then
+						result = true
+					end
+				end
+				
+			end
+			
 			else
 			
-				for i,v in ipairs(tables) do
+			for k,v in pairs(tables) do
 				
-					if(v == value) then
-						result = true
-					end
+				if(k == value) then
+					result = true
 				end
-			
 			end
-		
-		else
-		
-				for k,v in pairs(tables) do
-				
-					if(k == value) then
-						result = true
-					end
-				end
-		
+			
 		end
 	end
 	
 	return result
-
+	
 end
 
 function gamecolor(r,g,b,a)
@@ -136,216 +272,216 @@ function modDirectory(filename)
 end
 
 function ObjectToText(objectName, object)
-local text = objectName .. ": " .. tostring(object or "nil")
-
-ImGui.Text(text)
-
+	local text = objectName .. ": " .. tostring(object or "nil")
+	
+	ImGui.Text(text)
+	
 end
 
 function CNameDraw(funcName, CName)
-if CName ~= nil then 
-ImGui.Text(funcName .. ": " .. Game.NameToString(CName))
-else
-ImGui.Text(funcName .. " - nil")
-end
+	if CName ~= nil then 
+		ImGui.Text(funcName .. ": " .. Game.NameToString(CName))
+		else
+		ImGui.Text(funcName .. " - nil")
+	end
 end
 
 function TextDraw(funcName, CName)
-if CName ~= nil then 
-ImGui.Text(funcName .. ": " .. CName)
-else
-ImGui.Text(funcName .. " - nil")
-end
+	if CName ~= nil then 
+		ImGui.Text(funcName .. ": " .. CName)
+		else
+		ImGui.Text(funcName .. " - nil")
+	end
 end
 
 function IsAFakeDoor(value)
-if type(value) == "FakeDoor" then
-return true
-end
-
-if value == nil or (type(value) ~= "userdata" and type(value) ~= "table") then
-return false
-end
-
-if value["IsA"] then
-return value:IsA("FakeDoor")
-end
-
-if value["ToString"] then
-return value:ToString() == kind
-end
-
-return false
+	if type(value) == "FakeDoor" then
+		return true
+	end
+	
+	if value == nil or (type(value) ~= "userdata" and type(value) ~= "table") then
+		return false
+	end
+	
+	if value["IsA"] then
+		return value:IsA("FakeDoor")
+	end
+	
+	if value["ToString"] then
+		return value:ToString() == kind
+	end
+	
+	return false
 end
 
 function round(x)
-return x>=0 and math.floor(x+0.5) or math.ceil(x-0.5)
+	return x>=0 and math.floor(x+0.5) or math.ceil(x-0.5)
 end
 
 function getCWD(mod_name)
-if file_exists("bin/x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
-return "bin/x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
-elseif file_exists("x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
-return "x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
-elseif file_exists("plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
-return "plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
-elseif file_exists("cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
-return "cyber_engine_tweaks/mods/"..mod_name.."/"
-elseif file_exists("mods/"..mod_name.."/init.lua") then
-return "mods/"..mod_name.."/"
-elseif file_exists(mod_name.."/init.lua") then
-return mod_name.."/"
-elseif file_exists("init.lua") then
-return "s"
-end
+	if file_exists("bin/x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
+		return "bin/x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
+		elseif file_exists("x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
+		return "x64/plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
+		elseif file_exists("plugins/cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
+		return "plugins/cyber_engine_tweaks/mods/"..mod_name.."/"
+		elseif file_exists("cyber_engine_tweaks/mods/"..mod_name.."/init.lua") then
+		return "cyber_engine_tweaks/mods/"..mod_name.."/"
+		elseif file_exists("mods/"..mod_name.."/init.lua") then
+		return "mods/"..mod_name.."/"
+		elseif file_exists(mod_name.."/init.lua") then
+		return mod_name.."/"
+		elseif file_exists("init.lua") then
+		return "s"
+	end
 end
 
 function ImportLanguage()
-debugPrint(1,"Importing Language...")
-debugPrint(1,file_exists("data/lang/language.json"))
-
-debugPrint(1,"Language default...")
-
-local f = io.open("data/lang/default.json")
-lines = f:read("*a")
-if(lines ~= "") then
-lang = trydecodeJSOn(lines, f,filepath)
-end
-
-f:close()
-
-if file_exists("data/lang/language.json") then
-debugPrint(1,"Language founded... overwrite default")
-
-local f = io.open("data/lang/language.json")
-
-lines = f:read("*a")
-if(lines ~= "") then
-newlang =  trydecodeJSOn(lines, f,"data/lang/language.json")
-for key, value in pairs(newlang) do 
-
-lang[key] = value
-end
-end
-
-f:close()
-end
-
-debugPrint(1,lang.testOverwrite)
-
-return true
+	debugPrint(1,"Importing Language...")
+	debugPrint(1,file_exists("data/lang/language.json"))
+	
+	debugPrint(1,"Language default...")
+	
+	local f = io.open("data/lang/default.json")
+	lines = f:read("*a")
+	if(lines ~= "") then
+		lang = trydecodeJSOn(lines, f,filepath)
+	end
+	
+	f:close()
+	
+	if file_exists("data/lang/language.json") then
+		debugPrint(1,"Language founded... overwrite default")
+		
+		local f = io.open("data/lang/language.json")
+		
+		lines = f:read("*a")
+		if(lines ~= "") then
+			newlang =  trydecodeJSOn(lines, f,"data/lang/language.json")
+			for key, value in pairs(newlang) do 
+				
+				lang[key] = value
+			end
+		end
+		
+		f:close()
+	end
+	
+	debugPrint(1,lang.testOverwrite)
+	
+	return true
 end
 
 function ImportTheme()
-debugPrint(1,"Importing Theme...")
-debugPrint(1,file_exists("data/db/theme.json"))
-
-debugPrint(1,"Theme default...")
-
-local f = io.open("data/db/theme.json")
-
-lines = f:read("*a")
-if lines ~= "" then
-IRPtheme =  trydecodeJSOn(lines, f,"data/db/theme.json")
-end
-
-f:close()
-
-if file_exists("data/db/theme.json") then
-debugPrint(1,"Theme founded... overwrite default")
-
-local f = io.open("data/db/theme.json")
-
-lines = f:read("*a")
-if lines ~= "" then
-newtheme =trydecodeJSOn(lines, f,"data/db/theme.json")
-for key, value in pairs(newtheme) do 
-
-IRPtheme[key] = value
-end
-end
-
-f:close()
-end
-
---debugPrint(1,IRPtheme.testOverwrite)
-
-return true
+	debugPrint(1,"Importing Theme...")
+	debugPrint(1,file_exists("data/db/theme.json"))
+	
+	debugPrint(1,"Theme default...")
+	
+	local f = io.open("data/db/theme.json")
+	
+	lines = f:read("*a")
+	if lines ~= "" then
+		IRPtheme =  trydecodeJSOn(lines, f,"data/db/theme.json")
+	end
+	
+	f:close()
+	
+	if file_exists("data/db/theme.json") then
+		debugPrint(1,"Theme founded... overwrite default")
+		
+		local f = io.open("data/db/theme.json")
+		
+		lines = f:read("*a")
+		if lines ~= "" then
+			newtheme =trydecodeJSOn(lines, f,"data/db/theme.json")
+			for key, value in pairs(newtheme) do 
+				
+				IRPtheme[key] = value
+			end
+		end
+		
+		f:close()
+	end
+	
+	--debugPrint(1,IRPtheme.testOverwrite)
+	
+	return true
 end
 
 function ftos(number)
-return string.format( "%.3f", number)
+	return string.format( "%.3f", number)
 end
 
 function ftos2(number)
-return string.format( "%.0f", number)
+	return string.format( "%.0f", number)
 end
 
 function vecToString(vec4)
-return "x: " .. ftos(vec4.x) .. " y: " .. ftos(vec4.y) .. " z: " .. ftos(vec4.z)
+	return "x: " .. ftos(vec4.x) .. " y: " .. ftos(vec4.y) .. " z: " .. ftos(vec4.z)
 end
 
 function vecToRdString(vec4)
-return "x: " .. ftos2(vec4.x) .. " y: " .. ftos2(vec4.y) .. " z: " .. ftos2(vec4.z)
+	return "x: " .. ftos2(vec4.x) .. " y: " .. ftos2(vec4.y) .. " z: " .. ftos2(vec4.z)
 end
 
 function checkPos(vec4, x, y,radius)
-boole = false
-
-
-
-
-
-
-
-
-if(vec4.x >= x-radius and vec4.x <= x+radius) then
-
-if (vec4.y >= y-radius and vec4.y <= y+radius) then
-boole = true
-
-end
-end
-return boole
+	boole = false
+	
+	
+	
+	
+	
+	
+	
+	
+	if(vec4.x >= x-radius and vec4.x <= x+radius) then
+		
+		if (vec4.y >= y-radius and vec4.y <= y+radius) then
+			boole = true
+			
+		end
+	end
+	return boole
 end
 
 function check3DPos(vec4, x, y, z,radius, zradius)
-boole = false
-
-
-if(vec4.x >= x-radius and vec4.x <= x+radius) then
-
-if (vec4.y >= y-radius and vec4.y <= y+radius) then
-
-if zradius ~= nil then 
-
-
-
-if (vec4.z >= z-zradius and vec4.z <= z+zradius) then
-
-boole = true
-
-end
-else
-
-if (vec4.z >= z-radius and vec4.z <= z+radius) then
-
-boole = true
-
-end
-end
-end
-end
-return boole
+	boole = false
+	
+	
+	if(vec4.x >= x-radius and vec4.x <= x+radius) then
+		
+		if (vec4.y >= y-radius and vec4.y <= y+radius) then
+			
+			if zradius ~= nil then 
+				
+				
+				
+				if (vec4.z >= z-zradius and vec4.z <= z+zradius) then
+					
+					boole = true
+					
+				end
+				else
+				
+				if (vec4.z >= z-radius and vec4.z <= z+radius) then
+					
+					boole = true
+					
+				end
+			end
+		end
+	end
+	return boole
 end
 
 function splitByChunk(text, chunkSize)
-local s = {}
-for i=1, #text, chunkSize do
-s[#s+1] = text:sub(i,i+chunkSize - 1)
-
-end
-return s
+	local s = {}
+	for i=1, #text, chunkSize do
+		s[#s+1] = text:sub(i,i+chunkSize - 1)
+		
+	end
+	return s
 end
 
 function split(s, sep)
@@ -359,123 +495,123 @@ function split(s, sep)
 end
 
 function checkPosFixer(vec4, x, y,fixerrange)
-boole = false
---rint(vecToRdString(vec4))
--- --debugPrint(1,"x "..ftos2(vec4.x))
--- --debugPrint(1,"y "..ftos2(vec4.y))
-
-
-
---local fixerrange = getUserSetting("FixerRangeDetectionArea")
-
-
-if(vec4.x >= x-fixerrange and vec4.x <= x+fixerrange) then
-
-if (vec4.y >= y-fixerrange and vec4.y <= y+fixerrange) then
-boole = true
-
-end
-end
-return boole
+	boole = false
+	--rint(vecToRdString(vec4))
+	-- --debugPrint(1,"x "..ftos2(vec4.x))
+	-- --debugPrint(1,"y "..ftos2(vec4.y))
+	
+	
+	
+	--local fixerrange = getUserSetting("FixerRangeDetectionArea")
+	
+	
+	if(vec4.x >= x-fixerrange and vec4.x <= x+fixerrange) then
+		
+		if (vec4.y >= y-fixerrange and vec4.y <= y+fixerrange) then
+			boole = true
+			
+		end
+	end
+	return boole
 end
 
 function getDistanceFrom(startPoint, endPoint)
-
-local resX = ((startPoint.x - endPoint.x)^2)
---debugPrint(1,resX)
-local resY = ((startPoint.y - endPoint.y)^2)
---debugPrint(1,resY)
-local resZ = ((startPoint.z - endPoint.z)^2)
---debugPrint(1,resZ)
-
-return math.sqrt(resX + resY + resZ)
+	
+	local resX = ((startPoint.x - endPoint.x)^2)
+	--debugPrint(1,resX)
+	local resY = ((startPoint.y - endPoint.y)^2)
+	--debugPrint(1,resY)
+	local resZ = ((startPoint.z - endPoint.z)^2)
+	--debugPrint(1,resZ)
+	
+	return math.sqrt(resX + resY + resZ)
 end
 
 function getAllNPCInRange(range)
-local player = Game.GetPlayer()
-
-local query = Game["TSQ_NPC;"]()
-query.maxDistance = range
-
-local ranged = nil
-
-local success, entities = Game.GetTargetingSystem():GetTargetParts(player, query, {})
-
-if success then
-ranged = {}
-
-for i, value in ipairs(entities) do
-local ent = value:GetComponent(value):GetEntity()
-if ent:IsNPC() then
-table.insert(ranged, ent)
-end
-end
-
-
-return ranged
-end
-
-
+	local player = Game.GetPlayer()
+	
+	local query = Game["TSQ_NPC;"]()
+	query.maxDistance = range
+	
+	local ranged = nil
+	
+	local success, entities = Game.GetTargetingSystem():GetTargetParts(player, query, {})
+	
+	if success then
+		ranged = {}
+		
+		for i, value in ipairs(entities) do
+			local ent = value:GetComponent(value):GetEntity()
+			if ent:IsNPC() then
+				table.insert(ranged, ent)
+			end
+		end
+		
+		
+		return ranged
+	end
+	
+	
 end
 
 function getCurrentDistrict2()
-local preventionSystem = Game.GetScriptableSystemsContainer():Get('PreventionSystem')
-local districtManager = preventionSystem.districtManager
-
-if districtManager and districtManager:GetCurrentDistrict() then
-currentDistricts2.districtId = districtManager:GetCurrentDistrict():GetDistrictID()
-currentDistricts2.districtLabels = {}
-currentDistricts2.factionLabels = {}
-
-local tweakDb = GetSingleton('gamedataTweakDBInterface')
-local districtRecord = tweakDb:GetDistrictRecord(currentDistricts2.districtId)
-repeat
-
-local districtLabel = Game.GetLocalizedText(districtRecord:EnumName())
-
-table.insert(currentDistricts2.districtLabels, 1, districtLabel)
-
-
-
-local myfaction = {}
-
-local mydistrict = {}
-
-for i = 1, #arrayDistricts do
-
-if arrayDistricts[i].EnumName:upper() == districtLabel:upper() then
-mydistrict = arrayDistricts[i]
-currentDistricts2.customdistrict =  arrayDistricts[i]
-
-end
-
-end
-
-myfaction = getFactionByDistrictTag(mydistrict.Tag)
-currentDistricts2.Tag = mydistrict.Tag
-for i = 1, #myfaction do
-
-table.insert(currentDistricts2.factionLabels, 1, myfaction[i])
-end
-
-districtRecord = districtRecord:ParentDistrict()
-until districtRecord == nil
-
-currentDistricts2.districtCaption = table.concat(currentDistricts2.districtLabels, ' / ')
-end
+	local preventionSystem = Game.GetScriptableSystemsContainer():Get('PreventionSystem')
+	local districtManager = preventionSystem.districtManager
+	
+	if districtManager and districtManager:GetCurrentDistrict() then
+		currentDistricts2.districtId = districtManager:GetCurrentDistrict():GetDistrictID()
+		currentDistricts2.districtLabels = {}
+		currentDistricts2.factionLabels = {}
+		
+		local tweakDb = GetSingleton('gamedataTweakDBInterface')
+		local districtRecord = tweakDb:GetDistrictRecord(currentDistricts2.districtId)
+		repeat
+			
+			local districtLabel = Game.GetLocalizedText(districtRecord:EnumName())
+			
+			table.insert(currentDistricts2.districtLabels, 1, districtLabel)
+			
+			
+			
+			local myfaction = {}
+			
+			local mydistrict = {}
+			
+			for i = 1, #arrayDistricts do
+				
+				if arrayDistricts[i].EnumName:upper() == districtLabel:upper() then
+					mydistrict = arrayDistricts[i]
+					currentDistricts2.customdistrict =  arrayDistricts[i]
+					
+				end
+				
+			end
+			
+			myfaction = getFactionByDistrictTag(mydistrict.Tag)
+			currentDistricts2.Tag = mydistrict.Tag
+			for i = 1, #myfaction do
+				
+				table.insert(currentDistricts2.factionLabels, 1, myfaction[i])
+			end
+			
+			districtRecord = districtRecord:ParentDistrict()
+		until districtRecord == nil
+		
+		currentDistricts2.districtCaption = table.concat(currentDistricts2.districtLabels, ' / ')
+	end
 end
 
 function getOsTimeHHmm()
-
-local times = os.date('*t')
-
-return times
-
+	
+	local times = os.date('*t')
+	
+	return times
+	
 end
 
 function getGameTimeHHmm()
-
--- local enginetime = Game.GetTimeSystem()
+	
+	-- local enginetime = Game.GetTimeSystem()
 -- local times = enginetime:GetGameTimeStamp() 
 -- local temp = os.date('!*t', times)
 -- local t = os.time()
@@ -1418,7 +1554,7 @@ function setNewFixersPoint()
 
 for k,v in pairs(arrayFixer) do
 
-	if(mappinManager[arrayFixer[k].fixer.Tag] == nil) then
+if(mappinManager[arrayFixer[k].fixer.Tag] == nil) then
 
 registerMappin(arrayFixer[k].fixer.LOC_X,arrayFixer[k].fixer.LOC_Y,arrayFixer[k].fixer.LOC_Z,arrayFixer[k].fixer.Tag,'FixerVariant',true,false,"Fixer",nil,arrayFixer[k].fixer.Name,arrayFixer[k].fixer.Name)
 
@@ -1509,11 +1645,11 @@ end
 
 
 
-	
+
 function diffVector(from, to)
-	print(dump(from))
-	print(dump(to))
-	
+print(dump(from))
+print(dump(to))
+
 return Vector4.new(to.x - from.x, to.y- from.y, to.z - from.z, to.w - from.w)
 end
 
@@ -1541,134 +1677,134 @@ return Game.FindEntityByID(stashId)
 end
 
 function tostringorempty(value)
-	if value == nil then value = "" end
-	
-	return tostring(value)
+if value == nil then value = "" end
+
+return tostring(value)
 end
 
 
 function getTransgressionFromTweakId(trans)
-	
-	for i,value in ipairs(transgressionsTweakList) do
-		
-		if(trans == TweakDBID.new("Transgression."..value)) then
-		
-		return value
-		
-		end
-	
-	
-	end
-	
-	return nil
-	
+
+for i,value in ipairs(transgressionsTweakList) do
+
+if(trans == TweakDBID.new("Transgression."..value)) then
+
+return value
+
+end
+
+
+end
+
+return nil
+
 end
 
 function getAffiliationsFromTweakId(aff)
-	
-	for i,value in ipairs(affiliationTweakList ) do
-		
-		if(aff == TweakDBID.new("Factions."..value)) then
-		
-		return value
-		
-		end
-	
-	
-	end
-	
-	return nil
-	
+
+for i,value in ipairs(affiliationTweakList ) do
+
+if(aff == TweakDBID.new("Factions."..value)) then
+
+return value
+
+end
+
+
+end
+
+return nil
+
 end
 
 
 
 
 function getRandomPairfromTable(myTable)
-	
-	
-	local keyset = {}
-	for k in pairs(myTable) do
-		table.insert(keyset, k)
-	end
+
+
+local keyset = {}
+for k in pairs(myTable) do
+table.insert(keyset, k)
+end
 -- now you can reliably return a random key
 random_elem = {}
 random_elem.key = keyset[math.random(#keyset)]
 random_elem.value = myTable[random_elem.key]
-	return random_elem
+return random_elem
 end
 
 
 
 function table.contains(table,value)
-    
-	for i, element in ipairs(table) do
-	 if(value == element) then
-		return true
-	 end
-	end
-	return false
+
+for i, element in ipairs(table) do
+if(value == element) then
+return true
+end
+end
+return false
 end
 
 function table.compare(tablepoi, tablepoi2) 
-	
-	for i,v in ipairs(tablepoi) do
-	
-		if table.contains(tablepoi2,v) then
-		
-			return true
-		
-		end
-		
-	end
-	return false
+
+for i,v in ipairs(tablepoi) do
+
+if table.contains(tablepoi2,v) then
+
+return true
+
+end
+
+end
+return false
 end
 
 function SearchinTable(tables, prop, value,subitem) 
-	
-	local obj = nil 
-	
-	if(subitem == nil) then
-	
-		for k,v in pairs(tables) do
-		
-			if(v[prop] == value) then
-			
-				obj = v
-				break
-			
-			end
-		
-		end
-	
-	else
-	
-	
-		for k,v in pairs(tables) do
-		
-			if(v[subitem][prop] == value) then
-			
-				obj = v[subitem]
-				break
-			
-			end
-		
-		end
-	
-	
-	end
-	
-	
-	
-	return obj
+
+local obj = nil 
+
+if(subitem == nil) then
+
+for k,v in pairs(tables) do
+
+if(v[prop] == value) then
+
+obj = v
+break
+
+end
+
+end
+
+else
+
+
+for k,v in pairs(tables) do
+
+if(v[subitem][prop] == value) then
+
+obj = v[subitem]
+break
+
+end
+
+end
+
+
+end
+
+
+
+return obj
 end
 
 function isArray(t)
-  if('table' == type(t) and t[1] ~= nil) then
-  return true
-       else
-        return false
-        end
+if('table' == type(t) and t[1] ~= nil) then
+return true
+else
+return false
+end
 end
 
 

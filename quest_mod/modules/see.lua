@@ -56,14 +56,17 @@ function scriptcheckTrigger(trigger)
 					
 					if(checkTriggerRequirement(v.requirement,v.trigger))then
 						for k,u in pairs(v.prop) do
-							trigger[k] = GeneratefromContext(u)
+							local path =  splitDot(k, ".")
+							setValueToTablePath(trigger, path, GeneratefromContext(u))
+							
 						end
 					end
 				end
 				else
 				if(checkTriggerRequirement(trigger.context.requirement,trigger.context.trigger))then
 					for k,u in pairs(trigger.context.prop) do
-						trigger[k] = GeneratefromContext(u)
+						local path =  splitDot(k, ".")
+						setValueToTablePath(trigger, path, GeneratefromContext(u))
 					end
 				end
 			end
@@ -107,13 +110,26 @@ function scriptcheckTrigger(trigger)
 					end
 				end
 			end
-if(trigger.name == "entity_is_scanned") then
+			if(trigger.name == "entity_is_scanned") then
 				local obj = getEntityFromManager(trigger.tag)
 				if(obj.id ~= nil) then
 					local enti = Game.FindEntityByID(obj.id)	
 					if(enti ~= nil) then
 						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
 						if (enti:IsScanned() == true)then
+							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
+							return true
+						end
+					end
+				end
+			end
+			if(trigger.name == "entity_is_crowd") then
+				local obj = getEntityFromManager(trigger.tag)
+				if(obj.id ~= nil) then
+					local enti = Game.FindEntityByID(obj.id)	
+					if(enti ~= nil) then
+						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						if (enti:IsCrowd() == true)then
 							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
 							return true
 						end
@@ -716,13 +732,60 @@ if(trigger.name == "player_is_targeted") then
 					end
 				end
 			end
-			if(trigger.name == "custom_variable") then
+			if(trigger.name == "custom_variable" or trigger.name == "check_variable") then
 				local score = getVariableKey(trigger.variable,trigger.key)
+				
+				if(trigger.operator== nil) then
+				
 				if(score ~= nil and score == trigger.value) then
 					result = true
 				end
+				
+				else
+				if(trigger.operator == "=") then
+				
+					if(score ~= nil and score == trigger.value) then
+						result = true
+					end
+				
+				end
+				
+				if(trigger.operator == "!=") then
+				
+					if(score ~= nil and score ~= trigger.value) then
+						result = true
+					end
+				
+				end
+				
+				if(trigger.operator == "contains") then
+				
+					if(score ~= nil and string.match(score, trigger.value)) then
+						result = true
+					end
+				
+				end
+				
+				if(trigger.operator == "empty") then
+				
+					
+						result = score == nil or score == ""
+					
+				
+				end
+				
+				
+				if(trigger.operator == "notempty") then
+				
+					
+						result = score ~= nil and score ~= ""
+					
+				
+				end
+				
 			end
 		end
+			end
 		if scannerregion then
 			if(trigger.name == "check_scannerdata_for_entity") then
 				
@@ -1868,8 +1931,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 				
 				if(checkTriggerRequirement(v.requirement,v.trigger))then
 					for k,u in pairs(v.prop) do
+						local path =  splitDot(k, ".")
+						setValueToTablePath(action, path, GeneratefromContext(u))
 						
-						action[k] = GeneratefromContext(u)
 					end
 				end
 			end
@@ -1877,7 +1941,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 			if(checkTriggerRequirement(action.context.requirement,action.context.trigger))then
 				for k,u in pairs(action.context.prop) do
 					
-					action[k] = GeneratefromContext(u)
+					
+					local path =  splitDot(k, ".")
+					setValueToTablePath(action, path, GeneratefromContext(u))
 				end
 			end
 		end
@@ -1905,6 +1971,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 	local framework = true
 	local scene = true
 	local scannerregion = true
+	local hudregion = true
 	
 	if groupregion then
 		if(action.name == "create_group") then
@@ -3921,6 +3988,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 					spawnedItem.Pitch = angles.pitch
 					spawnedItem.Roll = angles.roll
 					spawnedItem.Title = mitems.Title
+					spawnedItem.fromTemplate = false
 					saveHousing(spawnedItem)
 					local housing = getHousing(spawnedItem.Tag,spawnedItem.X,spawnedItem.Y,spawnedItem.Z)
 					spawnedItem.Id = housing.Id
@@ -3994,9 +4062,9 @@ function executeAction(action,tag,parent,index,source,executortag)
 								obj.Tag = v.Tag
 								obj.HouseTag = currentHouse.tag
 								obj.ItemPath = v.ItemPath
-								obj.X = action.x +v.X
-								obj.Y = action.y + v.Y
-								obj.Z = action.z + v.Z
+								obj.X = template.center.x + action.x +v.X
+								obj.Y = template.center.y + action.y + v.Y
+								obj.Z = template.center.z + action.z + v.Z
 								obj.Yaw = v.Yaw
 								obj.Pitch = v.Pitch
 								obj.Roll = v.Roll
@@ -7698,6 +7766,45 @@ end
 		
 		-- end
 		-- end
+		
+		if(action.name == "bound_entity_to_entity") then
+			
+			if(arrayBoundedEntity[action.tag] == nil) then
+			
+				arrayBoundedEntity[action.tag] = {}
+				arrayBoundedEntity[action.tag].anchor=action.entity
+				arrayBoundedEntity[action.tag].x = action.x
+				arrayBoundedEntity[action.tag].y = action.y
+				arrayBoundedEntity[action.tag].z = action.z
+				arrayBoundedEntity[action.tag].yaw = action.yaw
+				arrayBoundedEntity[action.tag].pitch = action.pitch
+				arrayBoundedEntity[action.tag].roll = action.roll
+				arrayBoundedEntity[action.tag].copyrotation = action.copyrotation
+				arrayBoundedEntity[action.tag].isitem = action.isitem
+				arrayBoundedEntity[action.tag].lastposition = {}
+				arrayBoundedEntity[action.tag].lastposition.x = 0
+				arrayBoundedEntity[action.tag].lastposition.y = 0
+				arrayBoundedEntity[action.tag].lastposition.z = 0
+				
+				
+				arrayBoundedEntity[action.tag].lastorientation = {}
+				arrayBoundedEntity[action.tag].lastorientation.yaw = 0
+				arrayBoundedEntity[action.tag].lastorientation.pitch = 0
+				arrayBoundedEntity[action.tag].lastorientation.roll = 0
+			end
+			
+		end
+		
+		if(action.name == "unbound_entity") then
+			
+			if(arrayBoundedEntity[action.tag] ~= nil) then
+			
+				arrayBoundedEntity[action.tag] = nil
+			
+			end
+			
+		end
+		
 		if(action.name == "despawn_entity") then
 			
 			despawnEntity(action.tag)
@@ -8520,7 +8627,28 @@ end
 					local posVec4 = Vector4.new(position.x, position.y, position.z,1)
 					spawnedItem.entityId = spawnItem(spawnedItem, posVec4, angles)
 					
+					if(action.isentity == nil or action.isentity == false) then
+					
+					
+					
 					table.insert(currentItemSpawned,item)
+					
+					else
+					
+					local entity = {}
+					entity.id = spawnedItem.entityId
+					entity.tag = tag
+					entity.tweak = chara
+					entity.isprevention = false
+					entity.scriptlevel = 0
+					
+					entity.isMP = false
+					entity.name = tag
+					questMod.EntityManager[tag]=entity
+					
+					
+					end
+					
 					
 					print("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
 					spdlog.error("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
@@ -10167,7 +10295,7 @@ end
 				selectedInstance = action.value
 			end
 			if(action.name == "connect_instance" and NetServiceOn ) then
-				connectMultiplayer()
+				connectMultiplayer(action.value, action.password)
 			end
 			if(action.name == "get_instance_list" and NetServiceOn) then
 				GetInstances()
@@ -10716,6 +10844,35 @@ end
 			
 		end
 		
+		if(action.name == "bound_scene_to_braindance") then
+			
+			if(BraindanceGameController ~= nil and currentScene ~= nil) then
+				local margin = inkMargin.new({ top = -45})
+				inkWidgetRef.SetMargin(BraindanceGameController.cursorPoint, margin)
+				local margin = inkMargin.new({ left = 0})
+				inkWidgetRef.SetMargin(BraindanceGameController.currentTimerMarker, margin)
+				inkTextRef.SetText(this.currentTimerText, "0 : 0")
+				currentScene.braindance = true
+				
+				
+				
+			end
+			
+		end
+		
+		if(action.name == "unbound_scene_to_braindance") then
+			
+			if(BraindanceGameController ~= nil and currentScene ~= nil) then
+				local margin = inkMargin.new({ top = -45})
+				inkWidgetRef.SetMargin(BraindanceGameController.cursorPoint, margin)
+				currentScene.braindance = false
+				
+				
+				
+			end
+			
+		end
+		
 		if(action.name == "hide_braindance_ui") then
 			
 			if(BraindanceGameController ~= nil) then
@@ -10880,6 +11037,12 @@ end
 				
 				
 				if(currentScene.step[action.value] ~= nil) then
+						if (currentScene.braindance == true) then 
+						
+						BraindanceGameController.currentTime = (100/#currentScene.step * action.value)/100
+						BraindanceGameController:SetBraindanceProgress()
+						
+						end
 					runActionList(currentScene.step[action.value].action, currentScene.tag.."_"..action.value, "interact",false,"scene")
 					currentScene.index = action.value
 				end
@@ -10896,6 +11059,12 @@ end
 				
 				for i=1,#currentScene.step do
 					if(currentScene.step[i].tag == action.tag) then
+						if (currentScene.braindance == true) then 
+						
+						BraindanceGameController.currentTime = (100/#currentScene.step * i)/100
+						BraindanceGameController:SetBraindanceProgress()
+						
+						end
 						runActionList(currentScene.step[i].action, currentScene.tag.."_"..i, "interact",false,"scene")
 						currentScene.index = i
 					end
@@ -10914,6 +11083,13 @@ end
 				local index = currentScene.index +1
 				
 				if(currentScene.step[index] ~= nil) then
+					if (currentScene.braindance == true) then 
+					
+					BraindanceGameController.currentTime = (100/#currentScene.step * index)/100
+					BraindanceGameController:SetBraindanceProgress()
+					
+					end
+				
 					runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
 					currentScene.index = index
 					
@@ -10932,6 +11108,12 @@ end
 				local index = currentScene.index -1
 				
 				if(currentScene.step[index] ~= nil) then
+					if (currentScene.braindance == true) then 
+					
+					BraindanceGameController.currentTime = (100/#currentScene.step * index)/100
+					BraindanceGameController:SetBraindanceProgress()
+					
+					end
 					runActionList(currentScene.step[index].action, currentScene.tag.."_"..index, "interact",false,"scene")
 					currentScene.index = index
 					
@@ -10982,6 +11164,89 @@ end
 		
 		
 	end
+	
+	if hudregion then 
+		
+		if(action.name == "change_hud_visibility") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				
+				arrayHUD[v.tag].hud.visible = action.value
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_margin") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				if(arrayHUD[v.tag].hud.margin == nil) then arrayHUD[v.tag].hud.margin = {} end
+				arrayHUD[v.tag].hud.margin.top = action.top
+				arrayHUD[v.tag].hud.margin.left = action.left
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_color") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				if(arrayHUD[v.tag].hud.color == nil) then arrayHUD[v.tag].hud.color = {} end
+				
+				arrayHUD[v.tag].hud.color.red = action.red
+				arrayHUD[v.tag].hud.color.green = action.green
+				arrayHUD[v.tag].hud.color.blue = action.blue
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_fontfamily") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				
+				
+				arrayHUD[v.tag].hud.fontfamily = action.value
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_fontstyle") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				
+				
+				arrayHUD[v.tag].hud.fontstyle = action.value
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_fontsize") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				
+				
+				arrayHUD[v.tag].hud.fontsize = action.value
+			 
+			 end
+			
+		end
+		
+		if(action.name == "change_hud_text") then
+			
+			 if (arrayHUD[v.tag] ~= nil) then
+				
+				
+				arrayHUD[v.tag].hud.text = action.value
+			 
+			 end
+			
+		end
+		
+	end
+	
 	
 	return result
 end	
@@ -11862,7 +12127,7 @@ function GenerateTextFromContextValues(context, v)
 		
 		
 	end
-	
+	if(value == nil) then value = "" end
 	return value
 	
 end		

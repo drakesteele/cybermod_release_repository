@@ -1,0 +1,98 @@
+{
+	"tag":"placemultiwidget",
+	"type":"widget",
+	"container":"",
+	"fontfamily":"base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily",
+	"fontstyle":"Medium",
+	"fontsize":25,
+	"color":{
+		"red":255,
+		"green":130,
+		"blue":0
+		
+	},
+	"visible":true,
+	"margin":{
+		"top":1725,
+		"left":15
+	},
+	"text":"",
+	"context": [{
+
+			"trigger": {
+				"auto": {
+					"name": "check_variable",
+					"variable": "current_multi_place",
+					"key": "tag",
+					"value": "",
+					"operator": "empty"
+
+				}
+			},
+			"requirement": [
+				["auto"]
+			],
+			"prop": {
+
+				"visible": {
+					"text": "",
+					"values": {
+						"visible": {
+							"type": "object",
+							"value": false
+						}
+
+					}
+
+				}
+			}
+		},
+		{
+
+			"trigger": {
+				"auto": {
+					"name": "check_variable",
+					"variable": "current_multi_place",
+					"key": "tag",
+					"value": "",
+					"operator": "notempty"
+
+				}
+			},
+			"requirement": [
+				["auto"]
+			],
+			"prop": {
+				"visible": {
+					"text": "",
+					"values": {
+						"visible": {
+							"type": "object",
+							"value": true
+						}
+
+					}
+
+				},
+				"text": {
+					"text": "##language ##currentmultiplace",
+					"values": {
+						"language": {
+							"type": "lang",
+							"tag": "ui_hud_multi_place"
+						},
+						"currentmultiplace": {
+							"type": "variable",
+							"variable": "current_multi_place",
+							"key": "tag"
+						}
+
+					}
+
+				}
+			}
+		}
+
+	]
+
+}

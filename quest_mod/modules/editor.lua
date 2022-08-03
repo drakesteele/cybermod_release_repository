@@ -2420,6 +2420,11 @@ function ItemTabs()
 			if(currentHouseCenter ~= nil) then
 			
 			newHousingTemplateTag = ImGui.InputText("Housing Template "..getLang("editor_tag"), newHousingTemplateTag, 100, ImGuiInputTextFlags.AutoSelectAll)
+			newHousingTemplateName = ImGui.InputText("Housing Template Name", newHousingTemplateName, 100, ImGuiInputTextFlags.AutoSelectAll)
+			newHousingTemplatePrice = ImGui.InputFloat("Housing Template Price", newHousingTemplatePrice, 1, 10, "%.1f", ImGuiInputTextFlags.None)
+			newHousingTemplateDescription = ImGui.InputTextMultiline("Housing Template "..getLang("editor_desc"), newHousingTemplateDescription, 100, 200, 35, ImGuiInputTextFlags.AutoSelectAll)
+			newHousingTemplateTarget = ImGui.InputText("Housing Template Target (leave blank if not needed)", newHousingTemplateTarget, 100, ImGuiInputTextFlags.AutoSelectAll)
+			
 			
 			if(newHousingTemplateTag ~= "") then
 				if ImGui.Button(getLang("editor_Housing_template_test")) then 
@@ -2449,6 +2454,10 @@ function ItemTabs()
 						
 						toexport.center = currentHouseCenter
 						toexport.tag = newHousingTemplateTag
+						toexport.name = newHousingTemplateName
+						toexport.price = newHousingTemplatePrice
+						toexport.desc = newHousingTemplateDescription
+						toexport.target = newHousingTemplateTarget
 						
 						despawnItemFromHouse()
 						
@@ -2534,6 +2543,10 @@ function ItemTabs()
 						
 						toexport.center = currentHouseCenter
 						toexport.tag = newHousingTemplateTag
+						toexport.name = newHousingTemplateName
+						toexport.price = newHousingTemplatePrice
+						toexport.desc = newHousingTemplateDescription
+						toexport.target = newHousingTemplateTarget
 						
 						local file = assert(io.open("json/report/"..activeEditedPlace.tag.."_housing_template.json", "w"))
 						local stringg = JSON:encode_pretty(toexport)
@@ -2573,6 +2586,10 @@ function ItemTabs()
 						
 						toexport.center = currentHouseCenter
 						toexport.tag = newHousingTemplateTag
+						toexport.name = newHousingTemplateName
+						toexport.price = newHousingTemplatePrice
+						toexport.desc = newHousingTemplateDescription
+						toexport.target = newHousingTemplateTarget
 						
 						
 						
@@ -2615,6 +2632,14 @@ function ItemTabs()
 							currentHousingTemplate = v.template
 							currentHousingTemplatetag=k
 							newHousingTemplateTag = k
+							if(v.template.name == nil) then v.template.name = "" end
+							newHousingTemplateName = tostring(v.template.name)
+							if(v.template.price == nil) then v.template.price = 0 end
+							newHousingTemplatePrice =  tonumber(v.template.price)
+							if(v.template.desc == nil) then v.template.desc = "" end
+							newHousingTemplateDescription =  tostring(v.template.desc)
+							if(v.template.target == nil) then v.template.target = "" end
+							newHousingTemplateTarget =  tostring(v.template.target)
 							ImGui.SetItemDefaultFocus()
 						end
 						

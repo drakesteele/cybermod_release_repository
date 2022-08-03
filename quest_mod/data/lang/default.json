@@ -1282,6 +1282,7 @@
 	"ui_setting_cheat_jump_height": "Player Jump Height Multiplier (Save and reload for apply)",
 	"ui_setting_cheat_doublejump_height": "Player Double Jump Height Multiplier (Save and reload for apply)",
 	"ui_setting_cheat_debug_options": "Enable Debug Menu",
+	"ui_setting_cheat_disable_fall_damage":"Disable Fall Damage and Animation",
 
 
 

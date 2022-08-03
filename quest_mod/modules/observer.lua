@@ -6,17 +6,17 @@ function SetOverrider()
 	
 	-- Override("DeathLandEvents", "OnEnter", function(this,stateContext, scriptInterface,wrappedMethod)
 	-- print("tombé1")
-	 -- this:PlayHardLandingEffects(stateContext, scriptInterface)
+	-- this:PlayHardLandingEffects(stateContext, scriptInterface)
     -- this:BroadcastLandingStim(stateContext, scriptInterface, gamedataStimType.LandingHard)
     -- this:OnForcedExit(stateContext, scriptInterface)
     -- this:SetDetailedState(scriptInterface, gamePSMDetailedLocomotionStates.HardLand);
     -- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Landing, EnumInt(gamePSMLandingState.HardLand))
-
+	
 	-- end)
 	
 	
 	
-
+	
 	
 	Override('PlayerPuppet', 'OnLookAtObjectChangedEvent', function(this)
 		this.isAimingAtFriendly = false
@@ -142,19 +142,19 @@ function SetOverrider()
 			-- wrappedMethod(timeDelta,stateContext, scriptInterface)
 			
 			-- if this:IsTouchingGround(scriptInterface) then
-			  -- this:ResetFallingParameters(stateContext)
-			  -- return
+			-- this:ResetFallingParameters(stateContext)
+			-- return
 			-- end
 			-- verticalSpeed = this:GetVerticalSpeed(scriptInterface)
 			-- if this.updateInputToggles and verticalSpeed < this:GetFallingSpeedBasedOnHeight(scriptInterface, this:GetStaticFloatParameterDefault("minFallHeightToConsiderInputToggles", 0)) then
-			  -- this:UpdateInputToggles(stateContext, scriptInterface)
+			-- this:UpdateInputToggles(stateContext, scriptInterface)
 			-- end
 			-- if scriptInterface:IsActionJustPressed("Jump") then
-			  -- stateContext:SetConditionBoolParameter("CrouchToggled", false, true)
-			  -- return
+			-- stateContext:SetConditionBoolParameter("CrouchToggled", false, true)
+			-- return
 			-- end
 			-- if StatusEffectSystem:ObjectHasStatusEffect(scriptInterface.executionOwner, "BaseStatusEffect.BerserkPlayerBuff") and verticalSpeed < this:GetFallingSpeedBasedOnHeight(scriptInterface, this:GetStaticFloatParameterDefault("minFallHeightToEnterSuperheroFall", 0)) then
-			  -- stateContext:SetTemporaryBoolParameter("requestSuperheroLandActivatio", true, true)
+			-- stateContext:SetTemporaryBoolParameter("requestSuperheroLandActivatio", true, true)
 			-- end
 			-- regularLandingFallingSpeed = stateContext:GetFloatParameter("RegularLandingFallingSpeed", true)
 			-- safeLandingFallingSpeed = stateContext:GetFloatParameter("SafeLandingFallingSpeed", true)
@@ -164,34 +164,34 @@ function SetOverrider()
 			-- isInSuperheroFall = stateContext:IsStateActive("Locomotio", "superheroFall")
 			-- maxAllowedDistanceToGround = this:GetStaticFloatParameterDefault("maxDistToGroundFromSuperheroFall", 20.00)
 			-- if isInSuperheroFall and not this.maxSuperheroFallHeight then
-			  -- this:StartEffect(scriptInterface, "falling")
-			  -- this:PlaySound("lcfalling_wind_loop", scriptInterface)
-			  -- if DefaultTransition:GetDistanceToGround(scriptInterface) >= maxAllowedDistanceToGround then
-				-- this.maxSuperheroFallHeight = true
-				-- return
-			  -- end
-			  -- landingType = LandingType.Superhero
+			-- this:StartEffect(scriptInterface, "falling")
+			-- this:PlaySound("lcfalling_wind_loop", scriptInterface)
+			-- if DefaultTransition:GetDistanceToGround(scriptInterface) >= maxAllowedDistanceToGround then
+			-- this.maxSuperheroFallHeight = true
+			-- return
+			-- end
+			-- landingType = LandingType.Superhero
 			
 			-- else 
-					-- if verticalSpeed <= safeLandingFallingSpeed then
-					  -- landingType = LandingType.Regular
-					  -- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.RegularFall))
-					  -- playerVelocity = DefaultTransition.GetLinearVelocity(scriptInterface)
-					  -- horizontalSpeed = Vector4.Length2D(playerVelocity)
-					  -- if horizontalSpeed <= this:GetStaticFloatParameterDefault("maxHorizontalSpeedToAerialTakedow", 0) then
-						-- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.SafeFall))
-					  -- end
-					 
-				-- else 
-					  -- if verticalSpeed <= regularLandingFallingSpeed then
-						-- if this:GetLandingType(stateContext) ~= EnumInt(LandingType.Regular) then
-						  -- this.PlaySound("lcfalling_wind_loop", scriptInterface)
-						-- end
-						-- landingType = LandingType.Regular
-					  -- else 
-						-- landingType = LandingType.Off
-					  -- end
-				-- end
+			-- if verticalSpeed <= safeLandingFallingSpeed then
+			-- landingType = LandingType.Regular
+			-- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.RegularFall))
+			-- playerVelocity = DefaultTransition.GetLinearVelocity(scriptInterface)
+			-- horizontalSpeed = Vector4.Length2D(playerVelocity)
+			-- if horizontalSpeed <= this:GetStaticFloatParameterDefault("maxHorizontalSpeedToAerialTakedow", 0) then
+			-- this:SetBlackboardIntVariable(scriptInterface, GetAllBlackboardDefs().PlayerStateMachine.Fall, EnumInt(gamePSMFallStates.SafeFall))
+			-- end
+			
+			-- else 
+			-- if verticalSpeed <= regularLandingFallingSpeed then
+			-- if this:GetLandingType(stateContext) ~= EnumInt(LandingType.Regular) then
+			-- this.PlaySound("lcfalling_wind_loop", scriptInterface)
+			-- end
+			-- landingType = LandingType.Regular
+			-- else 
+			-- landingType = LandingType.Off
+			-- end
+			-- end
 			-- end
 			-- stateContext:SetPermanentIntParameter("LandingType", EnumInt(landingType), true)
 			-- stateContext:SetPermanentFloatParameter("ImpactSpeed", verticalSpeed, true)
@@ -202,7 +202,7 @@ function SetOverrider()
 			-- scriptInterface:SetAnimationParameterFeature("Landing", landingAnimFeature)
 			-- this:SetAudioParameter("RTPC_Vertical_Velocity", verticalSpeed, scriptInterface)
 			-- this:SetAudioParameter("RTPC_Landing_Type", EnumInt(landingType), scriptInterface)
-					
+			
 			else
 			
 			wrappedMethod(timeDelta,stateContext, scriptInterface)
@@ -279,226 +279,226 @@ function SetOverrider()
 	---Scanner
 	Override('ScannervehicleGameController', 'OnVehicleInfoChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
-			local vehicleInfoData = ScannerVehicleInfo.new()
-			vehicleInfoData = FromVariant(value)
-			
-			
-			
-			if vehicleInfoData ~= nil then
-				
-				
-				if(Game.GetLocalizedText(vehicleInfoData:GetVehicleInfo()) ~= nil) then 
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
+					local vehicleInfoData = ScannerVehicleInfo.new()
+					vehicleInfoData = FromVariant(value)
 					
-					inkTextRef:SetLocalizedTextScript(this.vehicleInfoText, vehicleInfoData:GetVehicleInfo())
 					
+					
+					if vehicleInfoData ~= nil then
+						
+						
+						if(Game.GetLocalizedText(vehicleInfoData:GetVehicleInfo()) ~= nil) then 
+							
+							inkTextRef:SetLocalizedTextScript(this.vehicleInfoText, vehicleInfoData:GetVehicleInfo())
+							
+						end
+						this.isValidVehicleInfo = true
+						else
+						inkTextRef.SetText(this.vehicleInfoText, ScannerInfoManager[entity.tag].text)
+						this.isValidVehicleInfo = true
+					end
+					this:UpdateGlobalVisibility()
+					
+					else
+					
+					wrappedMethod(value)
 				end
-				this.isValidVehicleInfo = true
 				else
-				inkTextRef.SetText(this.vehicleInfoText, ScannerInfoManager[entity.tag].text)
-				this.isValidVehicleInfo = true
+				
+				wrappedMethod(value)
 			end
-			this:UpdateGlobalVisibility()
 			
 			else
 			
 			wrappedMethod(value)
-			end
-			else
 			
-			wrappedMethod(value)
-		end
-		
-		else
-		
-		wrappedMethod(value)
-		
 		end
 	end)
 	
 	
 	Override('ScannerNPCHeaderGameController', 'OnNameChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			
-			if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
-			
-			local testshow = ScannerInfoManager[entity.tag].primaryname
-			
-			if(ScannerInfoManager[entity.tag].secondaryname ~= nil) then
-			
-				testshow = testshow.."\n"..ScannerInfoManager[entity.tag].secondaryname
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				
+				if(ScannerInfoManager[entity.tag].primaryname ~= nil) then
+					
+					local testshow = ScannerInfoManager[entity.tag].primaryname
+					
+					if(ScannerInfoManager[entity.tag].secondaryname ~= nil) then
+						
+						testshow = testshow.."\n"..ScannerInfoManager[entity.tag].secondaryname
+						
+					end
+					
+					inkTextRef.SetText(this.nameText, ScannerInfoManager[entity.tag].primaryname)
+					this.isValidName = true
+					this:UpdateGlobalVisibility()
+					else
+					wrappedMethod(value)
+					
+				end
+				else
+				
+				wrappedMethod(value)
 				
 			end
 			
-			inkTextRef.SetText(this.nameText, ScannerInfoManager[entity.tag].primaryname)
-			this.isValidName = true
-			this:UpdateGlobalVisibility()
 			else
+			
 			wrappedMethod(value)
 			
 		end
-			else
-			
-				wrappedMethod(value)
-			
-		end
 		
-		else
-		
-		wrappedMethod(value)
-		
-		end
-	
 	end)
 	
 	Override('ScannerNPCHeaderGameController', 'OnLevelChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			
-			if(ScannerInfoManager[entity.tag].level ~= nil) then
-			
-			inkWidgetRef.SetVisible(this.skullIndicator, (Game.GetStatsSystem():GetStatValue(Game.GetPlayer():GetEntityID(), 605) < ScannerInfoManager[entity.tag].level))
-		
-		
-			this:UpdateGlobalVisibility()
-			
-			else
-			wrappedMethod()
-			
-		end
-			else
-			
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				
+				if(ScannerInfoManager[entity.tag].level ~= nil) then
+					
+					inkWidgetRef.SetVisible(this.skullIndicator, (Game.GetStatsSystem():GetStatValue(Game.GetPlayer():GetEntityID(), 605) < ScannerInfoManager[entity.tag].level))
+					
+					
+					this:UpdateGlobalVisibility()
+					
+					else
+					wrappedMethod()
+					
+				end
+				else
+				
 				wrappedMethod(value)
+				
+			end
 			
-		end
-	
-		else
-		
-		wrappedMethod(value)
-		
+			else
+			
+			wrappedMethod(value)
+			
 		end
 	end)
 	
 	Override('ScannerNPCHeaderGameController', 'OnAttitudeChange', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			
-			if(ScannerInfoManager[entity.tag].attitude ~= nil) then
-			
-				if(ScannerInfoManager[entity.tag].attitude == 0) then
-				 inkWidgetRef.SetState(this.nameText, "Friendly")
-				end
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
 				
-				if(ScannerInfoManager[entity.tag].attitude == 1) then
-				 inkWidgetRef.SetState(this.nameText, "Neutral")
+				if(ScannerInfoManager[entity.tag].attitude ~= nil) then
+					
+					if(ScannerInfoManager[entity.tag].attitude == 0) then
+						inkWidgetRef.SetState(this.nameText, "Friendly")
+					end
+					
+					if(ScannerInfoManager[entity.tag].attitude == 1) then
+						inkWidgetRef.SetState(this.nameText, "Neutral")
+					end
+					
+					if(ScannerInfoManager[entity.tag].attitude == 2) then
+						inkWidgetRef.SetState(this.nameText, "Hostile")
+					end
+					
+					
+					
+					else
+					wrappedMethod(value)
+					
 				end
+				else
 				
-				if(ScannerInfoManager[entity.tag].attitude == 2) then
-				 inkWidgetRef.SetState(this.nameText, "Hostile")
-				end
-			
-			
+				wrappedMethod(value)
+				
+			end
 			
 			else
+			
 			wrappedMethod(value)
 			
 		end
-			else
-			
-				wrappedMethod(value)
-			
-		end
-	
-		else
 		
-		wrappedMethod(value)
-		
-		end
-	
 	end)
 	
 	Override('ScannerNPCBodyGameController', 'OnFactionChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			
-			if(ScannerInfoManager[entity.tag].faction ~= nil) then
-				local gang = getFactionByTag(ScannerInfoManager[entity.tag].faction)
-				inkTextRef.SetText(this.factionText, "CS faction "..gang.Name)
-				this.isValidFaction = true;
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				
+				if(ScannerInfoManager[entity.tag].faction ~= nil) then
+					local gang = getFactionByTag(ScannerInfoManager[entity.tag].faction)
+					inkTextRef.SetText(this.factionText, "CS faction "..gang.Name)
+					this.isValidFaction = true;
+					
+					else
+					wrappedMethod(value)
+					
+				end
+				else
+				
+				wrappedMethod(value)
+				
+			end
 			
 			else
+			
 			wrappedMethod(value)
 			
-		end
-			else
-			
-				wrappedMethod(value)
-			
-		end
-	
-		else
-		
-		wrappedMethod(value)
-		
 		end
 	end)
 	
 	
 	Override('ScannerNPCBodyGameController', 'OnRarityChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			 --this.asyncSpawnRequest:Cancel()
-			if(ScannerInfoManager[entity.tag].rarity ~= nil) then
-				if(ScannerInfoManager[entity.tag].iscivilian == nil) then
-				ScannerInfoManager[entity.tag].iscivilian = true
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				--this.asyncSpawnRequest:Cancel()
+				if(ScannerInfoManager[entity.tag].rarity ~= nil) then
+					if(ScannerInfoManager[entity.tag].iscivilian == nil) then
+						ScannerInfoManager[entity.tag].iscivilian = true
+					end
+					if (ScannerInfoManager[entity.tag].iscivilian == true and this.asyncSpawnRequest ~= nil) then
+						this.asyncSpawnRequest = this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.dataBaseWidgetHolder), "ScannerCitizenDB", this, "OnCitizenDBSpawned")
+					end
+					
+					else
+					wrappedMethod(value)
 				end
-				if (ScannerInfoManager[entity.tag].iscivilian == true and this.asyncSpawnRequest ~= nil) then
-				  this.asyncSpawnRequest = this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.dataBaseWidgetHolder), "ScannerCitizenDB", this, "OnCitizenDBSpawned")
-				end
-			
-			else
-			wrappedMethod(value)
-		end
-			else
-			
+				else
+				
 				wrappedMethod(value)
+				
+			end
 			
-		end
-	
-		else
-		
-		wrappedMethod(value)
-		
+			else
+			
+			wrappedMethod(value)
+			
 		end
 	end)
 	
 	Override('ScannerBountySystemGameController', 'OnBountySystemChanged', function(this, value,wrappedMethod)
 		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
-		if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-
-			if(ScannerInfoManager[entity.tag].bounty ~= nil) then
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
+			if(entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
 				
-				 this.isValidBounty = true
-				 
-				 inkWidgetRef.SetVisible(this.rewardPanel, true)
-				 
-				 if #ScannerInfoManager[entity.tag].bounty.transgressions >0 then
+				if(ScannerInfoManager[entity.tag].bounty ~= nil) then
+					
+					this.isValidBounty = true
+					
+					inkWidgetRef.SetVisible(this.rewardPanel, true)
+					
+					if #ScannerInfoManager[entity.tag].bounty.transgressions >0 then
 						local transgressionsText = ""
 						
 						
@@ -510,24 +510,24 @@ function SetOverrider()
 						inkTextRef.SetText(this.moneyReward, IntToString(ScannerInfoManager[entity.tag].bounty.reward))
 						
 						if(ScannerInfoManager[entity.tag].bounty.danger > 5) then
-						
-						ScannerInfoManager[entity.tag].bounty.danger = 5
-						
+							
+							ScannerInfoManager[entity.tag].bounty.danger = 5
+							
 						end
 						
 						if(ScannerInfoManager[entity.tag].bounty.danger < 0) then
-						
-						ScannerInfoManager[entity.tag].bounty.danger = 0
-						
+							
+							ScannerInfoManager[entity.tag].bounty.danger = 0
+							
 						end
 						
 						if(ScannerInfoManager[entity.tag].bounty.danger > 0) then
 							for i = 1, ScannerInfoManager[entity.tag].bounty.danger do
-							  if i <= ScannerInfoManager[entity.tag].bounty.danger then
-								inkWidgetRef.SetVisible(this.starsWidget[i], true)
-							 else
-								inkWidgetRef.SetVisible(this.starsWidget[i], false)
-							  end
+								if i <= ScannerInfoManager[entity.tag].bounty.danger then
+									inkWidgetRef.SetVisible(this.starsWidget[i], true)
+									else
+									inkWidgetRef.SetVisible(this.starsWidget[i], false)
+								end
 							end
 							else
 							inkWidgetRef.SetVisible(this.starsWidget[1], false)
@@ -549,45 +549,45 @@ function SetOverrider()
 						end
 						
 						if(#transgressionslist > 0) then	
-					
-						
-						for i = 1, #transgressionslist do
-							local record = TweakDBInterface.GetTransgressionRecord(transgressionslist[i])
-							local trantext = ""
-							if(record ~= nil) then
+							
+							
+							for i = 1, #transgressionslist do
+								local record = TweakDBInterface.GetTransgressionRecord(transgressionslist[i])
+								local trantext = ""
+								if(record ~= nil) then
+									
+									trantext = record:LocalizedDescription()
+									print(trantext)
+								end
 								
-								trantext = record:LocalizedDescription()
-								print(trantext)
+								transgressionsText = transgressionsText..GetLocalizedText(trantext)
+								if i < #transgressionslist then
+									transgressionsText = transgressionsText.." ; "
+								end
+							end
+							inkTextRef.SetText(this.transgressions, transgressionsText)
+							
+							inkWidgetRef.SetVisible(this.transgressionsWidget, true)
+						end
+						
+						if(#ScannerInfoManager[entity.tag].bounty.customtransgressions > 0) then
+							transgressionsText = transgressionsText.." ; "
+							
+							
+							for i = 1, #ScannerInfoManager[entity.tag].bounty.customtransgressions do
+								transgressionsText = transgressionsText..ScannerInfoManager[entity.tag].bounty.customtransgressions[i]
+								
+								if i < #ScannerInfoManager[entity.tag].bounty.customtransgressions then
+									transgressionsText = transgressionsText.." ; "
+								end
+								
 							end
 							
-							 transgressionsText = transgressionsText..GetLocalizedText(trantext)
-							  if i < #transgressionslist then
-								transgressionsText = transgressionsText.." ; "
-							  end
-						 end
-						inkTextRef.SetText(this.transgressions, transgressionsText)
-						
-						inkWidgetRef.SetVisible(this.transgressionsWidget, true)
-						end
-					   
-					   if(#ScannerInfoManager[entity.tag].bounty.customtransgressions > 0) then
-					   transgressionsText = transgressionsText.." ; "
-					   
-					   
-						   for i = 1, #ScannerInfoManager[entity.tag].bounty.customtransgressions do
-								transgressionsText = transgressionsText..ScannerInfoManager[entity.tag].bounty.customtransgressions[i]
-								 
-								 if i < #ScannerInfoManager[entity.tag].bounty.customtransgressions then
-									transgressionsText = transgressionsText.." ; "
-								  end
-							   
-						   end
-						   
 							inkTextRef.SetText(this.transgressions, transgressionsText)
-						
+							
 							inkWidgetRef.SetVisible(this.transgressionsWidget, true)
-					   end
-					   
+						end
+						
 						inkWidgetRef.SetVisible(this.wanted, true)
 						inkTextRef.SetText(this.wanted, "By : "..ScannerInfoManager[entity.tag].bounty.issuedby)
 						
@@ -602,110 +602,110 @@ function SetOverrider()
 					end
 					
 					
-				this:UpdateGlobalVisibility()
-				 
-				 
+					this:UpdateGlobalVisibility()
+					
+					
+					else
+					wrappedMethod(value)
+					
+				end
+				else
+				
+				wrappedMethod(value)
+				
+			end
+			
 			else
+			
 			wrappedMethod(value)
 			
-		end
-			else
-			
-				wrappedMethod(value)
-			
-		end
-	
-		else
-		
-		wrappedMethod(value)
-		
 		end
 	end)
 	
 	Override('scannerDetailsGameController', 'RefreshLayout', function(this,wrappedMethod)
-	
-		if(objLook ~= nil) then
-		local entid = objLook:GetEntityID()
-		local entity = getEntityFromManagerById(entid)
 		
-		if (entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
-			this:BreakAniamtions()
+		if(objLook ~= nil) then
+			local entid = objLook:GetEntityID()
+			local entity = getEntityFromManagerById(entid)
 			
-			if HUDManager.GetActiveMode() ~= ActiveMode.FOCUS then
-				this:PlayCloseScannerAnimation();
-			end
-			
-			if this.scanningState == gameScanningState.Complete or this.scanningState == gameScanningState.ShallowComplete or this.scanningState ==  gameScanningState.Started then
+			if (entity.id ~= nil) and (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
+				this:BreakAniamtions()
 				
-				for i,value in ipairs(this.asyncSpawnRequests) do
-					
-					value:Cancel()
-					
-					
+				if HUDManager.GetActiveMode() ~= ActiveMode.FOCUS then
+					this:PlayCloseScannerAnimation();
 				end
 				
-				this.asyncSpawnRequests = {}
-				
-				inkCompoundRef.RemoveAllChildren(this.scannerCountainer)
-				inkCompoundRef.RemoveAllChildren(this.quickhackContainer)
-				inkWidgetRef.SetVisible(this.bg, true)
-				this:GetRootWidget():SetVisible(false)
-				table.insert(this.asyncSpawnRequests,this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.quickhackContainer), "QuickHackDescription"))
-				
-				
-				if(this.scannedObjectType == ScannerObjectType.PUPPET) then
-					this:GetRootWidget():SetVisible(true)
-					this:AsyncSpawnScannerModule("ScannerNPCHeaderWidget")
-					this:AsyncSpawnScannerModule("ScannerNPCBodyWidget")
-					this:AsyncSpawnScannerModule("ScannerBountySystemWidget")
-					this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
-					this:AsyncSpawnScannerModule("ScannerAbilitiesWidget")
-					this:AsyncSpawnScannerModule("ScannerResistancesWidget")
-					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
-					this:AsyncSpawnScannerModule("ScannerVehicleBody")
+				if this.scanningState == gameScanningState.Complete or this.scanningState == gameScanningState.ShallowComplete or this.scanningState ==  gameScanningState.Started then
+					
+					for i,value in ipairs(this.asyncSpawnRequests) do
+						
+						value:Cancel()
+						
+						
+					end
+					
+					this.asyncSpawnRequests = {}
+					
+					inkCompoundRef.RemoveAllChildren(this.scannerCountainer)
+					inkCompoundRef.RemoveAllChildren(this.quickhackContainer)
+					inkWidgetRef.SetVisible(this.bg, true)
+					this:GetRootWidget():SetVisible(false)
+					table.insert(this.asyncSpawnRequests,this:AsyncSpawnFromLocal(inkWidgetRef.Get(this.quickhackContainer), "QuickHackDescription"))
 					
 					
-					elseif(this.scannedObjectType == ScannerObjectType.DEVICE) then
+					if(this.scannedObjectType == ScannerObjectType.PUPPET) then
+						this:GetRootWidget():SetVisible(true)
+						this:AsyncSpawnScannerModule("ScannerNPCHeaderWidget")
+						this:AsyncSpawnScannerModule("ScannerNPCBodyWidget")
+						this:AsyncSpawnScannerModule("ScannerBountySystemWidget")
+						this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
+						this:AsyncSpawnScannerModule("ScannerAbilitiesWidget")
+						this:AsyncSpawnScannerModule("ScannerResistancesWidget")
+						this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+						this:AsyncSpawnScannerModule("ScannerVehicleBody")
+						
+						
+						elseif(this.scannedObjectType == ScannerObjectType.DEVICE) then
+						
+						this:GetRootWidget():SetVisible(true)
+						this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
+						this:AsyncSpawnScannerModule("ScannerVulnerabilitiesWidget")
+						this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
+						this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+						
+						elseif(this.scannedObjectType == ScannerObjectType.VEHICLE) then
+						
+						this:GetRootWidget():SetVisible(true)
+						this:AsyncSpawnScannerModule("ScannerVehicleBody")
+						this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+						
+						elseif(this.scannedObjectType == ScannerObjectType.GENERIC) then
+						this:GetRootWidget():SetVisible(true)
+						this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
+						this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
+						inkWidgetRef:SetVisible(this.toggleDescirptionHackPart, false)
+						
+					end
 					
-					this:GetRootWidget():SetVisible(true)
-					this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
-					this:AsyncSpawnScannerModule("ScannerVulnerabilitiesWidget")
-					this:AsyncSpawnScannerModule("ScannerRequirementsWidget")
-					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
 					
-					elseif(this.scannedObjectType == ScannerObjectType.VEHICLE) then
-					
-					this:GetRootWidget():SetVisible(true)
-					this:AsyncSpawnScannerModule("ScannerVehicleBody")
-					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
-					
-					elseif(this.scannedObjectType == ScannerObjectType.GENERIC) then
-					this:GetRootWidget():SetVisible(true)
-					this:AsyncSpawnScannerModule("ScannerDeviceHeaderWidget")
-					this:AsyncSpawnScannerModule("ScannerDeviceDescriptionWidget")
-					inkWidgetRef:SetVisible(this.toggleDescirptionHackPart, false)
-					
+					this.showScanAnimProxy = this:PlayLibraryAnimation("intro")
+					this.showScanAnimProxy:RegisterToCallback(inkanimEventType.OnFinish, this, "OnScannerDetailsShown")
 				end
 				
 				
-				this.showScanAnimProxy = this:PlayLibraryAnimation("intro")
-				this.showScanAnimProxy:RegisterToCallback(inkanimEventType.OnFinish, this, "OnScannerDetailsShown")
-			end
-			
-			
-			if this.scanningState == gameScanningState.Stopped or this.scanningState ==  gameScanningState.Default then 
-				this:PlayCloseScannerAnimation()
+				if this.scanningState == gameScanningState.Stopped or this.scanningState ==  gameScanningState.Default then 
+					this:PlayCloseScannerAnimation()
+				end
+				
+				else
+				
+				wrappedMethod()
+				
 			end
 			
 			else
 			
 			wrappedMethod()
-			
-		end
-		
-		else
-			
-				wrappedMethod()
 			
 		end
 		
@@ -861,24 +861,58 @@ function SetObserver()
 		
 		
 		if(evt.noLongerTarget == false) then
-for i,v in ipairs(entityTargetPlayer) do
-
-if(evt.objectThatTargets:GetEntityID()==v:GetEntityID())then
-table.remove(entityTargetPlayer,i)
-break
-end
-
-
-end
-
-else
-
-table.insert(entityTargetPlayer,evt.noLongerTarget)
-end
+			for i,v in ipairs(entityTargetPlayer) do
+				
+				if(evt.objectThatTargets:GetEntityID()==v:GetEntityID())then
+					table.remove(entityTargetPlayer,i)
+					break
+				end
+				
+				
+			end
+			
+			else
+			
+			table.insert(entityTargetPlayer,evt.noLongerTarget)
+		end
 		playerTargeted = #entityTargetPlayer>0
 		print("playerTargeted "..tostring(playerTargeted))
-		end) 
+	end) 
 	
+	
+	ObserveAfter("MinimapContainerController", "OnInitialize", function(this)
+		
+		displayHUD["default_minimap"] = this.rootWidget
+		
+	end)
+	
+	ObserveAfter("healthbarWidgetGameController", "OnInitialize", function(this)
+		
+		displayHUD["default_healthbar"] = this.RootWidget
+		
+	end)
+	
+	ObserveAfter("healthbarWidgetGameController", "OnInitialize", function(this)
+		
+		displayHUD["default_healthbar"] = this.RootWidget
+		
+	end)
+	
+	ObserveAfter("StaminabarWidgetGameController", "OnInitialize", function(this)
+		
+		displayHUD["default_staminabar"] = this.RootWidget
+		
+	end)
+	
+	ObserveAfter("HotkeysWidgetController", "OnInitialize", function(this)
+		
+		displayHUD["default_hotkey"] = this.root
+		displayHUD["default_hotkey_phone"] = this.phone
+		displayHUD["default_hotkey_car"] = this.car
+		displayHUD["default_hotkey_consumables"] = this.consumables
+		displayHUD["default_hotkey_gadgets"] = this.gadgets
+		
+	end)
 	
 	ObserveAfter("NPCPuppet", "CompileScannerChunks", function(this)
 		
@@ -934,9 +968,9 @@ end
 			local archetype = characterRecord:ArchetypeData()
 			local archetypename = nil
 			if(archetype ~= nil) then
-			
-			archetypename = archetype:Type():LocalizedName()
-			
+				
+				archetypename = archetype:Type():LocalizedName()
+				
 			end
 			
 			
@@ -946,9 +980,9 @@ end
 			
 			
 			if(archetypeName ~= nil and archetypeName ~= "") then
-			
-			--currentScannerItem.archetypename = archetypeName
-			
+				
+				--currentScannerItem.archetypename = archetypeName
+				
 			end
 			
 			
@@ -958,7 +992,7 @@ end
 			-- local primaryweapons = nil
 			
 			-- if(#items>0) then
-				-- primaryweapons = items[1]:Item():DisplayName()
+			-- primaryweapons = items[1]:Item():DisplayName()
 			-- end
 			
 			
@@ -977,16 +1011,16 @@ end
 				if #this.bounty.transgressions >0 then
 					
 					for i,trans in ipairs(this.bounty.transgressions) do
-					local transText = getTransgressionFromTweakId(trans)
-					
-						if(transText ~= nil) then
-						table.insert(transgressions,transText)
+						local transText = getTransgressionFromTweakId(trans)
 						
+						if(transText ~= nil) then
+							table.insert(transgressions,transText)
+							
 						end
-					
-					
+						
+						
 					end
-				
+					
 					
 					bounty = BountyManager.GenerateBounty(this)
 					else 
@@ -995,8 +1029,8 @@ end
 				
 				
 				
-					
-			
+				
+				
 				currentScannerItem.entityname = this:ToString()
 				currentScannerItem.entityname = this:ToString()
 				currentScannerItem.secondaryname = Game.NameToString(this:GetCurrentAppearanceName())
@@ -1034,7 +1068,7 @@ end
 				if (getScannerdataFromEntityOrGroupOfEntity(entity) ~= nil) then
 					currentScannerItem = getScannerdataFromEntityOrGroupOfEntity(entity)
 					currentScannerItem.entityname = this:ToString()
-				
+					
 				end
 				
 				
@@ -1042,49 +1076,13 @@ end
 				
 				
 			end
-				
+			
 			else
 			
 			
 			currentScannerItem = nil
 			
-			end
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-			
-			
-			
-			
+		end
 		
 		
 		
@@ -1094,13 +1092,49 @@ end
 		
 		
 		
-	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 	end)
 	
 	ObserveAfter("PhoneDialerGameController", "PopulateData", function(this)
-	
+		
 		local contactDataArray = this.journalManager:GetContactDataArray(false)
 		------printdump(contactDataArray))
 		if(#contactList > 0) then
@@ -1134,34 +1168,117 @@ end
 	end)
 	
 	ObserveAfter("MessengerGameController","PopulateData", function(this) 
-	if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
-	
-	print("flib sort mod is enabled, custom message is disabled")
-	else
-		local data = MessengerUtils.GetContactDataArray(this.journalManager,true,true,this.activeData)
-		-- for i=1,#data do
-		-- spdlog.info(GameDump(data[i].data))
-		-- end
-		if(MultiplayerOn and OnlineConversation ~= nil) then
-			onlineInstanceMessageProcessing()
-			local phoneConversation = OnlineConversation
-			spdlog.error(JSON:encode_pretty(phoneConversation))
-			if(getScoreKey(phoneConversation.tag,"unlocked") == nil or getScoreKey(phoneConversation.tag,"unlocked") == 1) then
-				if phoneConversation.hash == nil then
-					OnlineConversation.hash = 0 - tonumber("1308"..math.random(1,999))
-					
-					phoneConversation.hash = OnlineConversation.hash
-				end
-				local itemData = ContactData.new()
-				itemData.id = phoneConversation.tag
-				itemData.localizedName  = phoneConversation.speaker
-				itemData.avatarID = TweakDBID.new("Character.Judy")
-				itemData.questRelated  =  false
-				local unreadcount = 0
-				itemData.unreadMessages  = {}
-				if(#phoneConversation.conversation > 0) then
+		if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
+			
+			print("flib sort mod is enabled, custom message is disabled")
+			else
+			local data = MessengerUtils.GetContactDataArray(this.journalManager,true,true,this.activeData)
+			-- for i=1,#data do
+			-- spdlog.info(GameDump(data[i].data))
+			-- end
+			if(MultiplayerOn and OnlineConversation ~= nil) then
+				onlineInstanceMessageProcessing()
+				local phoneConversation = OnlineConversation
+				spdlog.error(JSON:encode_pretty(phoneConversation))
+				if(getScoreKey(phoneConversation.tag,"unlocked") == nil or getScoreKey(phoneConversation.tag,"unlocked") == 1) then
+					if phoneConversation.hash == nil then
+						OnlineConversation.hash = 0 - tonumber("1308"..math.random(1,999))
+						
+						phoneConversation.hash = OnlineConversation.hash
+					end
+					local itemData = ContactData.new()
+					itemData.id = phoneConversation.tag
+					itemData.localizedName  = phoneConversation.speaker
+					itemData.avatarID = TweakDBID.new("Character.Judy")
+					itemData.questRelated  =  false
+					local unreadcount = 0
+					itemData.unreadMessages  = {}
+					if(#phoneConversation.conversation > 0) then
+						for z=1,#phoneConversation.conversation do
+							if(phoneConversation.conversation[z].message ~= nil and #phoneConversation.conversation[z].message > 0) then
+								for y=1,#phoneConversation.conversation[z].message do
+									if(phoneConversation.conversation[z].message[y].readed == false and (getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == nil or getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == 1)) then
+										unreadcount = unreadcount + 1
+										table.insert(itemData.unreadMessages ,unreadcount)
+										itemData.playerCanReply   =  true
+									end
+								end
+							end
+						end
+					end
+					itemData.hasMessages   =  true
+					itemData.unreadMessegeCount  = unreadcount
+					itemData.playerIsLastSender   =  false
+					itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
+					itemData.threadsCount  = #phoneConversation.conversation
+					itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
+					itemData.hash = phoneConversation.hash
+					local contactVirtualListData =  VirutalNestedListData.new()
+					contactVirtualListData.level =  phoneConversation.hash
+					contactVirtualListData.widgetType = 0
+					contactVirtualListData.isHeader = true
+					contactVirtualListData.data = itemData
+					contactVirtualListData.collapsable = true
+					contactVirtualListData.forceToTopWithinLevel  = true
+					table.insert(data,contactVirtualListData)
 					for z=1,#phoneConversation.conversation do
-						if(phoneConversation.conversation[z].message ~= nil and #phoneConversation.conversation[z].message > 0) then
+						unreadcount = 0
+						itemData.unreadMessages  = {}
+						local conversation = phoneConversation.conversation[z]
+						if(getScoreKey(conversation.tag,"unlocked") == nil or getScoreKey(conversation.tag,"unlocked") == 1) then
+							if(conversation.message ~= nil and #conversation.message > 0) then
+								for y=1,#conversation.message do
+									if(conversation.message[y].readed == false and (getScoreKey(conversation.message[y].tag,"unlocked") == nil or getScoreKey(conversation.message[y].tag,"unlocked") == 1)) then
+										unreadcount = unreadcount + 1
+										table.insert(itemData.unreadMessages ,unreadcount)
+										itemData.playerCanReply   =  true
+									end
+								end
+							end
+							local itemData = ContactData.new()
+							itemData.id = conversation.tag
+							itemData.localizedName  = conversation.name
+							itemData.avatarID = TweakDBID.new("Character.Judy")
+							itemData.questRelated  =  false
+							itemData.hasMessages   =  true
+							itemData.unreadMessegeCount  = unreadcount
+							itemData.playerIsLastSender   =  false
+							itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
+							OnlineConversation.conversation[z].hash =0 - tonumber(tostring(phoneConversation.hash)..math.random(1,100))
+							conversation.hash = OnlineConversation.conversation[z].hash
+							
+							itemData.threadsCount  = 0
+							itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
+							itemData.hash = conversation.hash
+							local contactVirtualListData =  VirutalNestedListData.new()
+							contactVirtualListData.level = phoneConversation.hash
+							contactVirtualListData.widgetType = 1
+							contactVirtualListData.isHeader = false
+							contactVirtualListData.data = itemData
+							contactVirtualListData.collapsable = false
+							table.insert(data,contactVirtualListData)
+						end
+					end
+				end
+			end
+			for k,v in pairs(arrayPhoneConversation) do
+				local phoneConversation = v.conv
+				debugPrint(1,phoneConversation.tag)
+				if(getScoreKey(phoneConversation.tag,"unlocked") == nil or getScoreKey(phoneConversation.tag,"unlocked") == 1) then
+					if phoneConversation.hash == nil then
+						arrayPhoneConversation[k].conv.hash = 0 - tonumber("1308"..math.random(1,999))
+						
+						phoneConversation.hash = arrayPhoneConversation[k].conv.hash
+					end
+					local itemData = ContactData.new()
+					itemData.id = phoneConversation.tag
+					itemData.localizedName  = phoneConversation.speaker
+					itemData.avatarID = TweakDBID.new("Character.Judy")
+					itemData.questRelated  =  false
+					local unreadcount = 0
+					itemData.unreadMessages  = {}
+					for z=1,#phoneConversation.conversation do
+						if(phoneConversation.conversation[z].message ~= nil and #phoneConversation.conversation[z].message >0) then
 							for y=1,#phoneConversation.conversation[z].message do
 								if(phoneConversation.conversation[z].message[y].readed == false and (getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == nil or getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == 1)) then
 									unreadcount = unreadcount + 1
@@ -1171,145 +1288,62 @@ end
 							end
 						end
 					end
-				end
-				itemData.hasMessages   =  true
-				itemData.unreadMessegeCount  = unreadcount
-				itemData.playerIsLastSender   =  false
-				itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
-				itemData.threadsCount  = #phoneConversation.conversation
-				itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
-				itemData.hash = phoneConversation.hash
-				local contactVirtualListData =  VirutalNestedListData.new()
-				contactVirtualListData.level =  phoneConversation.hash
-				contactVirtualListData.widgetType = 0
-				contactVirtualListData.isHeader = true
-				contactVirtualListData.data = itemData
-				contactVirtualListData.collapsable = true
-				contactVirtualListData.forceToTopWithinLevel  = true
-				table.insert(data,contactVirtualListData)
-				for z=1,#phoneConversation.conversation do
-					unreadcount = 0
-					itemData.unreadMessages  = {}
-					local conversation = phoneConversation.conversation[z]
-					if(getScoreKey(conversation.tag,"unlocked") == nil or getScoreKey(conversation.tag,"unlocked") == 1) then
-						if(conversation.message ~= nil and #conversation.message > 0) then
-							for y=1,#conversation.message do
-								if(conversation.message[y].readed == false and (getScoreKey(conversation.message[y].tag,"unlocked") == nil or getScoreKey(conversation.message[y].tag,"unlocked") == 1)) then
-									unreadcount = unreadcount + 1
-									table.insert(itemData.unreadMessages ,unreadcount)
-									itemData.playerCanReply   =  true
+					itemData.hasMessages   =  true
+					itemData.unreadMessegeCount  = unreadcount
+					itemData.playerIsLastSender   =  false
+					itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
+					itemData.threadsCount  = #phoneConversation.conversation
+					itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
+					itemData.hash = phoneConversation.hash
+					local contactVirtualListData =  VirutalNestedListData.new()
+					contactVirtualListData.level =  phoneConversation.hash
+					contactVirtualListData.widgetType = 0
+					contactVirtualListData.isHeader = true
+					contactVirtualListData.data = itemData
+					contactVirtualListData.collapsable = true
+					table.insert(data,contactVirtualListData)
+					for z=1,#phoneConversation.conversation do
+						unreadcount = 0
+						itemData.unreadMessages  = {}
+						local conversation = phoneConversation.conversation[z]
+						if(getScoreKey(conversation.tag,"unlocked") == nil or getScoreKey(conversation.tag,"unlocked") == 1) then
+							if(conversation.message ~= nil and #conversation.message>0) then
+								for y=1,#conversation.message do
+									if(conversation.message[y].readed == false and (getScoreKey(conversation.message[y].tag,"unlocked") == nil or getScoreKey(conversation.message[y].tag,"unlocked") == 1)) then
+										unreadcount = unreadcount + 1
+										table.insert(itemData.unreadMessages ,unreadcount)
+										itemData.playerCanReply   =  true
+									end
 								end
 							end
+							local itemData = ContactData.new()
+							itemData.id = conversation.tag
+							itemData.localizedName  = conversation.name
+							itemData.avatarID = TweakDBID.new("Character.Judy")
+							itemData.questRelated  =  false
+							itemData.hasMessages   =  true
+							itemData.unreadMessegeCount  = unreadcount
+							itemData.playerIsLastSender   =  false
+							itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
+							arrayPhoneConversation[k].conv.conversation[z].hash =0 - tonumber(tostring(phoneConversation.hash)..math.random(1,100))
+							conversation.hash = arrayPhoneConversation[k].conv.conversation[z].hash
+							
+							itemData.threadsCount  = 0
+							itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
+							itemData.hash = conversation.hash
+							local contactVirtualListData =  VirutalNestedListData.new()
+							contactVirtualListData.level = phoneConversation.hash
+							contactVirtualListData.widgetType = 1
+							contactVirtualListData.isHeader = false
+							contactVirtualListData.data = itemData
+							contactVirtualListData.collapsable = false
+							table.insert(data,contactVirtualListData)
 						end
-						local itemData = ContactData.new()
-						itemData.id = conversation.tag
-						itemData.localizedName  = conversation.name
-						itemData.avatarID = TweakDBID.new("Character.Judy")
-						itemData.questRelated  =  false
-						itemData.hasMessages   =  true
-						itemData.unreadMessegeCount  = unreadcount
-						itemData.playerIsLastSender   =  false
-						itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
-						OnlineConversation.conversation[z].hash =0 - tonumber(tostring(phoneConversation.hash)..math.random(1,100))
-						conversation.hash = OnlineConversation.conversation[z].hash
-						
-						itemData.threadsCount  = 0
-						itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
-						itemData.hash = conversation.hash
-						local contactVirtualListData =  VirutalNestedListData.new()
-						contactVirtualListData.level = phoneConversation.hash
-						contactVirtualListData.widgetType = 1
-						contactVirtualListData.isHeader = false
-						contactVirtualListData.data = itemData
-						contactVirtualListData.collapsable = false
-						table.insert(data,contactVirtualListData)
 					end
 				end
 			end
+			this.listController:SetData(data, true)
 		end
-		for k,v in pairs(arrayPhoneConversation) do
-			local phoneConversation = v.conv
-			debugPrint(1,phoneConversation.tag)
-			if(getScoreKey(phoneConversation.tag,"unlocked") == nil or getScoreKey(phoneConversation.tag,"unlocked") == 1) then
-				if phoneConversation.hash == nil then
-					arrayPhoneConversation[k].conv.hash = 0 - tonumber("1308"..math.random(1,999))
-					
-					phoneConversation.hash = arrayPhoneConversation[k].conv.hash
-				end
-				local itemData = ContactData.new()
-				itemData.id = phoneConversation.tag
-				itemData.localizedName  = phoneConversation.speaker
-				itemData.avatarID = TweakDBID.new("Character.Judy")
-				itemData.questRelated  =  false
-				local unreadcount = 0
-				itemData.unreadMessages  = {}
-				for z=1,#phoneConversation.conversation do
-					if(phoneConversation.conversation[z].message ~= nil and #phoneConversation.conversation[z].message >0) then
-						for y=1,#phoneConversation.conversation[z].message do
-							if(phoneConversation.conversation[z].message[y].readed == false and (getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == nil or getScoreKey(phoneConversation.conversation[z].message[y].tag,"unlocked") == 1)) then
-								unreadcount = unreadcount + 1
-								table.insert(itemData.unreadMessages ,unreadcount)
-								itemData.playerCanReply   =  true
-							end
-						end
-					end
-				end
-				itemData.hasMessages   =  true
-				itemData.unreadMessegeCount  = unreadcount
-				itemData.playerIsLastSender   =  false
-				itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
-				itemData.threadsCount  = #phoneConversation.conversation
-				itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
-				itemData.hash = phoneConversation.hash
-				local contactVirtualListData =  VirutalNestedListData.new()
-				contactVirtualListData.level =  phoneConversation.hash
-				contactVirtualListData.widgetType = 0
-				contactVirtualListData.isHeader = true
-				contactVirtualListData.data = itemData
-				contactVirtualListData.collapsable = true
-				table.insert(data,contactVirtualListData)
-				for z=1,#phoneConversation.conversation do
-					unreadcount = 0
-					itemData.unreadMessages  = {}
-					local conversation = phoneConversation.conversation[z]
-					if(getScoreKey(conversation.tag,"unlocked") == nil or getScoreKey(conversation.tag,"unlocked") == 1) then
-						if(conversation.message ~= nil and #conversation.message>0) then
-							for y=1,#conversation.message do
-								if(conversation.message[y].readed == false and (getScoreKey(conversation.message[y].tag,"unlocked") == nil or getScoreKey(conversation.message[y].tag,"unlocked") == 1)) then
-									unreadcount = unreadcount + 1
-									table.insert(itemData.unreadMessages ,unreadcount)
-									itemData.playerCanReply   =  true
-								end
-							end
-						end
-						local itemData = ContactData.new()
-						itemData.id = conversation.tag
-						itemData.localizedName  = conversation.name
-						itemData.avatarID = TweakDBID.new("Character.Judy")
-						itemData.questRelated  =  false
-						itemData.hasMessages   =  true
-						itemData.unreadMessegeCount  = unreadcount
-						itemData.playerIsLastSender   =  false
-						itemData.lastMesssagePreview  =  "Cyberpunk Multiverse"
-						arrayPhoneConversation[k].conv.conversation[z].hash =0 - tonumber(tostring(phoneConversation.hash)..math.random(1,100))
-						conversation.hash = arrayPhoneConversation[k].conv.conversation[z].hash
-						
-						itemData.threadsCount  = 0
-						itemData.timeStamp = Game.GetTimeSystem():GetGameTime()
-						itemData.hash = conversation.hash
-						local contactVirtualListData =  VirutalNestedListData.new()
-						contactVirtualListData.level = phoneConversation.hash
-						contactVirtualListData.widgetType = 1
-						contactVirtualListData.isHeader = false
-						contactVirtualListData.data = itemData
-						contactVirtualListData.collapsable = false
-						table.insert(data,contactVirtualListData)
-					end
-				end
-			end
-		end
-		this.listController:SetData(data, true)
-	end
 	end)
 	
 	ObserveAfter('VehiclesManagerListItemController', 'OnDataChanged', function(this,value)
@@ -1439,178 +1473,178 @@ end
 	end)
 	
 	ObserveAfter("ShardsMenuGameController", "PopulateData", function(this)
-	
-	if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
-	
-	print("flib sort mod is enabled, custom shard is disabled")
-	else
-		local counter = 0
-		local groupData
-		local groupVirtualListData
-		local i
-		local items
-		local level
-		local success = false
-		local newEntries
-		local tagsFilter = {}
-		local toti = {}
-		local data = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
 		
-		
-		local totalcount = 0
-		
-		
-		local datatemp = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
-		table.insert(tagsFilter, CName("HideInBackpackUI"))
-		items = this.InventoryManager:GetPlayerItemsByType(gamedataItemType.Gen_Misc, tagsFilter)
-		counter = 0
-		level = #data+1
-		this.hasNewCryptedEntries = false
-		i = 1
-		local textAffinity = "Affinity"
-		for i = 1,#arrayPnjDb  do
-			local score = getScoreKey("Affinity",arrayPnjDb[i].Names) 
-			if score ~= nil and score > 1 then
-				textAffinity = textAffinity.."\n "..arrayPnjDb[i].Names.." : "..score
-			end
-		end
-		
-		
-		local shardData =  ShardEntryData.new()
-		shardData.title = "CyberScript : NPC Affinity"
-		shardData.description = textAffinity
-		shardData.activeDataSync = this.activeData
-		shardData.counter = counter
-		shardData.isNew = true
-		shardData.imageId = datatemp[i].imageId
-		shardData.hash = -13082022
-		shardData.activeDataSync = this.activeData
-		shardData.isCrypted = false
-		shardData.itemID = datatemp[i].itemID
-		table.insert(shardData.newEntries, shardData.hash)
-		
-		local shardVirtualListData = VirutalNestedListData.new()
-		shardVirtualListData.level = -1
-		shardVirtualListData.widgetType = 0
-		shardVirtualListData.isHeader = false
-		shardVirtualListData.data = shardData
-		table.insert(data, shardVirtualListData)
-		totalcount = totalcount +1
-		
-		textAffinity = "Gang Affinity"
-		for k,v in pairs(arrayFaction) do
-			local score =getScoreKey("Affinity",k)
-			if score ~= nil then
-				textAffinity = textAffinity.."\n "..arrayFaction[k].faction.Name.." : "..score
-			end
-		end
-		
-		
-		
-		local shardData =  ShardEntryData.new()
-		shardData.title = "CyberScript : Gang Affinity"
-		shardData.description = textAffinity
-		shardData.activeDataSync = this.activeData
-		shardData.counter = counter
-		shardData.isNew = true
-		shardData.imageId = datatemp[i].imageId
-		shardData.hash = -13082021
-		shardData.activeDataSync = this.activeData
-		shardData.isCrypted = false
-		shardData.itemID = datatemp[i].itemID
-		table.insert(shardData.newEntries, shardData.hash)
-		
-		
-		
-		local shardVirtualListData = VirutalNestedListData.new()
-		shardVirtualListData.level = -1
-		shardVirtualListData.widgetType = 0
-		shardVirtualListData.isHeader = false
-		shardVirtualListData.data = shardData
-		table.insert(data, shardVirtualListData)
-		totalcount = totalcount +1
-		
-		for i = 1,#arrayHelp do
-			local shard = arrayHelp[i]
-			local description = ""
-			for y=1,#shard.section do
-				description = description..shard.section[y].."\n"
+		if(this.f_sortOrder ~= nil or this.sortOrder ~= nil) then
+			
+			print("flib sort mod is enabled, custom shard is disabled")
+			else
+			local counter = 0
+			local groupData
+			local groupVirtualListData
+			local i
+			local items
+			local level
+			local success = false
+			local newEntries
+			local tagsFilter = {}
+			local toti = {}
+			local data = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
+			
+			
+			local totalcount = 0
+			
+			
+			local datatemp = CodexUtils.GetShardsDataArray(this.journalManager,this.activeData)
+			table.insert(tagsFilter, CName("HideInBackpackUI"))
+			items = this.InventoryManager:GetPlayerItemsByType(gamedataItemType.Gen_Misc, tagsFilter)
+			counter = 0
+			level = #data+1
+			this.hasNewCryptedEntries = false
+			i = 1
+			local textAffinity = "Affinity"
+			for i = 1,#arrayPnjDb  do
+				local score = getScoreKey("Affinity",arrayPnjDb[i].Names) 
+				if score ~= nil and score > 1 then
+					textAffinity = textAffinity.."\n "..arrayPnjDb[i].Names.." : "..score
+				end
 			end
 			
+			
 			local shardData =  ShardEntryData.new()
-			shardData.title = "CyberScript Wiki : "..getLang(shard.title)
-			shardData.description = description
+			shardData.title = "CyberScript : NPC Affinity"
+			shardData.description = textAffinity
 			shardData.activeDataSync = this.activeData
 			shardData.counter = counter
-			shardData.isNew = false
-			shardData.imageId = datatemp[2].imageId
-			shardData.hash = -(i+130820221)
+			shardData.isNew = true
+			shardData.imageId = datatemp[i].imageId
+			shardData.hash = -13082022
 			shardData.activeDataSync = this.activeData
 			shardData.isCrypted = false
-			shardData.itemID = datatemp[1].imageId
+			shardData.itemID = datatemp[i].itemID
 			table.insert(shardData.newEntries, shardData.hash)
 			
 			local shardVirtualListData = VirutalNestedListData.new()
-			shardVirtualListData.level =-1
+			shardVirtualListData.level = -1
 			shardVirtualListData.widgetType = 0
 			shardVirtualListData.isHeader = false
 			shardVirtualListData.data = shardData
 			table.insert(data, shardVirtualListData)
 			totalcount = totalcount +1
-		end
-		
-		for i = 1,#arrayShard do
-			local shard = arrayShard[i]
-			if((getScoreKey(shard.tag,"Score") == nil and shard.locked == false) or getScoreKey(shard.tag,"Score") == 0) then
+			
+			textAffinity = "Gang Affinity"
+			for k,v in pairs(arrayFaction) do
+				local score =getScoreKey("Affinity",k)
+				if score ~= nil then
+					textAffinity = textAffinity.."\n "..arrayFaction[k].faction.Name.." : "..score
+				end
+			end
+			
+			
+			
+			local shardData =  ShardEntryData.new()
+			shardData.title = "CyberScript : Gang Affinity"
+			shardData.description = textAffinity
+			shardData.activeDataSync = this.activeData
+			shardData.counter = counter
+			shardData.isNew = true
+			shardData.imageId = datatemp[i].imageId
+			shardData.hash = -13082021
+			shardData.activeDataSync = this.activeData
+			shardData.isCrypted = false
+			shardData.itemID = datatemp[i].itemID
+			table.insert(shardData.newEntries, shardData.hash)
+			
+			
+			
+			local shardVirtualListData = VirutalNestedListData.new()
+			shardVirtualListData.level = -1
+			shardVirtualListData.widgetType = 0
+			shardVirtualListData.isHeader = false
+			shardVirtualListData.data = shardData
+			table.insert(data, shardVirtualListData)
+			totalcount = totalcount +1
+			
+			for i = 1,#arrayHelp do
+				local shard = arrayHelp[i]
+				local description = ""
+				for y=1,#shard.section do
+					description = description..shard.section[y].."\n"
+				end
 				
 				local shardData =  ShardEntryData.new()
-				shardData.title = "CS : "..shard.title
-				shardData.description = shard.description
+				shardData.title = "CyberScript Wiki : "..getLang(shard.title)
+				shardData.description = description
 				shardData.activeDataSync = this.activeData
 				shardData.counter = counter
-				shardData.isNew = shard.new
-				shardData.imageId = datatemp[1].imageId
-				shardData.hash = -(i+130820202)
+				shardData.isNew = false
+				shardData.imageId = datatemp[2].imageId
+				shardData.hash = -(i+130820221)
 				shardData.activeDataSync = this.activeData
-				shardData.isCrypted = shard.crypted
-				shardData.itemID = datatemp[1].itemID
+				shardData.isCrypted = false
+				shardData.itemID = datatemp[1].imageId
 				table.insert(shardData.newEntries, shardData.hash)
 				
 				local shardVirtualListData = VirutalNestedListData.new()
-				shardVirtualListData.level = -1
+				shardVirtualListData.level =-1
 				shardVirtualListData.widgetType = 0
 				shardVirtualListData.isHeader = false
 				shardVirtualListData.data = shardData
 				table.insert(data, shardVirtualListData)
 				totalcount = totalcount +1
 			end
+			
+			for i = 1,#arrayShard do
+				local shard = arrayShard[i]
+				if((getScoreKey(shard.tag,"Score") == nil and shard.locked == false) or getScoreKey(shard.tag,"Score") == 0) then
+					
+					local shardData =  ShardEntryData.new()
+					shardData.title = "CS : "..shard.title
+					shardData.description = shard.description
+					shardData.activeDataSync = this.activeData
+					shardData.counter = counter
+					shardData.isNew = shard.new
+					shardData.imageId = datatemp[1].imageId
+					shardData.hash = -(i+130820202)
+					shardData.activeDataSync = this.activeData
+					shardData.isCrypted = shard.crypted
+					shardData.itemID = datatemp[1].itemID
+					table.insert(shardData.newEntries, shardData.hash)
+					
+					local shardVirtualListData = VirutalNestedListData.new()
+					shardVirtualListData.level = -1
+					shardVirtualListData.widgetType = 0
+					shardVirtualListData.isHeader = false
+					shardVirtualListData.data = shardData
+					table.insert(data, shardVirtualListData)
+					totalcount = totalcount +1
+				end
+			end
+			
+			groupData = ShardEntryData.new()
+			groupData.title = "CyberScript"
+			groupData.activeDataSync = this.activeData
+			groupData.counter = totalcount
+			groupData.isNew = this.hasNewCryptedEntries
+			groupData.newEntries = {}
+			
+			groupVirtualListData = VirutalNestedListData.new()
+			groupVirtualListData.level = -1
+			groupVirtualListData.widgetType = 1
+			groupVirtualListData.isHeader = true
+			groupVirtualListData.data = groupData
+			groupVirtualListData.forceToTopWithinLevel  = true
+			table.insert(data, groupVirtualListData)
+			
+			
+			if #data <= 0 then
+				this:ShowNodataWarning()
+				else 
+				this:HideNodataWarning()
+				this.listController:SetData(data, true, true)
+			end
+			
+			this:RefreshButtonHints()
 		end
-		
-		groupData = ShardEntryData.new()
-		groupData.title = "CyberScript"
-		groupData.activeDataSync = this.activeData
-		groupData.counter = totalcount
-		groupData.isNew = this.hasNewCryptedEntries
-		groupData.newEntries = {}
-		
-		groupVirtualListData = VirutalNestedListData.new()
-		groupVirtualListData.level = -1
-		groupVirtualListData.widgetType = 1
-		groupVirtualListData.isHeader = true
-		groupVirtualListData.data = groupData
-		groupVirtualListData.forceToTopWithinLevel  = true
-		table.insert(data, groupVirtualListData)
-		
-		
-		if #data <= 0 then
-			this:ShowNodataWarning()
-			else 
-			this:HideNodataWarning()
-			this.listController:SetData(data, true, true)
-		end
-		
-		this:RefreshButtonHints()
-	end
 	end)
 	
 	ObserveAfter('WorldMapMenuGameController', 'OnSelectedDistrictChanged', function(this,oldDistrict,newDistrict)
@@ -1743,13 +1777,17 @@ end
 			inkTextRef.SetText(this.addressText, "NETdir://CyberScript.mod");
 		end
 		if(CurrentAddress == "NETdir://ezestates.web/renovations" and BrowserCustomPlace ~= nil) then
+			if(BrowserCustomPlace == "template") then
+			inkTextRef.SetText(this.addressText, "NETdir://ezestates.web/CyberScript/renovations")
+			else
 			inkTextRef.SetText(this.addressText, "NETdir://ezestates.web/CyberScript/estates")
+			end
 		end
 	end)
 	
 	ObserveAfter('BrowserController', 'LoadWebPage', function(self,address)
 		CurrentAddress = address
-		debugPrint(1,CurrentAddress)
+		print(CurrentAddress)
 		-- Cron.NextTick(function()
 		if(CurrentAddress ~= "NETdir://ezestates.web/renovations") then
 			BrowserCustomPlace = nil
@@ -1956,196 +1994,610 @@ end
 				end
 				evt:Handle()
 			end)
+			local btn_template = UIButton.Create("btn_template", "Our Renovations",50, width, heigh ,{top=150,left=leftm},black,yellow)
+			btn_template:Reparent(root2, 3)
+			btn_template:RegisterCallback('OnRelease', function(_, evt)
+				local linkController = LinkController
+				if linkController ~= nil then
+					linkController:SetLinkAddress("NETdir://ezestates.web/renovations")
+					self.lastClickedLinkAddress = linkController:GetLinkAddress()
+					CurrentAddress = "NETdir://ezestates.web/renovations"
+					BrowserCustomPlace = "template"
+					self:CallCustomCallback("OnLinkPressed")
+					else 
+					debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+				end
+				evt:Handle()
+			end)
 		end
 		if(CurrentAddress == "NETdir://ezestates.web/renovations" and BrowserCustomPlace ~= nil and BrowserCustomPlace ~= "main") then
 			-- local textList = #self.textList
 			-- debugPrint(1,"textList "..textList)
 			--Hide current Items
-			local textink = self.textList[4].widget
-			local textcontainer = self.textList[4].widget.parentWidget
-			local buttonink = self.textList[4].widget.parentWidget.parentWidget
-			local itemcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget
-			local rowcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget
-			local verticalarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
-			local scrollarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
-			local tempcount = 0
-			local temparrayHouse = {}
-			local obj = {}
-			local housetype = 0
-			if(BrowserCustomPlace == "house") then
-				housetype = 0
-			end
-			if(BrowserCustomPlace == "bar") then
-				housetype = 1
-			end
-			if(BrowserCustomPlace == "nightclub") then
-				housetype = 2
-			end
-			if(BrowserCustomPlace == "restaurant") then
-				housetype = 3
-			end
-			if(BrowserCustomPlace == "shopping") then
-				housetype = 4
-			end
-			for k,v in pairs(arrayHouse) do 
-				if(v.house.type == housetype) then
-					if(#obj < 2) then
-						table.insert(obj,v.house)
-						else
-						table.insert(temparrayHouse,obj)
-						obj = {}
-						table.insert(obj,v.house)
+			
+			if (BrowserCustomPlace ~= "template") then
+				local textink = self.textList[4].widget
+				local textcontainer = self.textList[4].widget.parentWidget
+				local buttonink = self.textList[4].widget.parentWidget.parentWidget
+				local itemcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget
+				local rowcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget
+				local verticalarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
+				local scrollarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
+				local tempcount = 0
+				local temparrayHouse = {}
+				local obj = {}
+				local templist = {}
+				local housetype = 0
+				if(BrowserCustomPlace == "house") then
+					housetype = 0
+				end
+				if(BrowserCustomPlace == "bar") then
+					housetype = 1
+				end
+				if(BrowserCustomPlace == "nightclub") then
+					housetype = 2
+				end
+				if(BrowserCustomPlace == "restaurant") then
+					housetype = 3
+				end
+				if(BrowserCustomPlace == "shopping") then
+					housetype = 4
+				end
+				for k,v in pairs(arrayHouse) do 
+					if(v.house.type == housetype) then
+						table.insert(templist,v.house)
 					end
 				end
-			end
-			debugPrint(1,"House count :"..#temparrayHouse)
-			local marginleft = 50
-			local topleft = 0
-			for i=1,#temparrayHouse do 
-				local rowcontainerhouse = inkHorizontalPanelWidget.new()
-				rowcontainerhouse:SetName(CName.new("rowcontainer_house_"..i))
-				rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
-				rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
-				rowcontainerhouse:Reparent(verticalarea)
-				-- local rowcontainerhouse = inkCanvasWidget.new()
-				-- rowcontainerhouse:SetName(CName.new("rowcontainer_house_"..i))
-				-- rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
-				-- rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
-				-- rowcontainerhouse:SetMargin(inkMargin.new({ bottom = 50 }))
-				-- rowcontainerhouse:Reparent(verticalarea)
-				for y=1,#temparrayHouse[i] do
-					local house = temparrayHouse[i][y]
-					local score = getScoreKey(house.tag,"Score")
-					if(house.isbuyable == true and (score == nil or score == 0)) then
-						local canvas = inkCanvasWidget.new()
-						canvas:SetName(CName.new("canvas_house_"..house.tag))
-						canvas:SetSize(Vector2.new({ X = 874, Y = 491 }))
-						canvas:SetMargin(inkMargin.new({ bottom = 50 }))
-						canvas:Reparent(rowcontainerhouse)
-						local bg = inkImage.new()
-						bg:SetName(CName.new("bg_house_"..house.tag))
-						bg:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
-						bg:SetTexturePart('cell_bg')
-						bg:SetTintColor(HDRColor.new({ Red = 0.054902, Green = 0.054902, Blue = 0.090196, Alpha = 1.0 }))
-						bg:SetOpacity(0.8)
-						bg:SetAnchor(inkEAnchor.Fill)
-						bg.useNineSliceScale = true
-						bg.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
-						bg:SetInteractive(false)
-						bg:Reparent(canvas, -1)
-						local fill = inkImage.new()
-						fill:SetName("fill_house_"..house.tag)
-						fill:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
-						fill:SetTexturePart('cell_bg')
-						fill:SetTintColor(HDRColor.new({ Red = 1.1761, Green = 0.3809, Blue = 0.3476, Alpha = 1.0 }))
-						fill:SetOpacity(0.0)
-						fill:SetAnchor(inkEAnchor.Fill)
-						fill.useNineSliceScale = true
-						fill.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
-						fill:SetInteractive(false)
-						fill:Reparent(canvas, -1)
-						local frame = inkImage.new()
-						frame:SetName("frame_house_"..house.tag)
-						frame:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
-						frame:SetTexturePart('cell_fg')
-						frame:SetTintColor(HDRColor.new({ Red = 0.368627, Green = 0.964706, Blue = 1.0, Alpha = 1.0 }))
-						frame:SetOpacity(0.3)
-						frame:SetAnchor(inkEAnchor.Fill)
-						frame.useNineSliceScale = true
-						frame.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
-						frame:SetInteractive(false)
-						frame:Reparent(canvas, -1)
-						local textinkhousename = inkText.new()
-						textinkhousename:SetName(CName.new("text_house_"..house.tag.."_Name"))
-						textinkhousename:SetText("Name : "..house.name)
-						textinkhousename:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-						textinkhousename:SetFontStyle('Medium')
-						textinkhousename:SetFontSize(35)
-						textinkhousename:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-						textinkhousename:SetHorizontalAlignment(textHorizontalAlignment.Center)
-						textinkhousename:SetVerticalAlignment(textVerticalAlignment.Center)
-						textinkhousename:SetMargin(inkMargin.new({ left = 50, top = 0 }))
-						textinkhousename:Reparent(canvas,-1)
-						local textinkhouseprice = inkText.new()
-						textinkhouseprice:SetName(CName.new("text_house_"..house.tag.."_price"))
-						textinkhouseprice:SetText("Price : "..house.price.." €$")
-						textinkhouseprice:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-						textinkhouseprice:SetFontStyle('Medium')
-						textinkhouseprice:SetFontSize(35)
-						textinkhouseprice:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-						textinkhouseprice:SetHorizontalAlignment(textHorizontalAlignment.Center)
-						textinkhouseprice:SetVerticalAlignment(textVerticalAlignment.Center)
-						textinkhouseprice:SetMargin(inkMargin.new({ left = 50, top = 50 }))
-						textinkhouseprice:Reparent(canvas,-1)
-						local textinkhousedesc = inkText.new()
-						textinkhousedesc:SetName(CName.new("text_house_"..house.tag.."_desc"))
-						if(house.desc == nil) then
-							textinkhousedesc:SetText("No description about this place. Come back later !")
-							else
-							local splitContentRequ = splitByChunk(house.desc,50)
-							local result = ""
-							for i,v in ipairs(splitContentRequ) do
-								result = result..v.."\n"
-							end
-							textinkhousedesc:SetText(result)
+				print("House count :"..#templist)
+				if(#templist > 0) then
+						for i = 1,#templist do
+								
+								
+									if(#obj < 2) then
+										table.insert(obj,templist[i])
+										if(templist[i+1] == nil) then
+											table.insert(temparrayHouse,obj)
+										end
+										else
+										table.insert(temparrayHouse,obj)
+										obj = {}
+										table.insert(obj,templist[i])
+										if(templist[i+1] == nil) then
+											table.insert(temparrayHouse,obj)
+										end
+									end
+								
+								
+								
+						
 						end
-						textinkhousedesc:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-						textinkhousedesc:SetFontStyle('Medium')
-						textinkhousedesc:SetFontSize(35)
-						textinkhousedesc:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-						textinkhousedesc:SetHorizontalAlignment(textHorizontalAlignment.Center)
-						textinkhousedesc:SetVerticalAlignment(textVerticalAlignment.Center)
-						textinkhousedesc:SetMargin(inkMargin.new({ left = 50, top = 100 }))
-						textinkhousedesc:Reparent(canvas,-1)
-						local buttonData = {
-							name = "text_house_"..house.tag.."_buy",
-							text = "Buy",
-							value = 1,
-							tag =  "text_house_"..house.tag.."_buy"
-						}
-						local fontsize = uifont
-						local blackbgcolor = Color.ToHDRColorDirect(Color.new({ Red = 0, Green = 0, Blue = 0, Alpha = 1.0 }))
-						local goldtextcolor = Color.ToHDRColorDirect(Color.new({ Red = 255, Green = 220, Blue = 16, Alpha = 1.0 }))
-						local buy_btn= UIButton.Create(buttonData.name, buttonData.text,50, 300, 100,{top=420,left=650},blackbgcolor,goldtextcolor)
-						buy_btn:Reparent(canvas, -1)
-						buy_btn:RegisterCallback('OnRelease', function(_, evt)
-							local onenter_action = {}
-							local action = {}
-							action.name = "buyHouse"
-							action.tag = house.tag
-							table.insert(onenter_action,action)
-							local action = {}
-							action.name = "notify"
-							action.value = "Place Buyed !"
-							table.insert(onenter_action,action)
-							local action = {}
-							action.name = "set_mappin"
-							action.position = "custom_place"
-							action.position_tag = house.tag
-							action.position_house_way = "default"
-							action.tag =  house.tag
-							action.typemap = "Zzz05_ApartmentToPurchaseVariant"
-							action.wall =  true
-							action.active =  false
-							action.x = 0
-							action.y = 0
-							action.z = 0
-							table.insert(onenter_action,action)
-							runActionList(onenter_action, "test_onenter", "interact",false,"nothing",false)
-							local linkController = LinkController
-							if linkController ~= nil then
-								linkController:SetLinkAddress("NETdir://ezestates.web/for_rent")
-								self.lastClickedLinkAddress = linkController:GetLinkAddress()
-								CurrentAddress = "NETdir://ezestates.web/for_rent"
-								BrowserCustomPlace = nil
-								self:CallCustomCallback("OnLinkPressed")
-								else 
-								debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+					end
+				print("House count :"..#temparrayHouse)
+				local marginleft = 50
+				local topleft = 0
+				for i=1,#temparrayHouse do 
+					local rowcontainerhouse = inkHorizontalPanelWidget.new()
+					rowcontainerhouse:SetName(CName.new("rowcontainer_house_"..i))
+					rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
+					rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
+					rowcontainerhouse:Reparent(verticalarea)
+					-- local rowcontainerhouse = inkCanvasWidget.new()
+					-- rowcontainerhouse:SetName(CName.new("rowcontainer_house_"..i))
+					-- rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
+					-- rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
+					-- rowcontainerhouse:SetMargin(inkMargin.new({ bottom = 50 }))
+					-- rowcontainerhouse:Reparent(verticalarea)
+					for y=1,#temparrayHouse[i] do
+						local house = temparrayHouse[i][y]
+						local score = getHouseStatut(house.tag)
+						
+							local canvas = inkCanvasWidget.new()
+							canvas:SetName(CName.new("canvas_house_"..house.tag))
+							canvas:SetSize(Vector2.new({ X = 874, Y = 491 }))
+							canvas:SetMargin(inkMargin.new({ bottom = 50 }))
+							canvas:Reparent(rowcontainerhouse)
+							local bg = inkImage.new()
+							bg:SetName(CName.new("bg_house_"..house.tag))
+							bg:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+							bg:SetTexturePart('cell_bg')
+							bg:SetTintColor(HDRColor.new({ Red = 0.054902, Green = 0.054902, Blue = 0.090196, Alpha = 1.0 }))
+							bg:SetOpacity(0.8)
+							bg:SetAnchor(inkEAnchor.Fill)
+							bg.useNineSliceScale = true
+							bg.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+							bg:SetInteractive(false)
+							bg:Reparent(canvas, -1)
+							local fill = inkImage.new()
+							fill:SetName("fill_house_"..house.tag)
+							fill:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+							fill:SetTexturePart('cell_bg')
+							fill:SetTintColor(HDRColor.new({ Red = 1.1761, Green = 0.3809, Blue = 0.3476, Alpha = 1.0 }))
+							fill:SetOpacity(0.0)
+							fill:SetAnchor(inkEAnchor.Fill)
+							fill.useNineSliceScale = true
+							fill.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+							fill:SetInteractive(false)
+							fill:Reparent(canvas, -1)
+							local frame = inkImage.new()
+							frame:SetName("frame_house_"..house.tag)
+							frame:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+							frame:SetTexturePart('cell_fg')
+							frame:SetTintColor(HDRColor.new({ Red = 0.368627, Green = 0.964706, Blue = 1.0, Alpha = 1.0 }))
+							frame:SetOpacity(0.3)
+							frame:SetAnchor(inkEAnchor.Fill)
+							frame.useNineSliceScale = true
+							frame.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+							frame:SetInteractive(false)
+							frame:Reparent(canvas, -1)
+							local textinkhousename = inkText.new()
+							textinkhousename:SetName(CName.new("text_house_"..house.tag.."_Name"))
+							if (score == nil or score == 0) then
+							textinkhousename:SetText("Name : "..house.name)
+							else
+							textinkhousename:SetText("(Owned) Name : "..house.name)
+							textinkhousename:SetTintColor(gamecolor(0,255,0,1))
 							end
-							evt:Handle()
-						end)
+							textinkhousename:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+							textinkhousename:SetFontStyle('Medium')
+							textinkhousename:SetFontSize(35)
+							textinkhousename:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+							textinkhousename:SetHorizontalAlignment(textHorizontalAlignment.Center)
+							textinkhousename:SetVerticalAlignment(textVerticalAlignment.Center)
+							textinkhousename:SetMargin(inkMargin.new({ left = 50, top = 0 }))
+							textinkhousename:Reparent(canvas,-1)
+							local textinkhouseprice = inkText.new()
+							textinkhouseprice:SetName(CName.new("text_house_"..house.tag.."_price"))
+							textinkhouseprice:SetText("Price : "..house.price.." €$")
+							textinkhouseprice:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+							textinkhouseprice:SetFontStyle('Medium')
+							textinkhouseprice:SetFontSize(35)
+							textinkhouseprice:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+							textinkhouseprice:SetHorizontalAlignment(textHorizontalAlignment.Center)
+							textinkhouseprice:SetVerticalAlignment(textVerticalAlignment.Center)
+							textinkhouseprice:SetMargin(inkMargin.new({ left = 50, top = 50 }))
+							textinkhouseprice:Reparent(canvas,-1)
+							local textinkhousedesc = inkText.new()
+							textinkhousedesc:SetName(CName.new("text_house_"..house.tag.."_desc"))
+							if(house.desc == nil) then
+								textinkhousedesc:SetText("No description about this place. Come back later !")
+								else
+								local splitContentRequ = splitByChunk(house.desc,50)
+								local result = ""
+								for i,v in ipairs(splitContentRequ) do
+									result = result..v.."\n"
+								end
+								textinkhousedesc:SetText(result)
+							end
+							textinkhousedesc:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+							textinkhousedesc:SetFontStyle('Medium')
+							textinkhousedesc:SetFontSize(35)
+							textinkhousedesc:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+							textinkhousedesc:SetHorizontalAlignment(textHorizontalAlignment.Center)
+							textinkhousedesc:SetVerticalAlignment(textVerticalAlignment.Center)
+							textinkhousedesc:SetMargin(inkMargin.new({ left = 50, top = 100 }))
+							textinkhousedesc:Reparent(canvas,-1)
+							if (house.isbuyable == true) then
+								if ((score == nil or score == 0)) then
+									local buttonData = {
+										name = "text_house_"..house.tag.."_buy",
+										text = "Buy",
+										value = 1,
+										tag =  "text_house_"..house.tag.."_buy"
+									}
+									local fontsize = uifont
+									local blackbgcolor = Color.ToHDRColorDirect(Color.new({ Red = 0, Green = 0, Blue = 0, Alpha = 1.0 }))
+									local goldtextcolor = Color.ToHDRColorDirect(Color.new({ Red = 255, Green = 220, Blue = 16, Alpha = 1.0 }))
+									local buy_btn= UIButton.Create(buttonData.name, buttonData.text,50, 300, 100,{top=420,left=650},blackbgcolor,goldtextcolor)
+									buy_btn:Reparent(canvas, -1)
+									buy_btn:RegisterCallback('OnRelease', function(_, evt)
+										local onenter_action = {}
+										local action = {}
+										action.name = "buyHouse"
+										action.tag = house.tag
+										table.insert(onenter_action,action)
+										local action = {}
+										action.name = "notify"
+										action.value = "Place Buyed !"
+										table.insert(onenter_action,action)
+										local action = {}
+										action.name = "set_mappin"
+										action.position = "custom_place"
+										action.position_tag = house.tag
+										action.position_house_way = "default"
+										action.tag =  house.tag
+										action.typemap = "Zzz05_ApartmentToPurchaseVariant"
+										action.wall =  true
+										action.active =  false
+										action.x = 0
+										action.y = 0
+										action.z = 0
+										table.insert(onenter_action,action)
+										runActionList(onenter_action, "test_onenter", "interact",false,"nothing",false)
+										local linkController = LinkController
+										if linkController ~= nil then
+											linkController:SetLinkAddress("NETdir://ezestates.web/for_rent")
+											self.lastClickedLinkAddress = linkController:GetLinkAddress()
+											CurrentAddress = "NETdir://ezestates.web/for_rent"
+											BrowserCustomPlace = nil
+											self:CallCustomCallback("OnLinkPressed")
+											else 
+											debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+										end
+										evt:Handle()
+									end)
+								else
+									local buttonData = {
+										name = "text_house_"..house.tag.."_sell",
+										text = "Sell",
+										value = 1,
+										tag =  "text_house_"..house.tag.."_sell"
+									}
+									local fontsize = uifont
+									local blackbgcolor = Color.ToHDRColorDirect(Color.new({ Red = 0, Green = 0, Blue = 0, Alpha = 1.0 }))
+									local goldtextcolor = Color.ToHDRColorDirect(Color.new({ Red = 255, Green = 16, Blue = 16, Alpha = 1.0 }))
+									local buy_btn= UIButton.Create(buttonData.name, buttonData.text,50, 300, 100,{top=420,left=650},blackbgcolor,goldtextcolor)
+									buy_btn:Reparent(canvas, -1)
+									buy_btn:RegisterCallback('OnRelease', function(_, evt)
+										local onenter_action = {}
+										local action = {}
+										action.name = "sellHouse"
+										action.tag = house.tag
+										table.insert(onenter_action,action)
+										local action = {}
+										action.name = "notify"
+										action.value = "Place Selled !"
+										table.insert(onenter_action,action)
+										
+										runActionList(onenter_action, "test_onenter", "interact",false,"nothing",false)
+										local linkController = LinkController
+										if linkController ~= nil then
+											linkController:SetLinkAddress("NETdir://ezestates.web/for_rent")
+											self.lastClickedLinkAddress = linkController:GetLinkAddress()
+											CurrentAddress = "NETdir://ezestates.web/for_rent"
+											BrowserCustomPlace = nil
+											self:CallCustomCallback("OnLinkPressed")
+											else 
+											debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+										end
+										evt:Handle()
+									end)
+								end
+						end
 					end
 				end
+				
+				
+				else
+				
+				if(currentHouse ~= nil) then
+					
+					local textink = self.textList[4].widget
+					local textcontainer = self.textList[4].widget.parentWidget
+					local buttonink = self.textList[4].widget.parentWidget.parentWidget
+					local itemcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget
+					local rowcontainer = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget
+					local verticalarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
+					local scrollarea = self.textList[4].widget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget.parentWidget
+					local tempcount = 0
+					local temparrayHouse = {}
+					local obj = {}
+					local templist = {}
+					
+					local marginleft = 50
+					local topleft = 0
+					
+					for k,v in pairs(arrayHousingTemplate) do 
+						
+						if(v.template.target == currentHouse.tag) then
+							table.insert(templist,v.template)
+						end
+					end
+					
+					if(#templist > 0) then
+						for i = 1,#templist do
+								
+								if(#obj < 2) then
+										table.insert(obj,templist[i])
+										if(templist[i+1] == nil) then
+											table.insert(temparrayHouse,obj)
+										end
+										else
+										table.insert(temparrayHouse,obj)
+										obj = {}
+										table.insert(obj,templist[i])
+										if(templist[i+1] == nil) then
+											table.insert(temparrayHouse,obj)
+										end
+									end
+								
+								
+								
+						
+						end
+					end
+					
+					print(dump(temparrayHouse))
+					
+					for i=1,#temparrayHouse do 
+						local rowcontainerhouse = inkHorizontalPanelWidget.new()
+						rowcontainerhouse:SetName(CName.new("rowcontainer_house_"..i))
+						rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
+						rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
+						rowcontainerhouse:Reparent(verticalarea)
+						
+						for y=1,#temparrayHouse[i] do
+							local template = temparrayHouse[i][y]
+							local currenttemplate = getVariableKey(currentHouse.tag,"current_template")
+							
+								local canvas = inkCanvasWidget.new()
+								canvas:SetName(CName.new("canvas_house_"..template.tag))
+								canvas:SetSize(Vector2.new({ X = 874, Y = 491 }))
+								canvas:SetMargin(inkMargin.new({ bottom = 50 }))
+								canvas:Reparent(rowcontainerhouse)
+								local bg = inkImage.new()
+								bg:SetName(CName.new("bg_house_"..template.tag))
+								bg:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+								bg:SetTexturePart('cell_bg')
+								bg:SetTintColor(HDRColor.new({ Red = 0.054902, Green = 0.054902, Blue = 0.090196, Alpha = 1.0 }))
+								bg:SetOpacity(0.8)
+								bg:SetAnchor(inkEAnchor.Fill)
+								bg.useNineSliceScale = true
+								bg.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+								bg:SetInteractive(false)
+								bg:Reparent(canvas, -1)
+								local fill = inkImage.new()
+								fill:SetName("fill_house_"..template.tag)
+								fill:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+								fill:SetTexturePart('cell_bg')
+								fill:SetTintColor(HDRColor.new({ Red = 1.1761, Green = 0.3809, Blue = 0.3476, Alpha = 1.0 }))
+								fill:SetOpacity(0.0)
+								fill:SetAnchor(inkEAnchor.Fill)
+								fill.useNineSliceScale = true
+								fill.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+								fill:SetInteractive(false)
+								fill:Reparent(canvas, -1)
+								local frame = inkImage.new()
+								frame:SetName("frame_house_"..template.tag)
+								frame:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+								frame:SetTexturePart('cell_fg')
+								frame:SetTintColor(HDRColor.new({ Red = 0.368627, Green = 0.964706, Blue = 1.0, Alpha = 1.0 }))
+								frame:SetOpacity(0.3)
+								frame:SetAnchor(inkEAnchor.Fill)
+								frame.useNineSliceScale = true
+								frame.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+								frame:SetInteractive(false)
+								frame:Reparent(canvas, -1)
+								local textinkhousename = inkText.new()
+								textinkhousename:SetName(CName.new("text_house_"..template.tag.."_Name"))
+								
+								if(currenttemplate ~= nil and currenttemplate == template.tag) then
+									textinkhousename:SetText("(Applied) Name : "..template.name)
+										textinkhousename:SetTintColor(gamecolor(0,255,0,1))
+									else
+									textinkhousename:SetText("Name : "..template.name)
+									textinkhousename:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+								end
+								
+								textinkhousename:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+								textinkhousename:SetFontStyle('Medium')
+								textinkhousename:SetFontSize(35)
+							
+								textinkhousename:SetHorizontalAlignment(textHorizontalAlignment.Center)
+								textinkhousename:SetVerticalAlignment(textVerticalAlignment.Center)
+								textinkhousename:SetMargin(inkMargin.new({ left = 50, top = 0 }))
+								textinkhousename:Reparent(canvas,-1)
+								local textinkhouseprice = inkText.new()
+								textinkhouseprice:SetName(CName.new("text_house_"..template.tag.."_price"))
+								textinkhouseprice:SetText("Price : "..template.price.." €$")
+								textinkhouseprice:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+								textinkhouseprice:SetFontStyle('Medium')
+								textinkhouseprice:SetFontSize(35)
+								textinkhouseprice:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+								textinkhouseprice:SetHorizontalAlignment(textHorizontalAlignment.Center)
+								textinkhouseprice:SetVerticalAlignment(textVerticalAlignment.Center)
+								textinkhouseprice:SetMargin(inkMargin.new({ left = 50, top = 50 }))
+								textinkhouseprice:Reparent(canvas,-1)
+								local textinkhousedesc = inkText.new()
+								textinkhousedesc:SetName(CName.new("text_house_"..template.tag.."_desc"))
+								if(template.desc == nil) then
+									textinkhousedesc:SetText("No description about this place. Come back later !")
+									else
+									local splitContentRequ = splitByChunk(template.desc,50)
+									local result = ""
+									for i,v in ipairs(splitContentRequ) do
+										result = result..v.."\n"
+									end
+									textinkhousedesc:SetText(result)
+								end
+								textinkhousedesc:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+								textinkhousedesc:SetFontStyle('Medium')
+								textinkhousedesc:SetFontSize(35)
+								textinkhousedesc:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+								textinkhousedesc:SetHorizontalAlignment(textHorizontalAlignment.Center)
+								textinkhousedesc:SetVerticalAlignment(textVerticalAlignment.Center)
+								textinkhousedesc:SetMargin(inkMargin.new({ left = 50, top = 100 }))
+								textinkhousedesc:Reparent(canvas,-1)
+								local buttonData = {
+									name = "text_house_"..template.tag.."_buy",
+									text = "Buy",
+									value = 1,
+									tag =  "text_house_"..template.tag.."_buy"
+								}
+								local fontsize = uifont
+								local blackbgcolor = Color.ToHDRColorDirect(Color.new({ Red = 0, Green = 0, Blue = 0, Alpha = 1.0 }))
+								local goldtextcolor = Color.ToHDRColorDirect(Color.new({ Red = 255, Green = 220, Blue = 16, Alpha = 1.0 }))
+								local buy_btn= UIButton.Create(buttonData.name, buttonData.text,50, 300, 100,{top=420,left=650},blackbgcolor,goldtextcolor)
+								buy_btn:Reparent(canvas, -1)
+								buy_btn:RegisterCallback('OnRelease', function(_, evt)
+									local onenter_action = {}
+									local action = {}
+									action.name = "remove_money"
+									action.value = template.price
+									table.insert(onenter_action,action)
+									local action = {}
+									action.name = "notify"
+									action.value = "Renovation Buyed !"
+									table.insert(onenter_action,action)
+									local action = {}
+									action.name = "current_place_clear_all_template"
+									table.insert(onenter_action,action)
+									local action = {}
+									action.name = "set_variable"
+									action.variable = currentHouse.tag
+									action.key = "current_template"
+									action.value = template.tag
+									table.insert(onenter_action,action)
+									local action = {}
+									action.name = "current_place_apply_template"
+									action.tag = template.tag
+									action.x = 0
+									action.y = 0
+									action.z = 0
+									table.insert(onenter_action,action)
+									runActionList(onenter_action, "test_onenter", "interact",false,"nothing",false)
+									local linkController = LinkController
+									if linkController ~= nil then
+										linkController:SetLinkAddress("NETdir://ezestates.web/for_rent")
+										self.lastClickedLinkAddress = linkController:GetLinkAddress()
+										CurrentAddress = "NETdir://ezestates.web/for_rent"
+										BrowserCustomPlace = nil
+										self:CallCustomCallback("OnLinkPressed")
+										else 
+										debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+									end
+									evt:Handle()
+								end)
+							
+						end
+					end
+					
+					local rowcontainerhouse = inkHorizontalPanelWidget.new()
+					rowcontainerhouse:SetName(CName.new("rowcontainer_house_clear"))
+					rowcontainerhouse:SetSize(Vector2.new({ X = 2120, Y = 500 }))
+					rowcontainerhouse:SetMargin(inkMargin.new({ top = 50, bottom = 50 }))
+					rowcontainerhouse:Reparent(verticalarea)
+					
+					local canvas = inkCanvasWidget.new()
+					canvas:SetName(CName.new("canvas_house_clear"))
+					canvas:SetSize(Vector2.new({ X = 874, Y = 491 }))
+					canvas:SetMargin(inkMargin.new({ bottom = 50 }))
+					canvas:Reparent(rowcontainerhouse)
+					local bg = inkImage.new()
+					bg:SetName(CName.new("bg_house_clear"))
+					bg:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+					bg:SetTexturePart('cell_bg')
+					bg:SetTintColor(HDRColor.new({ Red = 0.054902, Green = 0.054902, Blue = 0.090196, Alpha = 1.0 }))
+					bg:SetOpacity(0.8)
+					bg:SetAnchor(inkEAnchor.Fill)
+					bg.useNineSliceScale = true
+					bg.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+					bg:SetInteractive(false)
+					bg:Reparent(canvas, -1)
+					local fill = inkImage.new()
+					fill:SetName("fill_house_clear")
+					fill:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+					fill:SetTexturePart('cell_bg')
+					fill:SetTintColor(HDRColor.new({ Red = 1.1761, Green = 0.3809, Blue = 0.3476, Alpha = 1.0 }))
+					fill:SetOpacity(0.0)
+					fill:SetAnchor(inkEAnchor.Fill)
+					fill.useNineSliceScale = true
+					fill.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+					fill:SetInteractive(false)
+					fill:Reparent(canvas, -1)
+					local frame = inkImage.new()
+					frame:SetName("frame_house_clear")
+					frame:SetAtlasResource(ResRef.FromName('base\\gameplay\\gui\\common\\shapes\\atlas_shapes_sync.inkatlas'))
+					frame:SetTexturePart('cell_fg')
+					frame:SetTintColor(HDRColor.new({ Red = 0.368627, Green = 0.964706, Blue = 1.0, Alpha = 1.0 }))
+					frame:SetOpacity(0.3)
+					frame:SetAnchor(inkEAnchor.Fill)
+					frame.useNineSliceScale = true
+					frame.nineSliceScale = inkMargin.new({ left = 0.0, top = 0.0, right = 10.0, bottom = 0.0 })
+					frame:SetInteractive(false)
+					frame:Reparent(canvas, -1)
+					local textinkhousename = inkText.new()
+					textinkhousename:SetName(CName.new("text_house_clear_Name"))
+					textinkhousename:SetText("Clear current renovations")
+					textinkhousename:SetTintColor(gamecolor(255,0,0,1))
+					textinkhousename:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+					textinkhousename:SetFontStyle('Medium')
+					textinkhousename:SetFontSize(35)
+				
+					textinkhousename:SetHorizontalAlignment(textHorizontalAlignment.Center)
+					textinkhousename:SetVerticalAlignment(textVerticalAlignment.Center)
+					textinkhousename:SetMargin(inkMargin.new({ left = 50, top = 0 }))
+					textinkhousename:Reparent(canvas,-1)
+					local textinkhouseprice = inkText.new()
+					textinkhouseprice:SetName(CName.new("text_house_clear_price"))
+					textinkhouseprice:SetText("Price : 500 €$")
+					textinkhouseprice:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+					textinkhouseprice:SetFontStyle('Medium')
+					textinkhouseprice:SetFontSize(35)
+					textinkhouseprice:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+					textinkhouseprice:SetHorizontalAlignment(textHorizontalAlignment.Center)
+					textinkhouseprice:SetVerticalAlignment(textVerticalAlignment.Center)
+					textinkhouseprice:SetMargin(inkMargin.new({ left = 50, top = 50 }))
+					textinkhouseprice:Reparent(canvas,-1)
+					local textinkhousedesc = inkText.new()
+					textinkhousedesc:SetName(CName.new("text_house_clear_desc"))
+					textinkhousedesc:SetText("It will clear the current renovation.")
+					
+					textinkhousedesc:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+					textinkhousedesc:SetFontStyle('Medium')
+					textinkhousedesc:SetFontSize(35)
+					textinkhousedesc:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+					textinkhousedesc:SetHorizontalAlignment(textHorizontalAlignment.Center)
+					textinkhousedesc:SetVerticalAlignment(textVerticalAlignment.Center)
+					textinkhousedesc:SetMargin(inkMargin.new({ left = 50, top = 100 }))
+					textinkhousedesc:Reparent(canvas,-1)
+					local buttonData = {
+						name = "text_house_clear_buy",
+						text = "Buy",
+						value = 1,
+						tag =  "text_house_clear_buy"
+					}
+					local fontsize = uifont
+					local blackbgcolor = Color.ToHDRColorDirect(Color.new({ Red = 0, Green = 0, Blue = 0, Alpha = 1.0 }))
+					local goldtextcolor = Color.ToHDRColorDirect(Color.new({ Red = 255, Green = 220, Blue = 16, Alpha = 1.0 }))
+					local buy_btn= UIButton.Create(buttonData.name, buttonData.text,50, 300, 100,{top=420,left=650},blackbgcolor,goldtextcolor)
+					buy_btn:Reparent(canvas, -1)
+					buy_btn:RegisterCallback('OnRelease', function(_, evt)
+						local onenter_action = {}
+						local action = {}
+						action.name = "remove_money"
+						action.value = 500
+						table.insert(onenter_action,action)
+						local action = {}
+						action.name = "notify"
+						action.value = "Renovation Cleared !"
+						table.insert(onenter_action,action)
+						local action = {}
+						action.name = "current_place_clear_all_template"
+						table.insert(onenter_action,action)
+						local action = {}
+						action.name = "set_variable"
+						action.variable = currentHouse.tag
+						action.key = "current_template"
+						action.value = ""
+						table.insert(onenter_action,action)
+						
+						runActionList(onenter_action, "test_onenter", "interact",false,"nothing",false)
+						local linkController = LinkController
+						if linkController ~= nil then
+							linkController:SetLinkAddress("NETdir://ezestates.web/for_rent")
+							self.lastClickedLinkAddress = linkController:GetLinkAddress()
+							CurrentAddress = "NETdir://ezestates.web/for_rent"
+							BrowserCustomPlace = nil
+							self:CallCustomCallback("OnLinkPressed")
+							else 
+							debugPrint(1,"Missing LinkController for a widget [" + NameToString(inkWidgetRef.GetName(self.textList[1])) + "]")
+						end
+						evt:Handle()
+					end)
+							
+				end
+				
+				
 			end
 		end
 	end)
@@ -2246,123 +2698,176 @@ end
 	ObserveAfter('BraindanceGameController','OnInitialize', function(self)
 		
 		BraindanceGameController = self
-		local root = self.rootWidget.parentWidget 
+		rootContainer = self.rootWidget.parentWidget 
 		
 		
 		
-		root:SetVisible(true)
+		rootContainer:SetVisible(true)
 		
 		
 		
 		container = inkCanvas.new()
-		container:SetName(CName.new("pos_container"))
+		container:SetName(CName.new("default"))
 		container:SetAnchor(inkEAnchor.Fill)
-		container:Reparent(root, -1)
-		
-		posWdiget = inkText.new()
-		posWdiget:SetName(CName.new("posWdiget"))
-		posWdiget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		posWdiget:SetFontStyle('Medium')
-		posWdiget:SetFontSize(22)
-		posWdiget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		posWdiget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		posWdiget:SetVerticalAlignment(textVerticalAlignment.Center)
-		posWdiget:Reparent(container, -1)
-		
-		districtWidget = inkText.new()
-		districtWidget:SetName(CName.new("districtWidget"))
-		districtWidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		districtWidget:SetFontStyle('Medium')
-		districtWidget:SetFontSize(25)
-		districtWidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		districtWidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		districtWidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		districtWidget:Reparent(container, -1)
-		
-		subdistrictWidget = inkText.new()
-		subdistrictWidget:SetName(CName.new("districtWidget"))
-		subdistrictWidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		subdistrictWidget:SetFontStyle('Medium')
-		subdistrictWidget:SetFontSize(25)
-		subdistrictWidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		subdistrictWidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		subdistrictWidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		subdistrictWidget:Reparent(container, -1)
+		container:Reparent(rootContainer, -1)
 		
 		
-		roomwidget = inkText.new()
-		roomwidget:SetName(CName.new("roomwidget"))
-		roomwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		roomwidget:SetFontStyle('Medium')
-		roomwidget:SetFontSize(25)
-		roomwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		roomwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		roomwidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		roomwidget:Reparent(container, -1)
+		displayHUD = {}
 		
-		placemultiwidget = inkText.new()
-		placemultiwidget:SetName(CName.new("placemultiwidget"))
-		placemultiwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		placemultiwidget:SetFontStyle('Medium')
-		placemultiwidget:SetFontSize(25)
-		placemultiwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		placemultiwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		placemultiwidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		placemultiwidget:Reparent(container, -1)
-		
-		multistatewidget = inkText.new()
-		multistatewidget:SetName(CName.new("multistatewidget"))
-		multistatewidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		multistatewidget:SetFontStyle('Medium')
-		multistatewidget:SetFontSize(25)
-		multistatewidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		multistatewidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		multistatewidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		multistatewidget:Reparent(container, -1)
-		
-		timerwidget = inkText.new()
-		timerwidget:SetName(CName.new("timerwidget"))
-		timerwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		timerwidget:SetFontStyle('Medium')
-		timerwidget:SetFontSize(25)
-		timerwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		timerwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		timerwidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		timerwidget:Reparent(container, -1)
-		
-		factionwidget = inkCanvas.new()
-		factionwidget:SetName(CName.new("factionwidget"))
-		
-		factionwidget:SetAnchor(inkEAnchor.Fill)
-		
-		factionwidget:Reparent(container, -1)
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "container") then
+				displayHUD[k] = inkCanvas.new()
+				displayHUD[k]:SetName(CName.new(hud.tag))
+				displayHUD[k]:SetAnchor(inkEAnchor.Fill)
+				displayHUD[k]:Reparent(rootContainer, -1)
+				print("create "..hud.tag)
+				
+			end
+		end
 		
 		
-		factiontitle = inkText.new()
-		factiontitle:SetName(CName.new("factiontitle"))
-		factiontitle:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		factiontitle:SetFontStyle('Medium')
-		factiontitle:SetFontSize(25)
-		factiontitle:SetText("Faction : ")
-		factiontitle:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		factiontitle:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		factiontitle:SetVerticalAlignment(textVerticalAlignment.Center)
-		factiontitle:Reparent(factionwidget, -1)
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "container") then
+				if(hud.container == nil or hud.container == "default" or  hud.container == "") then
+					displayHUD[k]:Reparent(rootContainer, -1)
+					else
+					displayHUD[k]:Reparent(displayHUD[hud.container], -1)
+				end
+				
+				
+			end
+		end
 		
-		avspeedwidget = inkText.new()
-		avspeedwidget:SetName(CName.new("avspeedwidget"))
-		avspeedwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
-		avspeedwidget:SetFontStyle('Medium')
-		avspeedwidget:SetFontSize(35)
-		avspeedwidget:SetText("Speed : 0 m/s")
-		avspeedwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
-		avspeedwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
-		avspeedwidget:SetVerticalAlignment(textVerticalAlignment.Center)
-		avspeedwidget:Reparent(container, -1)
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "widget") then
+				displayHUD[k] = inkText.new()
+				displayHUD[k]:SetName(CName.new(hud.tag))
+				displayHUD[k]:SetMargin(inkMargin.new({ top = hud.margin.top, left = hud.margin.left}))
+				displayHUD[k]:SetFontFamily(hud.fontfamily)
+				displayHUD[k]:SetFontStyle(hud.fontstyle)
+				displayHUD[k]:SetFontSize(hud.fontsize)
+				displayHUD[k]:SetTintColor(gamecolor(hud.color.red,hud.color.green,hud.color.blue,1))
+				displayHUD[k]:SetVisible(hud.visible)
+				displayHUD[k]:SetHorizontalAlignment(textHorizontalAlignment.Center)
+				displayHUD[k]:SetVerticalAlignment(textVerticalAlignment.Center)
+				
+				if(hud.container == nil or hud.container == "default" or hud.container == "") then
+					displayHUD[k]:Reparent(container, -1)
+					else
+					displayHUD[k]:Reparent(displayHUD[hud.container], -1)
+				end
+				print("create "..hud.tag)
+			end
+			
+		end
+		
+		-- posWdiget = inkText.new()
+		-- posWdiget:SetName(CName.new("posWdiget"))
+		-- posWdiget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- posWdiget:SetFontStyle('Medium')
+		-- posWdiget:SetFontSize(22)
+		-- posWdiget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- posWdiget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- posWdiget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- posWdiget:Reparent(container, -1)
+		
+		-- districtWidget = inkText.new()
+		-- districtWidget:SetName(CName.new("districtWidget"))
+		-- districtWidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- districtWidget:SetFontStyle('Medium')
+		-- districtWidget:SetFontSize(25)
+		-- districtWidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- districtWidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- districtWidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- districtWidget:Reparent(container, -1)
+		
+		-- subdistrictWidget = inkText.new()
+		-- subdistrictWidget:SetName(CName.new("districtWidget"))
+		-- subdistrictWidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- subdistrictWidget:SetFontStyle('Medium')
+		-- subdistrictWidget:SetFontSize(25)
+		-- subdistrictWidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- subdistrictWidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- subdistrictWidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- subdistrictWidget:Reparent(container, -1)
+		
+		
+		-- roomwidget = inkText.new()
+		-- roomwidget:SetName(CName.new("roomwidget"))
+		-- roomwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- roomwidget:SetFontStyle('Medium')
+		-- roomwidget:SetFontSize(25)
+		-- roomwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- roomwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- roomwidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- roomwidget:Reparent(container, -1)
+		
+		-- placemultiwidget = inkText.new()
+		-- placemultiwidget:SetName(CName.new("placemultiwidget"))
+		-- placemultiwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- placemultiwidget:SetFontStyle('Medium')
+		-- placemultiwidget:SetFontSize(25)
+		-- placemultiwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- placemultiwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- placemultiwidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- placemultiwidget:Reparent(container, -1)
+		
+		-- multistatewidget = inkText.new()
+		-- multistatewidget:SetName(CName.new("multistatewidget"))
+		-- multistatewidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- multistatewidget:SetFontStyle('Medium')
+		-- multistatewidget:SetFontSize(25)
+		-- multistatewidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- multistatewidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- multistatewidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- multistatewidget:Reparent(container, -1)
+		
+		-- timerwidget = inkText.new()
+		-- timerwidget:SetName(CName.new("timerwidget"))
+		-- timerwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- timerwidget:SetFontStyle('Medium')
+		-- timerwidget:SetFontSize(25)
+		-- timerwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- timerwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- timerwidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- timerwidget:Reparent(container, -1)
+		
+		-- factionwidget = inkCanvas.new()
+		-- factionwidget:SetName(CName.new("factionwidget"))
+		
+		-- factionwidget:SetAnchor(inkEAnchor.Fill)
+		
+		-- factionwidget:Reparent(container, -1)
+		
+		
+		-- factiontitle = inkText.new()
+		-- factiontitle:SetName(CName.new("factiontitle"))
+		-- factiontitle:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- factiontitle:SetFontStyle('Medium')
+		-- factiontitle:SetFontSize(25)
+		-- factiontitle:SetText("Faction : ")
+		-- factiontitle:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- factiontitle:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- factiontitle:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- factiontitle:Reparent(factionwidget, -1)
+		
+		-- avspeedwidget = inkText.new()
+		-- avspeedwidget:SetName(CName.new("avspeedwidget"))
+		-- avspeedwidget:SetFontFamily('base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily')
+		-- avspeedwidget:SetFontStyle('Medium')
+		-- avspeedwidget:SetFontSize(35)
+		-- avspeedwidget:SetText("Speed : 0 m/s")
+		-- avspeedwidget:SetTintColor(HDRColor.new({ Red = 0.113725, Green = 0.929412, Blue = 0.513726, Alpha = 1.0 }))
+		-- avspeedwidget:SetHorizontalAlignment(textHorizontalAlignment.Center)
+		-- avspeedwidget:SetVerticalAlignment(textVerticalAlignment.Center)
+		-- avspeedwidget:Reparent(container, -1)
 		
 		
 		if(healthbarwidget == nil) then
-			healthbarwidget = root
+			healthbarwidget = rootContainer
 		end
 	end)
 	

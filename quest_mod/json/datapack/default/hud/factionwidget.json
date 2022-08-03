@@ -1,0 +1,9 @@
+{
+	"tag":"factionwidget",
+	"type":"container",
+	"visible":true,
+	"margin":{
+		"top":120,
+		"left":2800
+	}
+}

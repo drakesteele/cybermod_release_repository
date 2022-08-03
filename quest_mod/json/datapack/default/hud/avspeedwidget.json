@@ -1,0 +1,83 @@
+{
+	"tag":"avspeedwidget",
+	"type":"widget",
+	"container":"",
+	"fontfamily":"base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily",
+	"fontstyle":"Medium",
+	"fontsize":75,
+	"color":{
+		"red":255,
+		"green":170,
+		"blue":0
+		
+	},
+	"visible":true,
+	"margin":{
+		"top":1825,
+		"left":15
+	},
+	"text":"test",
+	"context": [
+        {
+			
+            "trigger": {
+                "auto": {
+                    "name": "auto"
+                }
+            },
+            "requirement": [["auto"]],
+            "prop": 
+			{
+			
+				"visible": {
+					"text": "",
+					"values":{
+						"visible": {
+							"type": "object",
+							"value":false
+						}
+
+					}
+				
+				}
+			}
+		},
+		{
+			
+            "trigger": {
+                "auto": {
+                    "name": "player_is_in_av"
+                }
+            },
+            "requirement": [["auto"]],
+            "prop": 
+			{
+			
+				"text": {
+					"text": "Speed : ##avspeed m/s",
+					"values":{
+						"avspeed": {
+							"type": "score",
+							"variable":"av",
+							"key":"speed"
+						}
+
+					}
+				
+				},
+				"visible": {
+					"text": "",
+					"values":{
+						"visible": {
+							"type": "object",
+							"value":true
+						}
+
+					}
+				
+				}
+			}
+		}
+	]
+
+}

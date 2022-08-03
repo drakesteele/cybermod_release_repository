@@ -745,7 +745,7 @@ end
 	arrayHouse = {}
 	arrayFixer = {}
 	arrayScene = {}
-	
+	arrayHUD = {}
 	arrayFaction = {}
 	arrayPOI = {}
 	arrayEvent = {}
@@ -1125,6 +1125,16 @@ end
 							arrayHousingTemplate[value.tag].file = path
 							arrayHousingTemplate[value.tag].datapack = datapackname
 						end
+						elseif(objtype == "hud") then
+						for key, value in pairs(tabl) do 
+							local path = "json/datapack/"..datapackname.."/"..objtype.."/"..key
+							rootpath = path
+							
+							arrayHUD[value.tag] = {}
+							arrayHUD[value.tag].hud = value
+							arrayHUD[value.tag].file = path
+							arrayHUD[value.tag].datapack = datapackname
+						end
 					end
 				end
 			end,
@@ -1205,14 +1215,18 @@ end
 						
 						if(checkTriggerRequirement(v.requirement,v.trigger))then
 							for k,u in pairs(v.prop) do
-								questos[k] = GeneratefromContext(u)
+								
+								local path =  splitDot(k, ".")
+								setValueToTablePath(questos, path, GeneratefromContext(u))
 							end
 						end
 					end
 					else
 					if(checkTriggerRequirement(questos.context.requirement,questos.context.trigger))then
 						for k,u in pairs(trigger.context.prop) do
-							questos[k] = GeneratefromContext(u)
+							
+								local path =  splitDot(k, ".")
+								setValueToTablePath(questos, path, GeneratefromContext(u))
 						end
 					end
 				end
@@ -1238,14 +1252,18 @@ end
 						
 						if(checkTriggerRequirement(v.requirement,v.trigger))then
 							for k,u in pairs(v.prop) do
-								irpobj[k] = GeneratefromContext(u)
+							
+								local path =  splitDot(k, ".")
+								setValueToTablePath(irpobj, path, GeneratefromContext(u))
 							end
 						end
 					end
 					else
 					if(checkTriggerRequirement(irpobj.context.requirement,irpobj.context.trigger))then
 						for k,u in pairs(trigger.context.prop) do
-							irpobj[k] = GeneratefromContext(u)
+							
+							local path =  splitDot(k, ".")
+							setValueToTablePath(irpobj, path, GeneratefromContext(u))
 						end
 					end
 				end

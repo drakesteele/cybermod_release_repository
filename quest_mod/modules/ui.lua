@@ -72,10 +72,82 @@ end
 function makeNativeSettings()
 	
 	nativeSettings.addTab("/CM", getLang("ui_setting_main")) -- Add our mods tab (path, label)
+	if (ScriptedEntityAffinity == nil or
+	AutoAmbush == nil or
+	AmbushEnabled== nil or
+	AmbushMin== nil or
+	enableLocation== nil or
+	showFactionAffinityHud== nil or
+	displayXYZset== nil or
+	InfiniteDoubleJump==nil or
+	DisableFallDamage==nil or
+	Player_Sprint_Multiplier==nil or
+	Player_Run_Multiplier==nil or
+	Jump_Height==nil or
+	Double_Jump_Height==nil) then
+	local obj = {}
+	
+	obj.AutoAmbush = tostring(AutoAmbush)
+	obj.AmbushEnabled = tostring(AutoAmbush)
+	obj.ScriptedEntityAffinity = tostring(ScriptedEntityAffinity)
+	obj.enableLocation = tostring(enableLocation)
+	obj.showFactionAffinityHud = tostring(showFactionAffinityHud)
+	obj.displayXYZset = tostring(displayXYZset)
+	obj.InfiniteDoubleJump = tostring(InfiniteDoubleJump)
+	obj.DisableFallDamage = tostring(DisableFallDamage)
+	obj.Player_Sprint_Multiplier = tostring(Player_Sprint_Multiplier)
+	obj.Player_Run_Multiplier = tostring(Player_Run_Multiplier)
+	obj.Jump_Height = tostring(Jump_Height)
+	obj.Double_Jump_Height = tostring(Double_Jump_Height)
+	
+	spdlog.error(dump(obj))
 	
 	
+	nativeSettings.addSubcategory("/CM/gameplay", "Ooops there is an mising setting in CyberScript Setting !")
+	nativeSettings.addSubcategory("/CM/gameplay01", "Try rebuild the cache and reload the mod/save/game !")
+	nativeSettings.addSubcategory("/CM/gameplay02", "Send quest_mod.log to discord Admin on Cyberscript Discord !")
 	
 	
+		
+	
+ 
+	nativeSettings.addButton("/CM/gameplay02", "Reset the mod", "Will totaly delete downloaded datapack, cache and latest session", "Reset the mod", 45, function()
+	
+	if file_exists("data/sessions/latest.txt") then
+		os.remove("data/sessions/latest.txt")
+	end
+	
+	for k,v in arrayDatapack do
+			if(k ~="default") then
+			DeleteModpack(k)
+			end
+	end
+	
+	local reader = dir("data/cache")
+	
+	for i=1, #reader do 
+		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
+			
+				os.remove('data/cache/'..reader[i].name)
+	
+	
+			
+			
+		end
+	end
+	
+	
+ 	ImportDataPack()
+	LoadDataPackCache()
+	print( getLang("ui_setting_actions_rebuild_done"))
+ 	
+ end)
+ 
+ 
+	
+	
+	else
+	local status, result =  pcall(function()
 	nativeSettings.addSubcategory("/CM/gameplay", getLang("ui_setting_gameplay")) -- Optional: Add a subcategory (path, label), you can add as many as you want
 	
 	settingsTables["gamepad"] =  
@@ -99,13 +171,6 @@ function makeNativeSettings()
 	end)
 	
 	
-	print("ScriptedEntityAffinity "..tostring(ScriptedEntityAffinity))
-	print("AutoAmbush "..tostring(AutoAmbush))
-	print("AmbushEnabled "..tostring(AmbushEnabled))
-	print("AmbushMin "..tostring(AmbushMin))
-	print("enableLocation "..tostring(enableLocation))
-	print("showFactionAffinityHud "..tostring(showFactionAffinityHud))
-	print("displayXYZset "..tostring(displayXYZset))
 	
 	nativeSettings.addSubcategory("/CM/script", "Script Engine Settings")
 	
@@ -233,6 +298,40 @@ function makeNativeSettings()
  	
  end)
  
+ nativeSettings.addButton("/CM/actions", "Reset the mod", "Will totaly delete download datapack, cache and latest session", "Reset the mod", 45, function()
+	
+	if file_exists("data/sessions/latest.txt") then
+		os.remove("data/sessions/latest.txt")
+	end
+	
+	for k,v in arrayDatapack do
+	
+			if(k ~="default") then
+			print(k)
+			DeleteModpack(k)
+			end
+	end
+	
+	local reader = dir("data/cache")
+	
+	for i=1, #reader do 
+		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
+			
+				os.remove('data/cache/'..reader[i].name)
+	
+	
+			
+			
+		end
+	end
+	
+	
+ 	ImportDataPack()
+	LoadDataPackCache()
+	print( getLang("ui_setting_actions_rebuild_done"))
+ 	
+ end)
+ 
  
  
 	nativeSettings.addTab("/CMCHEAT", getLang("ui_setting_cheat")) -- Add our mods tab (path, label)
@@ -244,7 +343,7 @@ function makeNativeSettings()
 		updateUserSetting("InfiniteDoubleJump", InfiniteDoubleJump)
 	end)
 	
-	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_disable_fall_damage"),  getLang("ui_setting_cheat_disable_fall_damage"), InfiniteDoubleJump, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_disable_fall_damage"),  getLang("ui_setting_cheat_disable_fall_damage"), DisableFallDamage, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
 		DisableFallDamage = state
 		updateUserSetting("DisableFallDamage", DisableFallDamage)
 	end)
@@ -321,7 +420,57 @@ function makeNativeSettings()
 		debugOptions = state
 		
 	end)
+	end)
 	
+	if status == false then
+		
+		
+		
+			spdlog.error(result)
+			
+			nativeSettings.addSubcategory("/CM/gameplay", "Ooops there is an error in CyberScript Setting !")
+	nativeSettings.addSubcategory("/CM/gameplay01", "Try rebuild the cache and reload the mod/save/game !")
+	nativeSettings.addSubcategory("/CM/gameplay02", "Send quest_mod.log to discord Admin on Cyberscript Discord !")
+	
+	
+		
+	
+ 
+	nativeSettings.addButton("/CM/gameplay02", "Reset the mod", "Will totaly delete download datapack, cache and latest session", "Reset the mod", 45, function()
+	
+	if file_exists("data/sessions/latest.txt") then
+		os.remove("data/sessions/latest.txt")
+	end
+	
+	for k,v in arrayDatapack do
+			if(k ~="default") then
+			DeleteModpack(k)
+			end
+	end
+	
+	local reader = dir("data/cache")
+	
+	for i=1, #reader do 
+		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
+			
+				os.remove('data/cache/'..reader[i].name)
+	
+	
+			
+			
+		end
+	end
+	
+	
+ 	ImportDataPack()
+	LoadDataPackCache()
+	print( getLang("ui_setting_actions_rebuild_done"))
+ 	
+ end)
+		end
+	
+	
+	end
 	end
 
 
@@ -378,6 +527,62 @@ function newWindows()
 		openNetContract = true
 	end
 	ImGui.EndChild()
+end
+
+function loadHUD()
+	
+		displayHUD = {}
+		
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "container") then
+				displayHUD[k] = inkCanvas.new()
+				displayHUD[k]:SetName(CName.new(hud.tag))
+				displayHUD[k]:SetAnchor(inkEAnchor.Fill)
+				displayHUD[k]:Reparent(rootContainer, -1)
+				print("create "..hud.tag)
+			
+			end
+		end
+		
+		
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "container") then
+				if(hud.container == nil or hud.container == "default" or  hud.container == "") then
+					displayHUD[k]:Reparent(rootContainer, -1)
+				else
+					displayHUD[k]:Reparent(displayHUD[hud.container], -1)
+				end
+				
+			
+			end
+		end
+		
+		for k,v in pairs(arrayHUD) do
+			local hud = v.hud
+			if(hud.type == "widget") then
+				displayHUD[k] = inkText.new()
+				displayHUD[k]:SetName(CName.new(hud.tag))
+				displayHUD[k]:SetMargin(inkMargin.new({ top = hud.margin.top, left = hud.margin.left}))
+				displayHUD[k]:SetFontFamily(hud.fontfamily)
+				displayHUD[k]:SetFontStyle(hud.fontstyle)
+				displayHUD[k]:SetFontSize(hud.fontsize)
+				displayHUD[k]:SetTintColor(gamecolor(hud.color.red,hud.color.green,hud.color.blue,1))
+				displayHUD[k]:SetVisible(hud.visible)
+				displayHUD[k]:SetHorizontalAlignment(textHorizontalAlignment.Center)
+				displayHUD[k]:SetVerticalAlignment(textVerticalAlignment.Center)
+				
+				if(hud.container == nil or hud.container == "default" or hud.container == "") then
+					displayHUD[k]:Reparent(container, -1)
+				else
+					displayHUD[k]:Reparent(displayHUD[hud.container], -1)
+				end
+				print("create "..hud.tag)
+			end
+		
+		end
+	
 end
 
 function ImageFrame()
@@ -1042,8 +1247,8 @@ function debugWindows()
 		
 		if CPS:CPButton("print currentsave data")  then
 			
-			local sessionFile = io.open('currentsave.json', 'w')
-			sessionFile:write(JSON:encode_pretty(currentSave))
+			local sessionFile = io.open('currentsave.txt', 'w')
+			sessionFile:write(dump(currentSave))
 			sessionFile:close()
 		end
 		
@@ -5756,6 +5961,8 @@ function Multi_InstanceList()
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "connect_instance" 
+	action.value =  selectedInstance
+	action.password = selectedInstancePassword
 	table.insert(buttons.action,action)
 	action = {}
 	action.name = "wait_for_framework" 
@@ -5768,6 +5975,9 @@ function Multi_InstanceList()
 	action.name = "notify_instance"
 	table.insert(buttons.action,action)
 	table.insert(ui.controls,buttons)
+	
+	
+	
 	buttons= {}
 	buttons.type = "button"
 	buttons.title = getLang("ui_keystone_instance_msg13")
@@ -8139,8 +8349,10 @@ function createInteractionHub(active)
 									
 									if(checkTriggerRequirement(v.requirement,v.trigger))then
 										for k,u in pairs(v.prop) do
+											local path =  splitDot(k, ".")
+											setValueToTablePath(interact, path, GeneratefromContext(u))
 											
-											interact[k] = GeneratefromContext(u)
+										
 										end
 									end
 								end
@@ -8148,7 +8360,10 @@ function createInteractionHub(active)
 								if(checkTriggerRequirement(interact.context.requirement,interact.context.trigger))then
 									for k,u in pairs(action.context.prop) do
 										
-										interact[k] = GeneratefromContext(u)
+									
+										local path =  splitDot(k, ".")
+										setValueToTablePath(interact, path, GeneratefromContext(u))
+											
 									end
 								end
 							end
@@ -8174,7 +8389,8 @@ function createInteractionHub(active)
 									if(checkTriggerRequirement(v.requirement,v.trigger))then
 										for k,u in pairs(v.prop) do
 											
-											interact[k] = GeneratefromContext(u)
+												local path =  splitDot(k, ".")
+										setValueToTablePath(interact, path, GeneratefromContext(u))
 										end
 									end
 								end
@@ -8182,7 +8398,8 @@ function createInteractionHub(active)
 								if(checkTriggerRequirement(interact.context.requirement,interact.context.trigger))then
 									for k,u in pairs(action.context.prop) do
 										
-										interact[k] = GeneratefromContext(u)
+											local path =  splitDot(k, ".")
+										setValueToTablePath(interact, path, GeneratefromContext(u))
 									end
 								end
 							end

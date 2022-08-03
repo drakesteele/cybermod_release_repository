@@ -1,17 +1,17 @@
 --[[
 	
-
- 
-   _____      _               _____           _       _   
-  / ____|    | |             / ____|         (_)     | |  
- | |    _   _| |__   ___ _ _| (___   ___ _ __ _ _ __ | |_ 
- | |   | | | | '_ \ / _ \ '__\___ \ / __| '__| | '_ \| __|
- | |___| |_| | |_) |  __/ |  ____) | (__| |  | | |_) | |_ 
-  \_____\__, |_.__/ \___|_| |_____/ \___|_|  |_| .__/ \__|
-         __/ |                                 | |        
-        |___/                                  |_|        
-
-
+	
+	
+	_____      _               _____           _       _   
+	/ ____|    | |             / ____|         (_)     | |  
+	| |    _   _| |__   ___ _ _| (___   ___ _ __ _ _ __ | |_ 
+	| |   | | | | '_ \ / _ \ '__\___ \ / __| '__| | '_ \| __|
+	| |___| |_| | |_) |  __/ |  ____) | (__| |  | | |_) | |_ 
+	\_____\__, |_.__/ \___|_| |_____/ \___|_|  |_| .__/ \__|
+	__/ |                                 | |        
+	|___/                                  |_|        
+	
+	
 	
 	
 	-- ------------------------------------------------------------------
@@ -94,7 +94,7 @@ function ModInitialisation()
 	currentSave.arrayFactionDistrict = nil
 	currentSave.arrayFactionRelation = nil
 	currentSave.garage = {}
-	
+	currentSave.arrayHUD = {}
 	
 	if file_exists("quest_mod.log") then
 		io.open("quest_mod.log", "w")
@@ -157,11 +157,11 @@ function ModInitialisation()
 		if(tostring(reader[i].type) ~= "directory" and reader[i].name ~= "placeholder") then
 			
 			
-				local file =io.open('data/cache/'..reader[i].name)
-				local size = file:seek("end")    -- get file size
-				file:close()
-				
-				if size > 100 and size < 10000000 then
+			local file =io.open('data/cache/'..reader[i].name)
+			local size = file:seek("end")    -- get file size
+			file:close()
+			
+			if size > 100 and size < 10000000 then
 				
 				CompiledDatapack[reader[i].name] = require('data/cache/'..reader[i].name)
 				
@@ -170,16 +170,16 @@ function ModInitialisation()
 				local msg = " is too big. The cache file will not be loaded.."
 				
 				if(size < 100) then
-				
-				local msg = "is too small. The cache file will not be loaded.."
-				
+					
+					local msg = "is too small. The cache file will not be loaded.."
+					
 				end
 				
 				print("Size of the cache "..reader[i].name..msg)
 				
-				end
-	
-	
+			end
+			
+			
 			
 			
 		end
@@ -201,10 +201,10 @@ function ModInitialisation()
 	
 	if file_exists("net/fetcheddata.json") then
 		
-			fetcheddata = readFetchedData()
-	
+		fetcheddata = readFetchedData()
+		
 	end
-
+	
 	
 	if file_exists("net/multienabled.txt") then
 		os.remove("multienabled.txt")
@@ -218,7 +218,7 @@ function ModInitialisation()
 	if file_exists("net/multi/player/connect.txt") == false then
 		print("CyberScript WARNING : Authentication at boot failed, please connect from CyberScript Multiplayer Menu")
 		
-			
+		
 	end
 	if file_exists("net/multi/player/faction.txt") then
 		local f = io.open("net/multi/player/faction.txt")
@@ -284,14 +284,14 @@ function SaveLoading()
 	end
 	
 	if(currentSave.arrayUserSetting[1] ~= nil) then -- convert old setting to new
-	
+		
 		local arrayUserSetting2 = {}
 		
 		for i,v in ipairs(currentSave.arrayUserSetting) do
-		
-		arrayUserSetting2[currentSave.arrayUserSetting[i].Tag] = currentSave.arrayUserSetting[i].Value
 			
-		
+			arrayUserSetting2[currentSave.arrayUserSetting[i].Tag] = currentSave.arrayUserSetting[i].Value
+			
+			
 		end
 		
 		currentSave.arrayUserSetting = arrayUserSetting2
@@ -299,7 +299,7 @@ function SaveLoading()
 		
 		
 		print(getLang("init_renew_setting"))
-	
+		
 	end
 	
 	
@@ -361,12 +361,12 @@ function SaveLoading()
 		initGangDistrictScore()
 	end
 	
-
-
+	
+	
 	if (currentSave.Score["faction_mox"] == nil or currentSave.Score["faction_mox"]["faction_tygerclaws"] == nil) then
 		
-		 initGangRelation()
-	
+		initGangRelation()
+		
 	end
 	
 	
@@ -374,19 +374,19 @@ function SaveLoading()
 	
 	if (currentSave.Variable["player"] == nil) then
 		
-		 currentSave.Variable["player"]= {}
-	
+		currentSave.Variable["player"]= {}
+		
 	end
 	
 	if (currentSave.Variable["player"]["current_gang"] == nil) then
 		
-		 currentSave.Variable["player"]["current_gang"] = "faction_mox"
-	
+		currentSave.Variable["player"]["current_gang"] = "faction_mox"
+		
 	end
 	
 	
 	makeNativeSettings()
-
+	
 end
 -- ----------------------------------------------------------------------
 -------------------------------Var Loading-------------------------------
@@ -428,7 +428,7 @@ function setupCore() --Setup environnement (DatapackLoading, observer, overrider
 	SetObserver()
 	eventCatcher = sampleStyleManagerGameController.new()
 	GameUI.Listen(function(state)
-	
+		
 		if(state.submenu == "Stats") then
 		end
 		if(state.isMenu) then
@@ -457,14 +457,16 @@ function setupCore() --Setup environnement (DatapackLoading, observer, overrider
 				reloadCET = false
 			end
 			initCore()
+			
 		end) 
 		initCore()
+		
 		CName.add("Available Quests")
 	end
 end
 function DatapackLoading() --handle the loading and creation of cache for datapack in json/datapack
-
-local reader = dir("data/cache")
+	
+	local reader = dir("data/cache")
 	
 	--if there is existing cache
 	if( #reader > 0 ) then
@@ -479,8 +481,8 @@ local reader = dir("data/cache")
 		
 		
 		local directories = {}
-	
-	
+		
+		
 		--we load the directories from json/datapack
 		local reader = dir("json/datapack")
 		for i=1, #reader do 
@@ -493,12 +495,12 @@ local reader = dir("data/cache")
 		
 		--for each directories
 		for i,u in ipairs(directories) do
-		
+			
 			-- we check if there is an existing cache
-		local v = CompiledDatapack[u..".lua"]
-		
-		
-		try {
+			local v = CompiledDatapack[u..".lua"]
+			
+			
+			try {
 				function()
 					
 					--if datapack cache is not good or doesn't exist, we create an new cache and added it to arrayDatapack
@@ -510,72 +512,72 @@ local reader = dir("data/cache")
 							
 						end
 						
-					else
-					--if datapack cache is good, we added it to arrayDatapack from the compiled lua cache
-							print(u.." "..getLang("compileuptodate"))
-							arrayDatapack[u] = v
+						else
+						--if datapack cache is good, we added it to arrayDatapack from the compiled lua cache
+						print(u.." "..getLang("compileuptodate"))
+						arrayDatapack[u] = v
 					end
 					
 					
 					--if the desc.json doesnt exist
 					if(file_exists("json/datapack/"..u.."/desc.json") == false) then
-					
-					
+						
+						
 						--if there is no desc json but an cache,
 						if(file_exists('data/cache/'..u..'.lua') == true) then
-							 --we delete the cache (means no datapack in the datapack folder)
-								os.remove('data/cache/'..u..'.lua')
-								print(u.." datapack no longer exist, deleting cache...")
+							--we delete the cache (means no datapack in the datapack folder)
+							os.remove('data/cache/'..u..'.lua')
+							print(u.." datapack no longer exist, deleting cache...")
 							
 						end
-					
+						
 					end
 					
 					
 					
-						
 					
 					
-					end,
+					
+				end,
 				catch {
 					function(error)
 						print(getLang("datatpackimporterror").."("..u..")"..error)
 						spdlog.error(getLang("datatpackimporterror").."("..u..")"..error)
-					
+						
 						haveerror = true
 					end
 				}
 			}
-		
-		
-	
-		
-		
+			
+			
+			
+			
+			
 		end
 		
 		--if an error occur, we only load the default datapack
 		if(haveerror == true) then
-		
+			
 			RecoverDatapack()
-		
+			
 		end
 		
 		print(getLang("compileloaded"))
 		
-	else
-			--if there is no cache, we create an new cache for each directories in json/datapack
-			ImportDataPack()
+		else
+		--if there is no cache, we create an new cache for each directories in json/datapack
+		ImportDataPack()
 	end
 	
 	
-
+	
 end
 function initCore() --Setup session, external observer and trigger mod core loading
 	isGameLoaded = Game.GetPlayer() and Game.GetPlayer():IsAttached() and not GetSingleton('inkMenuScenario'):GetSystemRequestsHandler():IsPreGame()
 	
 	resetVar()
 	
-
+	
 	
 	if GetMod('nativeSettings') then nativeSettings =  GetMod("nativeSettings") else print(getLang("nonattivesetting")) error(getLang("nonattivesetting")) end
 	
@@ -584,13 +586,13 @@ function initCore() --Setup session, external observer and trigger mod core load
 		AMM =  GetMod("AppearanceMenuMod")
 		if(AMM.API ~= nil) then
 			AMMversion = AMM.API.version
-		else
+			else
 			AMM = nil
 			print(getLang("ammoutdated"))
 		end
-	else 
+		else 
 		print(getLang("ammnotfound"))
-	
+		
 	end
 	
 	
@@ -642,7 +644,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	
 	
 	
-
+	
 	questMod.EnemyManager = {}
 	questMod.FriendManager = {}
 	questMod.NPCManager = {}
@@ -674,7 +676,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	candrwMapPinFixer= true
 	fixerCanSpawn = true
 	nash_have_speak = false
-
+	
 	
 	
 	
@@ -683,6 +685,7 @@ function initCore() --Setup session, external observer and trigger mod core load
 	LoadDataPackCache()
 	SaveLoading()
 	initEditor()
+	
 	print(getLang("CyberScriptinit"))
 	tick = 0
 end
@@ -697,7 +700,7 @@ function refresh(delta) -- update event (include thread refresh action and Quest
 				if(tick > 60)then
 					if(tick >= 61 and tick <= 62 and draw == false)then
 						
-							inGameInit()
+						inGameInit()
 						
 					end
 					inScanner = GameUI.IsScanner()
@@ -727,7 +730,7 @@ function refresh(delta) -- update event (include thread refresh action and Quest
 					end
 					eventCatcher = sampleStyleManagerGameController.new()
 					
-				
+					
 					initFinished = true
 					draw = true
 				end	
@@ -771,26 +774,118 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	districtBG = IRPtheme.districtFriendly
 	districtState = lang.Friendly
 	getCurrentDistrict2()
-
+	
+	if(currentDistricts2 ~= nil)then
+		
+		setVariable("current_district","tag", currentDistricts2.Tag)
+		
+		
+		if(districtState == nil) then
+			districtState = "loading"
+			
+		end	
+		
+		local disstate = isHostileDistrict()
+		setVariable("current_district","state",disstate)
+		
+		if(disstate == 0) then 
+			
+			setVariable("current_district","stateName",getLang("Friendly"))
+			districtState = getLang("Friendly")
+		
+		end
+		
+		if(disstate == 1) then 
+		
+			setVariable("current_district","stateName",getLang("Neutral"))
+			districtState = getLang("Neutral")
+		
+		end
+		
+		if(disstate == 2) then 
+		
+			setVariable("current_district","stateName",getLang("Hostile"))
+			districtState = getLang("Hostile")
+		
+		end
+		
+		
+		
+		
+		local districttext = ""
+		if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 0) then
+			
+			if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 1) then
+				
+				setVariable("current_district","subdistrict_enum", currentDistricts2.districtLabels[2])
+				else
+				setVariable("current_district","subdistrict_enum", "")
+			end
+			
+			for i, test in ipairs(currentDistricts2.districtLabels) do
+				if i == 1 then
+					if(#currentDistricts2.districtLabels == 1) then
+						
+						
+						districttext = districttext.."  |  "..test.." ("..districtState..")"
+						else
+						
+						districttext = districttext..test
+						
+					end
+					else
+					districttext = districttext.."  |  "..test.." ("..districtState..")"
+				end
+			end
+			
+			setVariable("current_district","districttext",districttext)
+			
+			else
+			setVariable("current_district","tag", "")
+			setVariable("current_district","districttext","")
+			setVariable("current_district","subdistrict_enum", "")
+			setVariable("current_district","state","")
+			setVariable("current_district","stateName","")
+			
+		end
+		
+		
+		else
+		setVariable("current_district","tag", "")
+		setVariable("current_district","districttext","")
+		setVariable("current_district","subdistrict_enum", "")
+		setVariable("current_district","state","")
+		setVariable("current_district","stateName","")
+		
+	end
+	
+	
+	
+	setVariable("player_position","x",ftos(curPos.x))
+	setVariable("player_position","y",ftos(curPos.y))
+	setVariable("player_position","z",ftos(curPos.z))
+	
+	setVariable("player_rotation","yaw",ftos(curRot.yaw))
+	setVariable("player_rotation","pitch",ftos(curRot.pitch))
+	setVariable("player_rotation","roll",ftos(curRot.roll))
+	
+	
 	
 	--Targeted entity
 	objLook = Game.GetTargetingSystem():GetLookAtObject(Game.GetPlayer(),false,false)
 	if(objLook ~= nil) then
 		if(objLook ~= nil) then
 			tarName = objLook:ToString()
-		--	print(tostring(objLook:GetHighLevelStateFromBlackboard()))
+			--	print(tostring(objLook:GetHighLevelStateFromBlackboard()))
 			if(string.match(tarName, "NPCPuppet"))then
 				
 				appName = Game.NameToString(objLook:GetCurrentAppearanceName())
 				targName = tostring(objLook:GetTweakDBDisplayName(true))
 				openCompanion, gangscore, lookatgang = checkAttitudeByGangScore(objLook)
 				
-				local obj = getEntityFromManagerById(objLook:GetEntityID())
-				if(obj.id == nil) then
-					
-					questMod.EntityManager["lookatnpc"].id = objLook:GetEntityID()
-					
-				end
+				
+				questMod.EntityManager["lookatnpc"].id = objLook:GetEntityID()
+				
 				
 				
 				
@@ -819,11 +914,11 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		else
 		multiName = ""
 		
-	
-	
+		
+		
 		questMod.EntityManager["lookatnpc"].id = nil
 		questMod.EntityManager["lookatnpc"].tweak = "None"
-	
+		currentScannerItem = nil
 		
 		openCompanion = false
 		objLookIsVehicule = false
@@ -832,6 +927,33 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	--house
 	if(currentHouse ~= nil) then
 		interactautohide = false
+		setVariable("current_place","tag",currentHouse.tag)
+		setVariable("current_place","name",currentHouse.name)
+		if(currentRoom ~= nil) then
+			
+			setVariable("current_place","room_tag",currentRoom.tag)
+			setVariable("current_place","room_name",currentRoom.name)
+			else
+			setVariable("current_place","room_tag","")
+			setVariable("current_place","room_name","")
+			
+		end
+		else
+		setVariable("current_place","tag","")
+		setVariable("current_place","name","")
+		setVariable("current_place","room_tag","")
+		setVariable("current_place","room_name","")
+	end
+	
+	if(ActualPlayerMultiData ~= nil and ActualPlayerMultiData.currentPlaces[1] ~= nil) then
+		
+		
+		setVariable("current_multi_place","tag",ActualPlayerMultiData.currentPlaces[1].name)			
+		else
+		
+		setVariable("current_multi_place","tag","")
+		
+		
 	end
 	
 	--Quest
@@ -843,7 +965,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	--Vehicle
 	local inVehicule = Game.GetWorkspotSystem():IsActorInWorkspot(Game.GetPlayer())
 	if (inVehicule) then
-	
+		
 		local vehicule = Game['GetMountedVehicle;GameObject'](Game.GetPlayer())
 		if(vehicule ~= nil) then
 			local obj = getEntityFromManagerById(vehicule:GetEntityID())
@@ -853,15 +975,15 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 					inVehiculeTweak = arrayVehicles[i]
 				end
 			end
-		
+			
 			local isThiscar = (obj.id ~= nil and obj.isAV == true)
-			 
+			
 			-- debugPrint(1,tostring(obj.id ~= nil))
 			
 			if isThiscar then
 				AVisIn = true
 				--debugPrint(1,"AV")
-			
+				
 				CurrentAVEntity =  vehicule
 				local fppComp = Game.GetPlayer():GetFPPCameraComponent()
 				--fppComp:SetLocalPosition(Vector4:new(0.0, -12.0, 1.5, 1.0))
@@ -890,7 +1012,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				UnsetSeat("player",false, AVseat)
 				AVseat = nil
 				Cron.After(1, function()
-				
+					
 					debugPrint(1,#questMod.GroupManager["AV"].entities)
 					for i=1, #questMod.GroupManager["AV"].entities do 
 						local entityTag = questMod.GroupManager["AV"].entities[i]
@@ -914,7 +1036,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		end
 	end
 	if (AVinput.isMoving == true and AVisIn and AVinput.keyPressed == true ) then
-	  
+		
 		fly(AVinput.currentDirections, 0)
 		elseif (AVinput.isMoving == true and AVinput.keyPressed == false and AVisIn) then
 		if AVspeed > 0.3 then
@@ -984,6 +1106,9 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				teleportTo(enti, enti:GetWorldPosition(), newAngle, false)
 			end
 		end
+		
+		local speede = math.floor(AVspeed*10)
+		setScore("av","speed",speede)
 	end
 	
 	--Pause Menu and Ambush timer
@@ -1001,23 +1126,128 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				LoadDataPackCache()
 				
 			end
-		else
+			else
 			if(ExecPauseMenu == true) then
 				ExecPauseMenu =  false
 			end
 		end
-	else
+		else
 		if(ExecPauseMenu == true) then
-				ExecPauseMenu =  false
+			ExecPauseMenu =  false
 		end
 		
 		
-
+		for k,v in pairs(arrayBoundedEntity) do
+			
+			
+			
+			local obj = getEntityFromManager(k)
+			local enti = Game.FindEntityByID(obj.id)
+			if(enti ~= nil) then
+				
+				local anchorobj = getEntityFromManager(v.anchor)
+				local anchorenti = Game.FindEntityByID(anchorobj.id)
+				if(anchorenti ~= nil) then
+					
+					local position = anchorenti:GetWorldPosition()
+					
+					local qat = anchorenti:GetWorldOrientation()
+					local rotation = GetSingleton('Quaternion'):ToEulerAngles(qat)
+					
+					if(v.copyrotation == false) then
+						
+						qat = enti:GetWorldOrientation()
+						rotation = GetSingleton('Quaternion'):ToEulerAngles(qat)
+						
+					end
+					
+					
+					
+					
+					
+					local isplayer = false
+					if k == "player" then
+						isplayer = true
+					end
+					
+					position.x = position.x + v.x
+					position.y = position.y + v.y
+					position.z = position.z + v.z
+					
+					rotation.yaw = rotation.yaw + v.yaw
+					rotation.pitch = rotation.pitch + v.pitch
+					rotation.roll = rotation.roll + v.roll
+					
+					if(
+						(
+							arrayBoundedEntity[k].lastposition.x ~= position.x or
+							arrayBoundedEntity[k].lastposition.y ~= position.y or 
+							arrayBoundedEntity[k].lastposition.z  ~= position.z
+						) 
+						or
+						(
+							v.copyrotation == true and (
+								
+								arrayBoundedEntity[k].lastorientation.yaw ~= rotation.yaw or
+								arrayBoundedEntity[k].lastorientation.pitch ~= rotation.pitch or 
+								arrayBoundedEntity[k].lastorientation.roll  ~= rotation.roll
+							)
+						)
+						
+						
+					) then
+					
+					
+					arrayBoundedEntity[k].lastposition.x = position.x
+					arrayBoundedEntity[k].lastposition.y = position.y
+					arrayBoundedEntity[k].lastposition.z = position.z
+					
+					
+					
+					arrayBoundedEntity[k].lastorientation.yaw = rotation.yaw
+					arrayBoundedEntity[k].lastorientation.pitch = rotation.pitch
+					arrayBoundedEntity[k].lastorientation.roll = rotation.roll
+					
+					
+					
+					if(v.isitem == true) then
+						local item = {}
+						
+						enti:GetEntity():Destroy()
+						
+						local transform = Game.GetPlayer():GetWorldTransform()
+						transform:SetPosition(position)
+						transform:SetOrientationEuler(rotation)
+						questMod.EntityManager[k].id = exEntitySpawner.Spawn(obj.tweak, transform)
+						
+						else
+						
+						teleportTo(objlook, position, rotation, isplayer)
+					end
+					
+					
+					
+					end
+					
+					
+				end
+				
+				else
+				
+				--arrayBoundedEntity[k] = nil
+				
+			end
+			
+			
+		end
+		
+		
+		
 		local ambusec = AmbushMin*60*60
-	
+		
 		if (tick % ambusec == 0) then --every X second
 			checkAmbush()
-			print("check ambush")
+			
 		end
 	end
 	
@@ -1036,9 +1266,23 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	
 	--Timer
 	if(currentTimer ~= nil) then
-	
+		
 		ticktimer = ticktimer +1
-	
+		local texttimer = currentTimer.message.." : "..tostring(math.ceil((ticktimer/60))).." seconds"
+		
+		if(currentTimer.type == "remaning") then
+			
+			
+			texttimer =  currentTimer.message.." : "..tostring(currentTimer.value - math.ceil((ticktimer/60))).." seconds"
+			
+			
+			
+		end
+		
+		setVariable("current_timer","text",texttimer)
+		
+		else
+		setVariable("current_timer","text","")
 	end
 	
 	--Star Manager
@@ -1048,212 +1292,17 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 	
 	--Freeze camera action
 	-- if freezeCamera then
-		
-		-- Game.GetPlayer():GetFPPCameraComponent().pitchMin = pitch - 0.01 -- Use pitchMin/Max to set pitch, needs to have a small difference between Min and Max
-		-- Game.GetPlayer():GetFPPCameraComponent().pitchMax = pitch
-		-- Game.GetTeleportationFacility():Teleport(Game.GetPlayer(), Game.GetPlayer():GetWorldPosition() , EulerAngles.new(0,0,yaw)) -- Set yaw when teleporting
+	
+	-- Game.GetPlayer():GetFPPCameraComponent().pitchMin = pitch - 0.01 -- Use pitchMin/Max to set pitch, needs to have a small difference between Min and Max
+	-- Game.GetPlayer():GetFPPCameraComponent().pitchMax = pitch
+	-- Game.GetTeleportationFacility():Teleport(Game.GetPlayer(), Game.GetPlayer():GetWorldPosition() , EulerAngles.new(0,0,yaw)) -- Set yaw when teleporting
 	-- end
 	
 	--Timers 
 	if (tick % 5 == 0) then --every 0.5 second
-	if curPos ~= nil and healthbarwidget ~= nil and posWdiget ~= nil then
-		if(enableLocation == true) then
-				
-				
-				
-				
-				container:SetVisible(true)
-				
-				posWdiget:SetMargin(inkMargin.new({ top = 125, left = 3400}))
-				posWdiget:SetText(vecToString(curPos))
-				posWdiget:SetVisible(true)
-				posWdiget:SetTintColor(gamecolor(0,255,255,1))
-				
-				
-				if(AVisIn) then
-					avspeedwidget:SetVisible(true)
-					avspeedwidget:SetMargin(inkMargin.new({ top = 1825, left = locationWidgetLeft}))
-					local speede = math.floor(AVspeed*10)
-					avspeedwidget:SetText("Speed : "..tostring(speede).." m/s")
-				else
-					avspeedwidget:SetVisible(false)
-				end
-				
-				if(currentDistricts2 ~= nil)then
-					if(districtState == nil) then
-						districtState = "loading"
-					end	
-					
-					if(currentDistricts2.districtLabels ~=nil and #currentDistricts2.districtLabels > 0) then
-					
-						local districttext = ""
-						for i, test in ipairs(currentDistricts2.districtLabels) do
-							if i == 1 then
-									if(#currentDistricts2.districtLabels == 1) then
-										
-										
-										districttext = districttext.."  |  "..test.." ("..districtState..")"
-										else
-										
-										districttext = districttext..test
-										
-									end
-							else
-								districttext = districttext.."  |  "..test.." ("..districtState..")"
-							end
-						end
-						
-						
-						districtWidget:SetMargin(inkMargin.new({ top = 625, left = 3250}))
-						districtWidget:SetText(districttext)
-						districtWidget:SetVisible(true)
-						
-						else
-						districtWidget:SetText("")
-						subdistrictWidget:SetText("")
-					end
-					
-					
-					if currentHouse ~= nil then
-					
-						roomwidget:SetVisible(true)
-						
-						local test = getLang("ui_hud_place")..currentHouse.name
-						if(currentRoom ~= nil) then
-							test = test.." ".." | "..getLang("ui_hud_room")..currentRoom.name
-						end
-						roomwidget:SetText(test)
-						roomwidget:SetTintColor(gamecolor(255,255,255,1))
-						roomwidget:SetMargin(inkMargin.new({ top = 675, left = 3250}))
-						
-						else
-						roomwidget:SetVisible(false)
-					end
-				
-					
-					if(showFactionAffinityHud == true) then
-							factionwidget:SetMargin(inkMargin.new({ top = 120, left = 2800}))
-							factionwidget:SetVisible(true)
-							factionwidget:RemoveAllChildren()
-							
-							
-							if(#currentDistricts2.districtLabels > 0) then
-								local gangslist = {}
-								if(#currentDistricts2.districtLabels > 1) then
-										local gangs = getGangfromDistrict(currentDistricts2.districtLabels[2],20)
-										for i=1,#gangs do
-										if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
-											table.insert(gangslist,gangs[i])
-										end
-										end
-									else
-										local gangs = getGangfromDistrict(currentDistricts2.districtLabels[1],20)
-										for i=1,#gangs do
-										if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
-											table.insert(gangslist,gangs[i])
-										
-										end
-										end
-								
-								end
-								
-								for i,v in ipairs(gangslist) do
-								
-								
-											local gang = getFactionByTag(v.tag)
-											local top = (i*50)
-											locationWidgetPlace_top = locationWidgetFactionDisctrict_top + (i*50) + 50
-											
-											local isleader = (i==1)
-											
-											displayGangScoreWidget(getScoreKey("Affinity",v.tag),gang.Name,factionwidget,top,isleader)
-								
-								
-								end
-								
-								
-								
-							else
-							factionwidget:SetVisible(false)
-							end
-				
-					else
-					
-						factionwidget:SetVisible(false)
-					end
-				
-				
-				if(ActualPlayerMultiData ~= nil and ActualPlayerMultiData.currentPlaces[1] ~= nil) then
-				
-					local test = getLang("ui_hud_multi_place")..ActualPlayerMultiData.currentPlaces[1].name
-					placemultiwidget:SetText(test)
-					placemultiwidget:SetTintColor(gamecolor(255,130,0,1))
-					placemultiwidget:SetVisible(true)
-					placemultiwidget:SetMargin(inkMargin.new({ top = 1725, left = locationWidgetLeft}))
-					
-					
-					else
-					
-					placemultiwidget:SetVisible(false)
-					
-				end
-				
-			
-				
-				
-				local state = getLang("ui_hud_place")
-				
-				if(NetServiceOn == false and MultiplayerOn == false) then
-					
-					state = getLang("ui_hud_place")
-					multistatewidget:SetTintColor(gamecolor(255,10,10,1))
-					
-					elseif (NetServiceOn == true and MultiplayerOn == false) then
-					
-					state = getLang("ui_hud_place")
-					multistatewidget:SetTintColor(gamecolor(255,204,29,1))
-					
-					else
-					
-					state = getLang("ui_hud_place")
-					multistatewidget:SetTintColor(gamecolor(0,212,45,1))
-				end
-					
-				multistatewidget:SetText(state)
-				multistatewidget:SetVisible(true)
-				multistatewidget:SetMargin(inkMargin.new({ top = 1775, left = locationWidgetLeft}))
-				
-				
-				
-				if(currentTimer ~= nil) then
-					local texttimer = currentTimer.message.." : "..tostring(math.ceil((ticktimer/60))).." seconds"
-					
-					if(currentTimer.type == "remaning") then
-						
-						
-						texttimer =  currentTimer.message.." : "..tostring(currentTimer.value - math.ceil((ticktimer/60))).." seconds"
-					
-						
-					
-					end
-					
-					timerwidget:SetFontSize(75)
-					timerwidget:SetMargin(inkMargin.new({ top = 250, left = 1500}))
-					timerwidget:SetText(texttimer)
-					timerwidget:SetTintColor(gamecolor(255,170,0,1))
-					timerwidget:SetVisible(true)
-				else
-					
-					timerwidget:SetVisible(false)
-				
-				end
-				
-			else
-				container:SetVisible(false)
-			end
-		else
-				container:SetVisible(false)
-		end
+		
+		
+		
 		
 		
 		if (MultiplayerOn == true) then
@@ -1270,16 +1319,195 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 			-- end
 			loadCustomMultiPlace()
 		end
-	end
-	
-	
-	
-	
+		
+		
+		if curPos ~= nil and rootContainer ~= nil and displayHUD["posWidget"] ~= nil then
+			if(enableLocation == true) then
+				
+				
+				
+				
+				
+				
+				
+				
+				for k,v in pairs(arrayHUD) do
+					if(v.hud.type == "widget" or v.hud.type == "container") then
+						if(v.hud.context ~= nil) then
+							
+							if(isArray(v.hud.context))then
+								for i,cont in ipairs(v.hud.context) do
+									
+									if(checkTriggerRequirement(cont.requirement,cont.trigger))then
+										for key,prop in pairs(cont.prop) do
+											local path =  splitDot(key, ".")
+											setValueToTablePath(v.hud, path, GeneratefromContext(prop))
+											
+										end
+									end
+								end
+								else
+								if(checkTriggerRequirement(v.hud.context.requirement,v.hud.context.trigger))then
+									for key,prop in pairs(v.hud.context.prop) do
+										local path =  splitDot(key, ".")
+										setValueToTablePath(v.hud, path, GeneratefromContext(prop))
+											
+									end
+								end
+							end
+							
+						end
+					end
+					if(v.hud.type == "widget" and displayHUD[k] ~= nil) then
+						displayHUD[k]:SetText(v.hud.text)
+						displayHUD[k]:SetFontFamily(v.hud.fontfamily)
+						displayHUD[k]:SetFontStyle(v.hud.fontstyle)
+						displayHUD[k]:SetFontSize(v.hud.fontsize)
+						displayHUD[k]:SetTintColor(gamecolor(v.hud.color.red,v.hud.color.green,v.hud.color.blue,1))
+						displayHUD[k]:SetMargin(inkMargin.new({ top = v.hud.margin.top, left = v.hud.margin.left}))
+						displayHUD[k]:SetVisible(v.hud.visible)
+						
+					end
+					
+					if(v.hud.type == "container" and displayHUD[k] ~= nil) then
+						
+						displayHUD[k]:SetMargin(inkMargin.new({ top = v.hud.margin.top, left = v.hud.margin.left}))
+						displayHUD[k]:SetVisible(v.hud.visible)
+						
+						
+					end
+					
+					
+				end
+				
+				for k,v in pairs(arrayHUD) do
+					
+					if(v.hud.type == "theme" and displayHUD[v.hud.target] ~= nil) then
+						
+						if(v.hud.context ~= nil) then
+							
+							if(isArray(v.hud.context))then
+								for i,cont in ipairs(v.hud.context) do
+									
+									if(checkTriggerRequirement(cont.requirement,cont.trigger))then
+										for key,prop in pairs(cont.prop) do
+											
+											local path =  splitDot(key, ".")
+											setValueToTablePath(v.hud, path, GeneratefromContext(prop))
+										
+										end
+									end
+								end
+								else
+								if(checkTriggerRequirement(v.hud.context.requirement,v.hud.context.trigger))then
+									for key,prop in pairs(v.hud.context.prop) do
+										local path =  splitDot(key, ".")
+										setValueToTablePath(v.hud, path, GeneratefromContext(prop))
+											
+										
+									end
+								end
+							end
+							
+						end
+					
+						if(v.hud.fontfamily ~= nil) then displayHUD[v.hud.target]:SetFontFamily(v.hud.fontfamily) end
+						if(v.hud.fontstyle ~= nil) then displayHUD[v.hud.target]:SetFontStyle(v.hud.fontstyle) end
+						if(v.hud.fontsize ~= nil) then displayHUD[v.hud.target]:SetFontSize(v.hud.fontsize) end
+						if(v.hud.color ~= nil) then displayHUD[v.hud.target]:SetTintColor(gamecolor(v.hud.color.red,v.hud.color.green,v.hud.color.blue,1)) end
+						if(v.hud.margin ~= nil) then displayHUD[v.hud.target]:SetMargin(inkMargin.new({ top = v.hud.margin.top, left = v.hud.margin.left})) end
+						
+						
+					end
+					
+					
+				end
+				
+				
+				if(currentDistricts2 ~= nil)then
+					
+					
+					
+					
+					
+					
+					if(showFactionAffinityHud == true) then
+						
+						displayHUD["factionwidget"]:RemoveAllChildren()
+						
+						
+						if(#currentDistricts2.districtLabels > 0) then
+							local gangslist = {}
+							if(#currentDistricts2.districtLabels > 1) then
+								local gangs = getGangfromDistrict(currentDistricts2.districtLabels[2],20)
+								for i=1,#gangs do
+									if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
+										table.insert(gangslist,gangs[i])
+									end
+								end
+								else
+								local gangs = getGangfromDistrict(currentDistricts2.districtLabels[1],20)
+								for i=1,#gangs do
+									if(getScoreKey("Affinity",gangs[i].tag) ~= nil) then
+										table.insert(gangslist,gangs[i])
+										
+									end
+								end
+								
+							end
+							
+							for i,v in ipairs(gangslist) do
+								
+								
+								local gang = getFactionByTag(v.tag)
+								local top = (i*50)
+								locationWidgetPlace_top = locationWidgetFactionDisctrict_top + (i*50) + 50
+								
+								local isleader = (i==1)
+								
+								displayGangScoreWidget(getScoreKey("Affinity",v.tag),gang.Name,displayHUD["factionwidget"],top,isleader)
+								
+								
+							end
+							
+							
+							
+							
+							
+						end
+						
+						
+					end
+					
+					
+					
+				end
+				
+				
+				
+				
+				rootContainer:SetVisible(true)
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				else
+				rootContainer:SetVisible(false)
+			end
+			
+		end	
+		
+		
 	end
 	if (tick % 100 == 0) then --every 1 second
 		if(lastTargetKilled ~= nil)then
 			lastTargetKilled = nil
-			end
+		end
 	end
 	
 	if (tick % 60 == 0) then --every 1 second
@@ -1384,10 +1612,10 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 		SalaryIsPossible = true
 	end
 	
-
-	end
+	
+end
 function inGameInit() -- init some function after save loaded
-
+	loadHUD()
 	candrwMapPinFixer= false
 	cancheckmission = true
 	choiceHubData =  gameinteractionsvisInteractionChoiceHubData.new()
@@ -1442,7 +1670,7 @@ function inGameInit() -- init some function after save loaded
 	questMod.EntityManager[entity5.tag] = entity5
 	
 	
-
+	
 	debugPrint(1,"Yet Choom")
 	draw = true
 	
@@ -1452,26 +1680,26 @@ function inGameInit() -- init some function after save loaded
 		Game.GetPlayer():SetWarningMessage(getLang("ImmersiveRoleplayModLoaded"))
 		
 		
-			openNetContract = false
-			io.open("net/multienabled.txt","w"):close()
-			MultiplayerOn = false
-			NetServiceOn = true
+		openNetContract = false
+		io.open("net/multienabled.txt","w"):close()
+		MultiplayerOn = false
+		NetServiceOn = true
 		
-			tokenIsValid = tokenIsValidate()
-			openNetContract = false
-			
+		tokenIsValid = tokenIsValidate()
+		openNetContract = false
 		
-			OnlineConversation = nil
-			
-			
-			
-			OnlineConversation = {}
-			OnlineConversation.tag = "online_conversation"
-			OnlineConversation.unlock = true
-			OnlineConversation.speaker = "Online"
-			OnlineConversation.conversation = {}
-			
-			setScore(OnlineConversation.tag,"unlocked",1)
+		
+		OnlineConversation = nil
+		
+		
+		
+		OnlineConversation = {}
+		OnlineConversation.tag = "online_conversation"
+		OnlineConversation.unlock = true
+		OnlineConversation.speaker = "Online"
+		OnlineConversation.conversation = {}
+		
+		setScore(OnlineConversation.tag,"unlocked",1)
 	end
 	
 	despawnAll()
@@ -1536,98 +1764,98 @@ function windowsManager() -- manage and toggle UI windows
 			if debugOptions == true then
 				debugWindows()
 			end	
-		newWindows()
-		
-		if(openEditor) then
-			editorWindows()
-			openOption =  false
-			if(openEditTrigger) then
-				TriggerEditWindows()	
-			end
-			if(openEditActionTrigger) then
-				TriggerActionEditWindows()	
-			end
-			if(openTriggerItem) then
-				SubTriggerEditWindows()	
-			end
-			if(openControlsEditor) then
-				ControlsEditWindows()	
-			end
-			if openNewTrigger then
-				TriggerNewWindows()
-			end
-			if(openEditAction) then
-				ActionEditWindows()	
-			end
-			if openEditSubAction then
-				ActionSubEditWindows()
-			end
-			if openNewAction then
-				ActionNewWindows()
-			end
-			if openNewRoom then
-				RoomNewWindows()
-			end
-			if openEditRoom then
-				RoomEditWindows()
-			end
-			if(openEditOptions) then
-				OptionsEditWindows()	
-			end
-			if(editor_json_view) then
-				openJson()	
-			end
-			if openNewOptions then
-				OptionsNewWindows()
-			end
-			if openNewObjective then
-				ObjectiveNewWindows()
-			end
-			if openEditObjective then
-				ObjectiveEditWindows()
-			end
-			if openNewConversation then
-				ConversationNewWindows()
-			end
-			if openEditConversation then
-				ConversationEditWindows()
-			end
-			if openNewMessage then
-				MessageNewWindows()
-			end
-			if openEditMessage then
-				MessageEditWindows()
-			end
-			if openNewChoice then
-				ChoiceNewWindows()
-			end
-			if openEditChoice then
-				ChoiceEditWindows()
-			end
-			if openEditItems then
-				EditItemsWindows()
-			end
-			if openNewItems then
-				NewItemsWindows()
-			end
-			if openEditSceneStep then
-				SceneStepEditWindows()
-			end
-			if openNewSceneStep then
-				SceneStepNewWindows()
-			end
-			if openEditHousingTemplate then
+			newWindows()
 			
-				EditTemplatePositionWindows()
+			if(openEditor) then
+				editorWindows()
+				openOption =  false
+				if(openEditTrigger) then
+					TriggerEditWindows()	
+				end
+				if(openEditActionTrigger) then
+					TriggerActionEditWindows()	
+				end
+				if(openTriggerItem) then
+					SubTriggerEditWindows()	
+				end
+				if(openControlsEditor) then
+					ControlsEditWindows()	
+				end
+				if openNewTrigger then
+					TriggerNewWindows()
+				end
+				if(openEditAction) then
+					ActionEditWindows()	
+				end
+				if openEditSubAction then
+					ActionSubEditWindows()
+				end
+				if openNewAction then
+					ActionNewWindows()
+				end
+				if openNewRoom then
+					RoomNewWindows()
+				end
+				if openEditRoom then
+					RoomEditWindows()
+				end
+				if(openEditOptions) then
+					OptionsEditWindows()	
+				end
+				if(editor_json_view) then
+					openJson()	
+				end
+				if openNewOptions then
+					OptionsNewWindows()
+				end
+				if openNewObjective then
+					ObjectiveNewWindows()
+				end
+				if openEditObjective then
+					ObjectiveEditWindows()
+				end
+				if openNewConversation then
+					ConversationNewWindows()
+				end
+				if openEditConversation then
+					ConversationEditWindows()
+				end
+				if openNewMessage then
+					MessageNewWindows()
+				end
+				if openEditMessage then
+					MessageEditWindows()
+				end
+				if openNewChoice then
+					ChoiceNewWindows()
+				end
+				if openEditChoice then
+					ChoiceEditWindows()
+				end
+				if openEditItems then
+					EditItemsWindows()
+				end
+				if openNewItems then
+					NewItemsWindows()
+				end
+				if openEditSceneStep then
+					SceneStepEditWindows()
+				end
+				if openNewSceneStep then
+					SceneStepNewWindows()
+				end
+				if openEditHousingTemplate then
+					
+					EditTemplatePositionWindows()
+				end
+				
+				
 			end
-		
-		
-		end
-		
-		if openNetContract then
-			ContractWindows()
-		end
-		
+			
+			if openNetContract then
+				ContractWindows()
+			end
+			
 		end
 		if(openColorPicker) then
 			colorPicker() 
@@ -1674,7 +1902,7 @@ function windowsManager() -- manage and toggle UI windows
 		end
 		if(onlineGuildUpdate and currentGuild ~= nil) then
 			if(UpdateGuild.Title == nil)then
-			
+				
 				UpdateGuild.Id = currentGuild.Id
 				UpdateGuild.Title = currentGuild.Title
 				UpdateGuild.Description = currentGuild.Description
@@ -1716,7 +1944,7 @@ function windowsManager() -- manage and toggle UI windows
 	end
 end
 function shutdownManager() -- setup some function at shutdown
-
+	
 	CheckandUpdateDatapack()
 	UIPopupsManager.ClosePopup()
 	for k,v in pairs(mappinManager) do
@@ -1738,29 +1966,29 @@ function TweakManager() -- Load vehicles and change some TweakDB
 	f:close()
 	
 	local unlockableVehicles = TweakDB:GetFlat(TweakDBID.new('	'))
+	
+	for _, vehiclePath in ipairs(tableDis) do
 		
-		for _, vehiclePath in ipairs(tableDis) do
+		local targetVehicleTweakDbId = TweakDBID.new(vehiclePath)
+		local isVehicleUnlockable = false
 		
-			local targetVehicleTweakDbId = TweakDBID.new(vehiclePath)
-			local isVehicleUnlockable = false
-			
-			for _, unlockableVehicleTweakDbId in ipairs(unlockableVehicles) do
-				if tostring(unlockableVehicleTweakDbId) == tostring(targetVehicleTweakDbId) then
-					isVehicleUnlockable = true
-					break
-				end
-			end
-			
-			if not isVehicleUnlockable then
-				table.insert(unlockableVehicles, targetVehicleTweakDbId)
+		for _, unlockableVehicleTweakDbId in ipairs(unlockableVehicles) do
+			if tostring(unlockableVehicleTweakDbId) == tostring(targetVehicleTweakDbId) then
+				isVehicleUnlockable = true
+				break
 			end
 		end
 		
-		TweakDB:SetFlat('Vehicle.vehicle_list.list', unlockableVehicles)
-		print(getLang("vehicleunlocked"))	
-		
-		TweakDB:SetFlat("PreventionSystem.setup.totalEntitiesLimit", npcpreventionlimit)
-		SetFlatFromSetting()
+		if not isVehicleUnlockable then
+			table.insert(unlockableVehicles, targetVehicleTweakDbId)
+		end
+	end
+	
+	TweakDB:SetFlat('Vehicle.vehicle_list.list', unlockableVehicles)
+	print(getLang("vehicleunlocked"))	
+	
+	TweakDB:SetFlat("PreventionSystem.setup.totalEntitiesLimit", npcpreventionlimit)
+	SetFlatFromSetting()
 end
 
 
@@ -1803,7 +2031,7 @@ registerForEvent("onOverlayClose", function()
 	overlayOpen = false
 end)
 registerForEvent("onTweak", function()
-
+	
 	TweakManager()
 	
 end)
