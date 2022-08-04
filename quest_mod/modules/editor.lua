@@ -136,7 +136,7 @@ end
 
 function initEditor()
 	
-	--debugPrint(1,"toto")
+	--debugPrint(2,"toto")
 	
 	for i=1,#arrayPnjDb do
 		
@@ -280,7 +280,7 @@ function editorWindows()
 			if status == false then
 				
 				
-				print(getLang("editor_error") .. retval)
+				debugPrint(10,getLang("editor_error") .. retval)
 				spdlog.error(getLang("editor_error") .. retval)
 				Game.GetPlayer():SetWarningMessage(getLang("editor_error_msg"))
 				
@@ -574,7 +574,7 @@ function QuestTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedQuest.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedQuest)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -711,7 +711,7 @@ function DialogTabs()
 		--npcchara = "Judy"
 		
 		ImGui.Text(getLang("editor_speaker_who"))
-		--	debugPrint(1,activeEditedDialog.speaker.value)
+		--	debugPrint(2,activeEditedDialog.speaker.value)
 		
 		if(activeEditedDialog.speaker.value ~= nil) then
 			
@@ -873,7 +873,7 @@ function DialogTabs()
 				table.insert(arraydialogTemp,activeEditedDialog)
 				local file = assert(io.open("json/report/"..activeEditedDialog.Tag..".json", "w"))
 				local stringg = JSON:encode_pretty(arraydialogTemp)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -1110,7 +1110,7 @@ function PhoneDialogTabs()
 					table.insert(arraydialogTemp,activeEditedPhoneDialog)
 					local file = assert(io.open("json/report/"..activeEditedPhoneDialog.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(arraydialogTemp)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -1330,7 +1330,7 @@ function InteractTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedInteract.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedInteract)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				table.insert(myDatapackInteract,activeEditedInteract)
@@ -1510,7 +1510,7 @@ function EventTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedEvent.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedEvent)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -1810,7 +1810,7 @@ function FixerTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedFixer.Tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedFixer)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -2012,7 +2012,7 @@ function FactionTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedFaction.Tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedFaction)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -2176,7 +2176,7 @@ function RadioTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedRadio.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedRadio)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -2323,7 +2323,7 @@ function ItemTabs()
 					
 					local file = assert(io.open("json/report/"..activeEditedPlace.tag.."_housing.json", "w"))
 					local stringg = JSON:encode_pretty(toexport)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 				end
@@ -2335,7 +2335,7 @@ function ItemTabs()
 				
 				if(#currentItemSpawned > 0) then
 					local toexport = {}
-					
+					local housing = {}
 					
 					
 					for i=1,#currentItemSpawned do
@@ -2376,6 +2376,7 @@ function ItemTabs()
 						
 						if(exist == false)then
 							table.insert(myDatapackHousing, housing)
+							
 						end
 						
 						else
@@ -2550,7 +2551,7 @@ function ItemTabs()
 						
 						local file = assert(io.open("json/report/"..activeEditedPlace.tag.."_housing_template.json", "w"))
 						local stringg = JSON:encode_pretty(toexport)
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 					end
@@ -2676,7 +2677,7 @@ function ItemTabs()
 								obj.Roll = v.Roll
 								obj.Title = v.Title
 								obj.fromTemplate = true
-								obj.template = template.tag
+								obj.template = currentHousingTemplate.tag
 								
 								saveHousing(obj)
 				
@@ -2985,7 +2986,7 @@ function InterfacesTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedInterfaces.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedInterfaces)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -3114,7 +3115,7 @@ function HelpTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditHelp.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditHelp)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -3526,7 +3527,7 @@ function PlaceTabs()
 					
 					local file = assert(io.open("json/report/"..activeEditedPlace.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(activeEditedPlace)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -3684,7 +3685,7 @@ function FunctionTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedFunction.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedFunction)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -3695,7 +3696,7 @@ function FunctionTabs()
 			if ImGui.Button("Dump") and activeEditedFunction.tag ~= "" then
 				
 				
-				debugPrint(1,dump((activeEditedFunction)))
+				debugPrint(2,dump((activeEditedFunction)))
 				
 				
 			end
@@ -3914,7 +3915,7 @@ function NodeTabs()
 				table.insert(nodeTable,activeEditedNode)
 				
 				local stringg = JSON:encode_pretty(nodeTable)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -4069,7 +4070,7 @@ function CircuitTabs()
 				table.insert(nodeTable,activeEditedCircuit)
 				
 				local stringg = JSON:encode_pretty(nodeTable)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -4369,7 +4370,7 @@ function PathTabs()
 								arrayPath[activeEditedPath.tag].gamepath = activeEditedPath
 								arrayPath[activeEditedPath.tag].file = path
 								arrayPath[activeEditedPath.tag].datapack = datapackname
-								print(editorPathTarget)
+								debugPrint(10,editorPathTarget)
 								local actionlist = {}
 								local action = {}
 								
@@ -4428,7 +4429,7 @@ spdlog.error(dump(actionlist))
 				
 				
 				local stringg = JSON:encode_pretty(activeEditedPath)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -4597,7 +4598,7 @@ function POITabs()
 				
 				
 				local stringg = JSON:encode_pretty(activeEditedPOI)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -4888,7 +4889,7 @@ function CustomNPCTabs()
 				
 				local file = assert(io.open("json/report/"..activeEditedCustomNPC.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedCustomNPC)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -4898,7 +4899,7 @@ function CustomNPCTabs()
 			if ImGui.Button("Dump") and activeEditedCustomNPC.tag ~= "" then
 				
 				
-				debugPrint(1,dump((activeEditedCustomNPC)))
+				debugPrint(2,dump((activeEditedCustomNPC)))
 				
 				
 			end
@@ -5060,7 +5061,7 @@ function ShardTab()
 				
 				local file = assert(io.open("json/report/"..activeEditedShard.tag..".json", "w"))
 				local stringg = JSON:encode_pretty(activeEditedShard)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -5070,7 +5071,7 @@ function ShardTab()
 			if ImGui.Button("Dump") and activeEditedShard.tag ~= "" then
 				
 				
-				debugPrint(1,dump((activeEditedShard)))
+				debugPrint(2,dump((activeEditedShard)))
 				
 				
 			end
@@ -5149,7 +5150,7 @@ function DatapackBuilder()
 				
 				local file = assert(io.open("json/mydatapack/desc.json", "w"))
 				local stringg = JSON:encode_pretty(myDatapack)
-				--debug--debugPrint(1,stringg)
+				--debug--debugPrint(2,stringg)
 				file:write(stringg)
 				file:close()
 				
@@ -5436,7 +5437,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/mission/"..myDatapackQuest[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackQuest[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5450,7 +5451,7 @@ function DatapackBuilder()
 					
 					local file = assert(io.open("json/mydatapack/dialog/"..myDatapack.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(myDatapackDialog)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -5464,7 +5465,7 @@ function DatapackBuilder()
 					
 					local file = assert(io.open("json/mydatapack/circuit/"..myDatapack.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(myDatapackCircuit)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -5480,7 +5481,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/event/"..myDatapackEvent[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackEvent[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5498,7 +5499,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/faction/"..myDatapackFaction[i].Tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackFaction[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5515,7 +5516,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/lang/"..myDatapackLanguage[i].name..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackLanguage[i]["data"])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5532,7 +5533,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/fixer/"..myDatapackFixer[i].Tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackFixer[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5550,7 +5551,7 @@ function DatapackBuilder()
 						
 						local file = io.open("json/mydatapack/function/"..myDatapackFunction[i].tag..".json", "w")
 						local stringg = JSON:encode_pretty(myDatapackFunction[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5568,7 +5569,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/interact/"..myDatapackInteract[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackInteract[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5584,7 +5585,7 @@ function DatapackBuilder()
 					
 					local file = assert(io.open("json/mydatapack/node/"..myDatapack.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(myDatapackNode)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -5605,7 +5606,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/place/"..myDatapackPlace[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackPlace[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5623,7 +5624,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/housing/"..myDatapackHousing[i].name.."_housing.json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackHousing[i].items)
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5641,7 +5642,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/path/"..myDatapackPath[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackPath[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5659,7 +5660,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/radio/"..myDatapackRadio[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackRadio[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5676,7 +5677,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/help/"..myDatapackHelp[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackHelp[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5694,7 +5695,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/interfaces/"..myDatapackInterfaces[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackInterfaces[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5712,7 +5713,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/npc/"..myDatapackCustomNPC[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackCustomNPC[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5729,7 +5730,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/shard/"..myDatapackShard[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackShard[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5746,7 +5747,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/phone_dialog/"..myDatapackPhoneDialog[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackPhoneDialog[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5763,7 +5764,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/poi/"..myDatapackPOI[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackPOI[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -5780,7 +5781,7 @@ function DatapackBuilder()
 						
 						local file = assert(io.open("json/mydatapack/scene/"..myDatapackScene[i].tag..".json", "w"))
 						local stringg = JSON:encode_pretty(myDatapackScene[i])
-						--debug--debugPrint(1,stringg)
+						--debug--debugPrint(2,stringg)
 						file:write(stringg)
 						file:close()
 						
@@ -6420,7 +6421,7 @@ function SceneTabs()
 					
 					local file = assert(io.open("json/report/"..activeEditedScene.tag..".json", "w"))
 					local stringg = JSON:encode_pretty(activeEditedScene)
-					--debug--debugPrint(1,stringg)
+					--debug--debugPrint(2,stringg)
 					file:write(stringg)
 					file:close()
 					
@@ -6990,9 +6991,9 @@ function ActionSubEditWindows()
 		
 		if ImGui.Button("Save and close", 300, 0) then
 			
-			debugPrint(1,dump(currentEditorSubAction.parentobj))
-			debugPrint(1,currentEditorSubAction.parent)
-			debugPrint(1,currentEditorSubAction.index)
+			debugPrint(2,dump(currentEditorSubAction.parentobj))
+			debugPrint(2,currentEditorSubAction.parent)
+			debugPrint(2,currentEditorSubAction.index)
 			
 			if(currentEditorSubAction.index == nil) then
 				table.insert(currentEditorSubAction.parentobj[currentEditorSubAction.parent],currentSelectSubAction)
@@ -7000,9 +7001,9 @@ function ActionSubEditWindows()
 				currentEditorSubAction.parentobj[currentEditorSubAction.parent][currentEditorSubAction.index] = currentSelectSubAction
 			end
 			
-			debugPrint(1,dump(currentEditorSubAction.parentobj))
-			debugPrint(1,currentEditorSubAction.parent)
-			debugPrint(1,currentEditorSubAction.index)
+			debugPrint(2,dump(currentEditorSubAction.parentobj))
+			debugPrint(2,currentEditorSubAction.parent)
+			debugPrint(2,currentEditorSubAction.index)
 			currentSelectSubAction = nil
 			openEditSubAction = false
 			
@@ -7051,7 +7052,7 @@ function orderedNext(t, state)
 	-- table being iterated.
 	
 	local key = nil
-	----debugPrint(1,"orderedNext: state = "..tostring(state) )
+	----debugPrint(2,"orderedNext: state = "..tostring(state) )
 	if state == nil then
 		-- the first time, generate the index
 		t.__orderedIndex = __genOrderedIndex( t )
@@ -8156,7 +8157,7 @@ function ControlsEditWindows()
 		
 		
 		
-		--debugPrint(1,toti)
+		--debugPrint(2,toti)
 		if ImGui.BeginCombo("##My Combo Box", toti) then -- Remove the ## if you'd like for the title to display above combo box
 			
 			for i=1, #controltypelist do
@@ -8499,9 +8500,9 @@ function ControlsEditWindows()
 				if(currentEditorControls.index ~= nil) then
 					
 					activeEditedInterfaces["controls"][currentEditorControls.index] = currentEditorControls.child
-					--debugPrint(1,"edited")
+					--debugPrint(2,"edited")
 					else
-					--debugPrint(1,"saved")
+					--debugPrint(2,"saved")
 					table.insert(activeEditedInterfaces["controls"],currentEditorControls.child)
 				end
 				
@@ -9794,7 +9795,7 @@ function requirementNode(title,obj,parent,triggerlistkey)
 						if ImGui.BeginCombo("##existingtrigger", obj[parent][i][y]) then -- Remove the ## if you'd like for the title to display above combo box
 							
 							for key,value in pairs(obj[triggerlistkey]) do
-								--debugPrint(1,key)
+								--debugPrint(2,key)
 								if ImGui.Selectable(key, (key == obj[parent][i][y])) then
 									obj[parent][i][y] = key
 									ImGui.SetItemDefaultFocus()
@@ -9824,7 +9825,7 @@ function requirementNode(title,obj,parent,triggerlistkey)
 					if ImGui.BeginCombo("##newtrigger", newRequirementItem) then -- Remove the ## if you'd like for the title to display above combo box
 						
 						for key,value in pairs(obj[triggerlistkey]) do
-							--debugPrint(1,key)
+							--debugPrint(2,key)
 							if ImGui.Selectable(key, (key == newRequirementItem)) then
 								newRequirementItem = key
 								ImGui.SetItemDefaultFocus()
@@ -9849,7 +9850,7 @@ function requirementNode(title,obj,parent,triggerlistkey)
 				if ImGui.BeginCombo("##My Combo Box3", newRequirementItem) then -- Remove the ## if you'd like for the title to display above combo box
 					
 					for key,value in pairs(obj[triggerlistkey]) do
-						--debugPrint(1,key)
+						--debugPrint(2,key)
 						if ImGui.Selectable(key, (key == newRequirementItem)) then
 							newRequirementItem = key
 							ImGui.SetItemDefaultFocus()
@@ -9931,7 +9932,7 @@ function actionNode(title,obj,key)
 		for i = 1, #obj[key] do 
 			
 			if ImGui.Button(obj[key][i].name.." ("..tostring(i)..")", 300, 0) then
-				debugPrint(1,i)
+				debugPrint(2,i)
 				currentEditorAction = {}
 				currentEditorAction.index = i
 				currentEditorAction.value = obj[key][i]
@@ -10602,7 +10603,7 @@ function triggerFactory(entity,selectedTrigger)
 	
 	local isNew = false
 	
-	--debugPrint(1,selectedTrigger)
+	--debugPrint(2,selectedTrigger)
 	if(entity == nil or entity.name ~= selectedTrigger) then
 		isNew = true
 		for i = 1,#triggertemplate do 
@@ -10610,17 +10611,17 @@ function triggerFactory(entity,selectedTrigger)
 			if(triggertemplate[i].name == selectedTrigger)then
 				
 				local newp = {}
-				--debugPrint(1,"Entity "..dump(triggertemplate[i]))
+				--debugPrint(2,"Entity "..dump(triggertemplate[i]))
 				for key,vaz in pairs(triggertemplate[i]) do
 					newp[key] = vaz
-					----debugPrint(1,dump(vaz))
+					----debugPrint(2,dump(vaz))
 				end
 				entity = newp
 				
 			end
 		end
 	end
-	--debugPrint(1,dump(entity))
+	--debugPrint(2,dump(entity))
 	
 	if(entity ~= nil and entity.name ~= nil) then
 		ImGui.Text("Selected : "..entity["name"])
@@ -10910,7 +10911,7 @@ function actionFactory(entity)
 	
 	local isNew = false
 	
-	--debugPrint(1,dump(entity))
+	--debugPrint(2,dump(entity))
 	if(entity == nil or entity.name == nil or entity.name ~= selecAction) then
 		isNew = true
 		for i = 1,#actiontemplate do 
@@ -12840,7 +12841,7 @@ function openJson()
 				catch {
 					function(error)
 						debugPrint(1,'caught error: (file :'..editor_json..error)
-						spdlog.error('caught error'..error)
+						
 						obj = temp
 						editor_json_malformatted_error = 'caught error: (file :'..editor_json..error
 					end
@@ -12950,7 +12951,7 @@ function openJson()
 				catch {
 					function(error)
 						debugPrint(1,'caught error: (file :'..editor_json..error)
-						spdlog.error('caught error'..error)
+						
 						obj = temp
 						editor_json_malformatted = true
 						editor_json_malformatted_error = 'caught error: (file :'..editor_json..error

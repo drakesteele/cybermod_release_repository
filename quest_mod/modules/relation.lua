@@ -7,8 +7,8 @@ function refreshContact()
 	
 	
 	getNPCCallableByAffinity()
-	debugPrint(1,"hahahaha")
-	debugPrint(1,#arrayPhoneNPC)
+	debugPrint(2,"hahahaha")
+	debugPrint(2,#arrayPhoneNPC)
 	waitNPCTakeCoffee = false
 	waitNPCTakeBeer = false
 	waitNPCGoNightClub = false
@@ -68,7 +68,7 @@ function selectNPCForSpeak(npc)
 	openSpeakDialogWindow = true
 	startSpeak = true
 	
-	debugPrint(1,"speak init")
+	debugPrint(2,"speak init")
 	
 	
 	
@@ -90,8 +90,8 @@ function getActionbyNPCscore(npc,display)
 	end
 	
 local score = getScoreKey(npc.Names,"Score")
-debugPrint(1,"NPC Score : !!!")
-debugPrint(1,score)
+debugPrint(2,"NPC Score : !!!")
+debugPrint(2,score)
 	if score ~= nil and score >= 20 then
 		npcAskHelp(npc)
 		
@@ -112,15 +112,15 @@ end
 function loadBasicDialog(npc,way)
 	--currentPhoneDialog = nil
 	-- currentPhoneDialog = arrayDialog["phone_default_basic_01"].dialog
-	-- debugPrint(1,currentPhoneDialog.Desc)
+	-- debugPrint(2,currentPhoneDialog.Desc)
 	
-	-- debugPrint(1,#currentPhoneDialog.options)
+	-- debugPrint(2,#currentPhoneDialog.options)
 	--currentPhoneDialog.speaker.value = npc.ID
-	print(way)
+	debugPrint(10,way)
 	if(way == "phone") then
 	
 	
-	print("load for phone")
+	debugPrint(10,"load for phone")
 	local dial = arrayDialog["phone_default_basic_01"].dialog
 	dial.speaker.value = npc.Names
 	
@@ -131,7 +131,7 @@ function loadBasicDialog(npc,way)
 	else
 	
 	
-	print("load for speak")
+	debugPrint(10,"load for speak")
 	local dial = arrayDialog["speak_default_basic_01"].dialog
 	dial.speaker.value = npc.Names
 	
@@ -140,7 +140,7 @@ function loadBasicDialog(npc,way)
 	createDialog(usedial)
 	
 	end
-	debugPrint(1,"loaded")
+	debugPrint(2,"loaded")
 	
 end
 
@@ -171,17 +171,17 @@ end
 function GetDialogOptionBasicCustom(npc, source)
 	
 	
-	debugPrint(1,"Loading custom dialog options...")
-	debugPrint(1,npc.ID)
-	debugPrint(1,source)
+	debugPrint(2,"Loading custom dialog options...")
+	debugPrint(2,npc.ID)
+	debugPrint(2,source)
 	local currentdialogOptionList = {}
 	
 	
 	for key,value in pairs(arrayDialog) do --actualcode
 		
-		-- debugPrint(1,arrayDialog[key].dialog.speaker.way)
-		-- debugPrint(1,arrayDialog[key].dialog.Tag)
-		-- debugPrint(1,"requirement "..#arrayDialog[key].dialog.requirement)
+		-- debugPrint(2,arrayDialog[key].dialog.speaker.way)
+		-- debugPrint(2,arrayDialog[key].dialog.Tag)
+		-- debugPrint(2,"requirement "..#arrayDialog[key].dialog.requirement)
 		
 		local diag = arrayDialog[key].dialog
 		if(
@@ -196,7 +196,7 @@ function GetDialogOptionBasicCustom(npc, source)
 				
 				if(checkTriggerRequirement(diag.options[y].requirement,diag.options[y].trigger) == true) then
 					table.insert(currentdialogOptionList, diag.options[y])
-					print(dump(diag.options[y]))
+					debugPrint(10,dump(diag.options[y]))
 				end
 			end
 			end
@@ -222,7 +222,7 @@ function GetDialogOptionBasicCustom(npc, source)
 	
 	
 	
-	print(#currentdialogOptionList)
+	debugPrint(10,#currentdialogOptionList)
 	return currentdialogOptionList
 end
 
@@ -262,12 +262,12 @@ end
 
 function SetNextDialog(tag,source)
 	currentPossibleInteractChunkIndex = 0
-	--debugPrint(1,"my dialog is"..tag)
+	--debugPrint(2,"my dialog is"..tag)
 	if(tag == "phone_default_custom_init") then
 	
 		
 	
-		print("abotu what "..source)
+		debugPrint(10,"abotu what "..source)
 		
 		local speak = {}
 		
@@ -359,7 +359,7 @@ function SetNextDialog(tag,source)
 		
 		if(IsDialogTrigged(diag)) then
 			
-			print("founded")
+			debugPrint(10,"founded")
 			haveDialogLoaded = true
 			local dialogy = diag
 			
@@ -410,7 +410,7 @@ function SetNextDialog(tag,source)
 				
 			end
 			
-			print(dialogy.Desc)
+			debugPrint(10,dialogy.Desc)
 			return dialogy
 			
 		else
@@ -461,7 +461,7 @@ function customEventMessage(message, npc)
 	speak.value = npc.Names
 	speak.way = "interact"
 	
-	debugPrint(1,"Event"..message)
+	debugPrint(2,"Event"..message)
 	currentEventDialog = {}
 	currentEventDialog.Desc = message
 	
@@ -470,7 +470,7 @@ function customEventMessage(message, npc)
 	currentEventDialog.trigger = {}
 	currentEventDialog.options = {}
 	
-	debugPrint(1,"Event"..currentEventDialog.Desc)
+	debugPrint(2,"Event"..currentEventDialog.Desc)
 	openEventDialogWindow = true
 	
 	
@@ -492,7 +492,7 @@ function npcAskHelp(npc)--0
 			dbPnjId = currentNPC
 			currentStar = 	currentNPC
 			
-			debugPrint(1,"your star is "..currentStar.Names)
+			debugPrint(2,"your star is "..currentStar.Names)
 			local positionVec4 = Game.GetPlayer():GetWorldPosition()
 			
 			
@@ -513,7 +513,7 @@ function npcAskHelp(npc)--0
 			
 			
 			else
-			debugPrint(1,"NPC already Spawn")
+			debugPrint(2,"NPC already Spawn")
 		end
 		
 		
@@ -533,7 +533,7 @@ function StarIsHere(timer)
 	currentStar = currentNPC
 	local positionVec4 = Game.GetPlayer():GetWorldPosition()
 	
-	debugPrint(1,"your star is "..currentStar.Names)
+	debugPrint(2,"your star is "..currentStar.Names)
 	npcStarSpawn = true
 	
 	
@@ -569,7 +569,7 @@ function StarIsHere(timer)
 		timerDespawn.day = timerDespawn.day+1
 	end
 	
-	debugPrint(1,"NPC wil despawn at day : "..timerDespawn.day.." hours : "..timerDespawn.hour)
+	debugPrint(2,"NPC wil despawn at day : "..timerDespawn.day.." hours : "..timerDespawn.hour)
 	end
 	end)
 	
@@ -602,7 +602,7 @@ end
 function StarEventManager()
 	
 	if waitingTag ~= nil then
-	debugPrint(1,waitingTag)
+	debugPrint(2,waitingTag)
 		local interact = nil
 		interact = arrayInteract[waitingTag].interact
 		
@@ -614,7 +614,7 @@ function StarEventManager()
 				
 				
 				if(npcStarSpawn == false)then
-					debugPrint(1,"star spawn")
+					debugPrint(2,"star spawn")
 					StarIsHere(interact.timer)
 					
 						Cron.After(5, function(interact)

@@ -34,16 +34,16 @@ function loadCustomMultiPlace()
 	
 		
 
-	if(curPos ~= nil and ActualPlayerMultiData ~= nil and  ActualPlayerMultiData.currentPlaces[1] ~= nil and check3DPos(curPos,ActualPlayerMultiData.currentPlaces[1].posX,ActualPlayerMultiData.currentPlaces[1].posY, ActualPlayerMultiData.currentPlaces[1].posZ,ActualPlayerMultiData.currentPlaces[1].range, ActualPlayerMultiData.currentPlaces[1].Zrange))then
-		
-		currentMultiHouse = ActualPlayerMultiData.currentPlaces[1]
+	if not (curPos ~= nil and ActualPlayerMultiData ~= nil and  currentMultiHouse ~= nil)then
 		
 		
-	else
+		
+		
+	
 			
 		if ItemOfHouseMultiSpawned == true then
 			despawnItemFromMultiHouse()
-			debugPrint(1,"tot2222")
+			print("despawn01")
 			ItemOfHouseMultiSpawned = false
 		end
 		
@@ -57,9 +57,10 @@ function loadCustomMultiPlace()
 	
 	
 	if(currentMultiHouse ~= nil) then
-		
+		if ItemOfHouseMultiSpawned == false then
 			spawnItemFromHouseMultiTag()
-			
+			print("spawn")
+		end
 			
 			
 			
@@ -82,8 +83,9 @@ function loadCustomMultiPlace()
 		else
 			
 			if ItemOfHouseMultiSpawned == true then
-			debugPrint(1,"tot22")
+			
 				despawnItemFromMultiHouse()
+				print("despawn02")
 				ItemOfHouseMultiSpawned = false
 			end
 			

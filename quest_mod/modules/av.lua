@@ -206,7 +206,7 @@ function calculateNewPos(direction, newPos, vehicule,mass)
 		
 		if success then
 			collision = true
-			--debugPrint(1,"collision"..filter)
+			--debugPrint(2,"collision"..filter)
 		end
 	end
 	
@@ -296,7 +296,7 @@ end
 function calculateNewAngle(direction)
 	
 	
-	--debugPrint(1,direction)
+	--debugPrint(2,direction)
 	if direction == "right"  then
 		
 		AVyaw = AVyaw + 0.7

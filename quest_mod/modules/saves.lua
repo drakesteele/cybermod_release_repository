@@ -51,7 +51,7 @@ for i=1,#arrayPnjDb do
 		
 		end
 		
-		print("Old Score Migration NPC : migrate "..pnj.Names)
+		debugPrint(2,"Old Score Migration NPC : migrate "..pnj.Names)
 		currentSave.Score["Affinity"][pnj.Names] = currentSave.Score[pnj.Names]["Score"]
 		currentSave.Score[pnj.Names]["Score"] = nil
 	end
@@ -61,7 +61,7 @@ end
 for k,v in pairs(arrayFaction) do
 	
 	if(currentSave.Score[k]~= nil and currentSave.Score[k]["Score"] ~= nil) then
-		print("Old Score Migration Gang : migrate "..k)
+		debugPrint(2,"Old Score Migration Gang : migrate "..k)
 		currentSave.Score["Affinity"][k] = currentSave.Score[k]["Score"]
 		currentSave.Score[k]["Score"] = nil
 	end
@@ -70,7 +70,7 @@ for k,v in pairs(arrayFaction) do
 	for j=1,#arrayDistricts do 
 		
 		if(currentSave.arrayFactionDistrict ~= nil and currentSave.arrayFactionDistrict[k]~= nil and currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] ~= nil) then
-			print("Old Score Migration District : migrate "..k)
+			debugPrint(10,"Old Score Migration District : migrate "..k)
 			currentSave.Score[k][arrayDistricts[j].Tag] = currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag]
 			currentSave.arrayFactionDistrict[k][arrayDistricts[j].Tag] = nil
 		end
@@ -270,7 +270,7 @@ end
 
 function updateHousing(item)
 	
-	debugPrint(1,item.Id)
+	debugPrint(4,item.Id)
 	local res = false 
 	for i=1,#currentSave.arrayHousing do
 	
@@ -295,19 +295,19 @@ function getHousing(tag,x,y,z)
 	for i = 1, #currentSave.arrayHousing do
 	
 	local item = currentSave.arrayHousing[i]
-		debugPrint(1,item.Tag)
-		debugPrint(1,tag)
+		debugPrint(4,item.Tag)
+		debugPrint(4,tag)
 		
-		debugPrint(1,item.X)
-		debugPrint(1,x)
+		debugPrint(4,item.X)
+		debugPrint(4,x)
 		
-		debugPrint(1,item.Y)
-		debugPrint(1,y)
+		debugPrint(4,item.Y)
+		debugPrint(4,y)
 		
-		debugPrint(1,item.Z)
-		debugPrint(1,z)
+		debugPrint(4,item.Z)
+		debugPrint(4,z)
 	if(tostring(item.X) == tostring(x) and tostring(item.Y) == tostring(y) and tostring(item.Z) == tostring(z) and tostring(item.Tag) == tostring(tag)) then
-		debugPrint(1,item.Tag)
+		debugPrint(4,item.Tag)
 		return item
 	
 	end

@@ -11,8 +11,8 @@ function checkTrigger(trigger)
 	if status == false then
 		
 		
-		print(getLang("see_trigger_error") .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
-		spdlog.error(getLang("see_trigger_error") .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
+		debugPrint(1,getLang("see_trigger_error") .. result.." Trigger : "..tostring(JSON:encode_pretty(trigger)))
+		
 		--Game.GetPlayer():SetWarningMessage("CyberScript Trigger error, check the log for more detail")
 		return false
 		else
@@ -102,9 +102,9 @@ function scriptcheckTrigger(trigger)
 				if(obj.id ~= nil) then
 					local enti = Game.FindEntityByID(obj.id)	
 					if(enti ~= nil) then
-						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						----debugPrint(3,"entity is active"..tostring(enti:IsAttached()))
 						if (enti:IsAttached() == true)then
-							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
+							----debugPrint(3,"entity is actived"..tostring(enti:IsAttached()))
 							return true
 						end
 					end
@@ -115,9 +115,9 @@ function scriptcheckTrigger(trigger)
 				if(obj.id ~= nil) then
 					local enti = Game.FindEntityByID(obj.id)	
 					if(enti ~= nil) then
-						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						----debugPrint(3,"entity is active"..tostring(enti:IsAttached()))
 						if (enti:IsScanned() == true)then
-							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
+							----debugPrint(3,"entity is actived"..tostring(enti:IsAttached()))
 							return true
 						end
 					end
@@ -128,9 +128,9 @@ function scriptcheckTrigger(trigger)
 				if(obj.id ~= nil) then
 					local enti = Game.FindEntityByID(obj.id)	
 					if(enti ~= nil) then
-						----debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						----debugPrint(3,"entity is active"..tostring(enti:IsAttached()))
 						if (enti:IsCrowd() == true)then
-							----debugPrint(1,"entity is actived"..tostring(enti:IsAttached()))
+							----debugPrint(3,"entity is actived"..tostring(enti:IsAttached()))
 							return true
 						end
 					end
@@ -174,7 +174,7 @@ function scriptcheckTrigger(trigger)
 				local obj = getEntityFromManager(trigger.tag)
 				local enti = Game.FindEntityByID(obj.id)	
 				if(enti ~= nil) then
-					--debugPrint(1,"entity is active"..tostring(enti:IsActive()))
+					--debugPrint(3,"entity is active"..tostring(enti:IsActive()))
 					if (enti:IsDead() == true or enti:IsActive() == false)then
 						return true
 					end
@@ -219,7 +219,7 @@ function scriptcheckTrigger(trigger)
 					dipName = objLook:GetDisplayName()
 					local entity = getEntityFromManagerById(objLook:GetEntityID())
 					if(entity ~= nil and entity.id ~= nil) then
-						debugPrint(1,"iscompanion ".. tostring(entity.iscompanion))
+						debugPrint(3,"iscompanion ".. tostring(entity.iscompanion))
 						if string.match(entity.tag, "companion_") then
 							return true
 						end
@@ -228,7 +228,7 @@ function scriptcheckTrigger(trigger)
 			end
 			if(trigger.name == "entity_at_position") then
 				local obj = getEntityFromManager(trigger.tag)
-				--debugPrint(1,obj.tag)
+				--debugPrint(3,obj.tag)
 				local enti = Game.FindEntityByID(obj.id)
 				if(enti ~= nil) then
 					local targetPosition = enti:GetWorldPosition()
@@ -238,7 +238,7 @@ function scriptcheckTrigger(trigger)
 						result = false
 					end
 					else
-					--debugPrint(1,"entity not found : "..trigger.tag)
+					--debugPrint(3,"entity not found : "..trigger.tag)
 				end
 			end
 			if(trigger.name == "entity_at_relative_position") then
@@ -254,8 +254,8 @@ function scriptcheckTrigger(trigger)
 						questMod.EntityManager[trigger.tag].targetedPostion.z = entityposition.z + trigger.z
 					end
 					local targetedPostions = questMod.EntityManager[trigger.tag].targetedPostion
-					--debugPrint(1,entityposition.y)
-					--debugPrint(1,targetedPostions.y)
+					--debugPrint(3,entityposition.y)
+					--debugPrint(3,targetedPostions.y)
 					if check3DPos(entityposition, targetedPostions.x, targetedPostions.y, targetedPostions.z,trigger.range) then
 						result = true
 						questMod.EntityManager[trigger.tag].targetedPostion = nil
@@ -310,7 +310,7 @@ function scriptcheckTrigger(trigger)
 				local enti = Game.FindEntityByID(obj.id)	
 				
 				if(enti ~= nil) then
-					--debugPrint(1,"test")
+					--debugPrint(3,"test")
 					local entityposition = enti:GetWorldPosition()
 					local playerpos = Game.GetPlayer():GetWorldPosition()
 					if questMod.EntityManager[trigger.tag].targetedPostion == nil then
@@ -338,7 +338,7 @@ function scriptcheckTrigger(trigger)
 				if(obj.id ~= nil) then
 					local enti = Game.FindEntityByID(obj.id)	
 					if(enti ~= nil) then
-						debugPrint(1,GetEntityGender(enti))
+						debugPrint(3,GetEntityGender(enti))
 						if(trigger.value == GetEntityGender(enti)) then
 							return true
 							else
@@ -461,19 +461,19 @@ function scriptcheckTrigger(trigger)
 			if(trigger.name == "group_is_spawn") then
 				local enemy_count = 0
 				local group =getGroupfromManager(trigger.tag)
-				--debugPrint(1,group.tag)
-				--debugPrint(1,#group.entities)
+				--debugPrint(3,group.tag)
+				--debugPrint(3,#group.entities)
 				for i=1, #group.entities do 
 					local entityTag = group.entities[i]
 					local obj = getEntityFromManager(entityTag)
 					local enti = Game.FindEntityByID(obj.id)	
-					--debugPrint(1,obj.tag)
-					--debugPrint(1,obj.id)
-					--debugPrint(1,enti)
+					--debugPrint(3,obj.tag)
+					--debugPrint(3,obj.id)
+					--debugPrint(3,enti)
 					if(enti ~= nil) then
-						--debugPrint(1,"entity is active"..tostring(enti:IsAttached()))
+						--debugPrint(3,"entity is active"..tostring(enti:IsAttached()))
 						if (enti:IsAttached() == true)then
-							--debugPrint(1,"npc have be killed")
+							--debugPrint(3,"npc have be killed")
 							enemy_count = enemy_count + 1
 						end
 					end
@@ -491,9 +491,9 @@ function scriptcheckTrigger(trigger)
 						local obj = getEntityFromManager(entityTag)
 						local enti = Game.FindEntityByID(obj.id)	
 						if(enti ~= nil) then
-							--debugPrint(1,"entity is active"..tostring(enti:IsActive()))
+							--debugPrint(3,"entity is active"..tostring(enti:IsActive()))
 							if (enti:IsDead() == true or enti:IsActive() == false)then
-								--debugPrint(1,"npc have be killed")
+								--debugPrint(3,"npc have be killed")
 								enemy_count = enemy_count + 1
 							end
 							elseif(obj.id == nil) then
@@ -502,7 +502,7 @@ function scriptcheckTrigger(trigger)
 					end
 					if (enemy_count == #group.entities) then
 						result = true
-						--debugPrint(1,tostring(result))
+						--debugPrint(3,tostring(result))
 					end
 				end
 			end
@@ -541,7 +541,9 @@ if(trigger.name == "player_is_targeted") then
 				result = playerTargeted
 				end
 
-
+			if(trigger.name == "player_is_hit") then
+				result = PlayerisHitten
+				end
 
 
 			if(trigger.name == "3Dposition") then
@@ -550,7 +552,7 @@ if(trigger.name == "player_is_targeted") then
 			if(trigger.name == "stat") then
 				--https://nativedb.red4ext.com/gamedataStatType
 				local mod_score = Game.GetStatsSystem():GetStatValue(Game.GetPlayer():GetEntityID(), trigger.value)
-				--	debugPrint(1,mod_score)
+				--	debugPrint(3,mod_score)
 				if(trigger.score~= nil and tonumber(mod_score) >= tonumber(trigger.score)) then
 					result = true
 				end
@@ -558,7 +560,7 @@ if(trigger.name == "player_is_targeted") then
 			if(trigger.name == "statpool") then
 				--https://nativedb.red4ext.com/gamedataStatPoolType
 				local mod_score = Game.GetStatPoolsSystem():GetStatPoolValue(Game.GetPlayer():GetEntityID(), Enum.new('gamedataStatPoolType', trigger.value), trigger.perc)
-				--debugPrint(1,mod_score)
+				--debugPrint(3,mod_score)
 				if(trigger.score~= nil and tonumber(mod_score) >= tonumber(trigger.score)) then
 					result = true
 				end
@@ -580,7 +582,7 @@ if(trigger.name == "player_is_targeted") then
 			end
 			if(trigger.name == "player_inbuilding")then
 				result = Game.IsEntityInInteriorArea(Game.GetPlayer())
-				--debugPrint(1,result)
+				--debugPrint(3,result)
 			end
 			if(trigger.name == "player_in_poi") then
 				local resultpos = nil
@@ -648,7 +650,7 @@ if(trigger.name == "player_is_targeted") then
 				local inVehicule = Game.GetWorkspotSystem():IsActorInWorkspot(Game.GetPlayer())
 				if (inVehicule) then
 					local vehicule = Game['GetMountedVehicle;GameObject'](Game.GetPlayer())
-					--debugPrint(1,vehicule:GetDisplayName())
+					--debugPrint(3,vehicule:GetDisplayName())
 					local isThiscar = (string.find(string.lower(vehicule:GetDisplayName()), trigger.value) ~= nil)
 					if isThiscar then
 						result = true
@@ -994,9 +996,9 @@ if(trigger.name == "player_is_targeted") then
 			end
 			if(trigger.name == "custom_room_type") then
 				if currentRoom ~= nil then
-					------debugPrint(1,currentRoom.type[i])
+					------debugPrint(3,currentRoom.type[i])
 					for i=1,#currentRoom.type do
-						------debugPrint(1,currentRoom.type[i])
+						------debugPrint(3,currentRoom.type[i])
 						if(trigger.value == currentRoom.type[i]) then
 							return true
 						end
@@ -1270,14 +1272,14 @@ if(trigger.name == "player_is_targeted") then
 			end
 			if(trigger.name == "time") then
 				local currentime = tonumber(getGameTimeHHmm())
-				----debugPrint(1,"currentime "..currentime)
+				----debugPrint(3,"currentime "..currentime)
 				if(tonumber(currentime) >= tonumber(trigger.min) and tonumber(currentime) <= tonumber(trigger.max)) then
 					result = true
 				end
 			end
 			if(trigger.name == "os_time") then
 				local currentime =  getOsTimeHHmm()
-				----debugPrint(1,"currentime "..currentime)
+				----debugPrint(3,"currentime "..currentime)
 				local times = currentime.hour*100 + currentime.min
 				if(tonumber(times) >= tonumber(trigger.min) and tonumber(times) <= tonumber(trigger.max)) then
 					result = true
@@ -1285,7 +1287,7 @@ if(trigger.name == "player_is_targeted") then
 			end
 			if(trigger.name == "os_date") then
 				local currentime =  getOsTimeHHmm()
-				----debugPrint(1,"currentime "..currentime)
+				----debugPrint(3,"currentime "..currentime)
 				if((tonumber(currentime.month) == tonumber(trigger.month) or trigger.month == "") and (tonumber(currentime.day) == tonumber(trigger.day)) or trigger.day == "")  and (tonumber(currentime.year) == tonumber(trigger.year) or trigger.year == "") then
 					result = true
 				end
@@ -1303,7 +1305,7 @@ if(trigger.name == "player_is_targeted") then
 			if(trigger.name == "current_district") then
 				if currentDistricts2 ~= nil and currentDistricts2.customdistrict ~= nil then
 					if(string.lower(currentDistricts2.customdistrict.EnumName) == string.lower(trigger.value))then 
-						--debugPrint(1,"district OK")
+						--debugPrint(3,"district OK")
 						result =  true
 					end
 				end
@@ -1314,7 +1316,7 @@ if(trigger.name == "player_is_targeted") then
 						for i, subd in ipairs(currentDistricts2.districtLabels) do
 							if i > 1 then
 								if(string.lower(subd) == string.lower(trigger.value))then 
-									--debugPrint(1,"subdistrict OK")
+									--debugPrint(3,"subdistrict OK")
 									result =  true
 								end
 							end
@@ -1331,10 +1333,10 @@ if(trigger.name == "player_is_targeted") then
 				end
 			end
 			if(trigger.name == "have_fasttravel_mappin_placed") then
-				debugPrint(1,"test")
+				debugPrint(3,"test")
 				if(ActiveFastTravelMappin ~= nil) then
 					result =  true
-					debugPrint(1,"toto"..dump(ActiveFastTravelMappin))
+					debugPrint(3,"toto"..dump(ActiveFastTravelMappin))
 				end
 			end
 			if(trigger.name == "event_is_finished") then
@@ -1474,9 +1476,9 @@ if(trigger.name == "player_is_targeted") then
 				local obj = getEntityFromManager(trigger.tag)
 				local enti = Game.FindEntityByID(obj.id)	
 				local node = getNode(trigger.node)
-				--debugPrint(1,"check for node"..node.tag)
+				--debugPrint(3,"check for node"..node.tag)
 				if(enti ~= nil) then
-					--debugPrint(1,"check for entity"..trigger.tag)
+					--debugPrint(3,"check for entity"..trigger.tag)
 					local location = node
 					if(founded == false)then
 						local range = 25
@@ -1506,21 +1508,21 @@ if(trigger.name == "player_is_targeted") then
 			end
 			if(trigger.name == "is_arrived_to_destination") then
 				local obj = getEntityFromManager(trigger.tag)
-				--debugPrint(1,obj.tag)
+				--debugPrint(3,obj.tag)
 				local enti = Game.FindEntityByID(obj.id)
 				if(enti ~= nil) then
 					local targetPosition = enti:GetWorldPosition()
 					if obj.destination ~= nil then
-						debugPrint(1,obj.destination.x)
-						debugPrint(1,obj.destination.y)
-						debugPrint(1,obj.destination.z)
+						debugPrint(3,obj.destination.x)
+						debugPrint(3,obj.destination.y)
+						debugPrint(3,obj.destination.z)
 						if check3DPos(targetPosition, obj.destination.x, obj.destination.y, obj.destination.z,trigger.range) then
 							result = true
 							else
 							result = false
 						end
 						else
-						--debugPrint(1,"entity not found : "..trigger.tag)
+						--debugPrint(3,"entity not found : "..trigger.tag)
 						result = false
 					end
 				end
@@ -1534,7 +1536,7 @@ if(trigger.name == "player_is_targeted") then
 				end
 			end
 			if(trigger.name == "soundmanager_isplaying") then
-				--debugPrint(1,"soundmanager_isplaying "..tostring(IsPlaying(trigger.channel)))
+				--debugPrint(3,"soundmanager_isplaying "..tostring(IsPlaying(trigger.channel)))
 				if IsPlaying(trigger.channel) == true then
 					result =  true
 				end
@@ -1544,9 +1546,9 @@ if(trigger.name == "player_is_targeted") then
 		if logicregion then
 			if(trigger.name == "compare") then
 				local res = checkTrigger(trigger.trigger)
-				--debugPrint(1,tostring(res))
+				--debugPrint(3,tostring(res))
 				result = (res == trigger.expected)
-				--debugPrint(1,tostring(result))
+				--debugPrint(3,tostring(result))
 			end
 			if(trigger.name == "testFor") then
 				local count = 0
@@ -1558,7 +1560,7 @@ if(trigger.name == "player_is_targeted") then
 					end
 				end
 				if(trigger.logic == "or") then
-					--debugPrint(1,tostring(count >=1))
+					--debugPrint(3,tostring(count >=1))
 					result = (count >=1 )
 					else
 					result = (count == #trigger.triggers)
@@ -1569,7 +1571,7 @@ if(trigger.name == "player_is_targeted") then
 		if uiregion then
 			if(trigger.name == "dialog_windows_isopen") then
 				if(trigger.window == "quest")then
-					--debugPrint(1,"opo")
+					--debugPrint(3,"opo")
 					if(tostring(openQuestDialogWindow) ==  string.lower(tostring(trigger.value))) then 
 						return true
 					end
@@ -1581,7 +1583,7 @@ if(trigger.name == "player_is_targeted") then
 				end
 				if(trigger.window == "phone")then
 					if(tostring(openPhoneDialogWindow) ==  string.lower(tostring(trigger.value)	)) then 
-						--debugPrint(1,openPhoneDialogWindow)
+						--debugPrint(3,openPhoneDialogWindow)
 						return true
 					end
 				end
@@ -1647,11 +1649,11 @@ if(trigger.name == "player_is_targeted") then
 					tarName = objLook:ToString()
 					appName = Game.NameToString(objLook:GetCurrentAppearanceName())
 					dipName = objLook:GetDisplayName()
-					--debugPrint(1,appName)
+					--debugPrint(3,appName)
 					local entid = objLook:GetEntityID()
 					local entity = getEntityFromManagerById(entid)
 					if(entity ~= nil) then
-						--debugPrint(1,"lloo")
+						--debugPrint(3,"lloo")
 						local garagVeh = getVehiclefromCustomGarageTag(entity.tag)
 						if(garagVeh ~= nil and garagVeh.asAV == true or entity.tag == "fake_av") then
 							return true
@@ -1980,7 +1982,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 			group.entities = {}
 			questMod.GroupManager[action.tag] = group
 			
-			debugPrint(1,"group created")
+			debugPrint(3,"group created")
 		end
 		if(action.name == "add_entity_to_group") then
 			
@@ -2084,7 +2086,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 				local obj = getEntityFromManager(entityTag)
 				local enti = Game.FindEntityByID(obj.id)
 				if(enti ~= nil) then
-					--debugPrint(1,"moveit")
+					--debugPrint(3,"moveit")
 					teleportTo(enti, Vector4.new( action.x+i, action.y, action.z,1), 1,isplayer)
 				end
 			end
@@ -2450,17 +2452,17 @@ function executeAction(action,tag,parent,index,source,executortag)
 							group.tag = action.group
 							group.entities = {}
 							questMod.GroupManager[action.group] = group
-							debugPrint(1,"group created")
+							debugPrint(3,"group created")
 							
 						end
 						if(questMod.GroupManager[action.group] ~= nil) then
 							table.insert(questMod.GroupManager[action.group].entities,tag)
 							else
-							debugPrint(1,"group with tag : "..action.group.." doesn't exist")
+							debugPrint(3,"group with tag : "..action.group.." doesn't exist")
 						end
 					end
 					else
-					print(getLang("see_action_novehicle"))
+					debugPrint(10,getLang("see_action_novehicle"))
 				end
 			end
 		end
@@ -2790,14 +2792,14 @@ function executeAction(action,tag,parent,index,source,executortag)
 					end
 					local isAV = false
 					if(action.isAV ~= nil and action.isAV==true) then
-						debugPrint(1,"AV is "..tostring(action.isAV))
+						debugPrint(3,"AV is "..tostring(action.isAV))
 						isAV = action.isAV
 						local group = getGroupfromManager("AV")
 						if(group.entities == nil) then
 							group.entities = {}
 						end
 						table.insert(group.entities,tag)
-						debugPrint(1,#group.entities)
+						debugPrint(3,#group.entities)
 					end
 					local positionVec4 = Game.GetPlayer():GetWorldPosition()
 					local entity = nil
@@ -2852,14 +2854,14 @@ function executeAction(action,tag,parent,index,source,executortag)
 					chara = gang.SpawnableVehicule[index]
 					local isAV = false
 					if(action.isAV ~= nil and action.isAV==true) then
-						debugPrint(1,"AV is "..tostring(action.isAV))
+						debugPrint(3,"AV is "..tostring(action.isAV))
 						isAV = action.isAV
 						local group = getGroupfromManager("AV")
 						if(group.entities == nil) then
 							group.entities = {}
 						end
 						table.insert(group.entities,tag)
-						debugPrint(1,#group.entities)
+						debugPrint(3,#group.entities)
 					end
 					local positionVec4 = Game.GetPlayer():GetWorldPosition()
 					local entity = nil
@@ -2914,15 +2916,15 @@ function executeAction(action,tag,parent,index,source,executortag)
 						chara = gang.SpawnableVehicule[index]
 						local isAV = false
 						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
+							debugPrint(3,"AV is "..tostring(action.isAV))
 							isAV = action.isAV
 							local group = getGroupfromManager("AV")
 							if(group.entities == nil) then
 								group.entities = {}
 							end
-							debugPrint(1,tag)
+							debugPrint(3,tag)
 							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
+							debugPrint(3,#group.entities)
 						end
 						local positionVec4 = Game.GetPlayer():GetWorldPosition()
 						local entity = nil
@@ -2986,15 +2988,15 @@ function executeAction(action,tag,parent,index,source,executortag)
 						chara = gang.SpawnableVehicule[index]
 						local isAV = false
 						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
+							debugPrint(3,"AV is "..tostring(action.isAV))
 							isAV = action.isAV
 							local group = getGroupfromManager("AV")
 							if(group.entities == nil) then
 								group.entities = {}
 							end
-							debugPrint(1,tag)
+							debugPrint(3,tag)
 							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
+							debugPrint(3,#group.entities)
 						end
 						local positionVec4 = Game.GetPlayer():GetWorldPosition()
 						local entity = nil
@@ -3052,15 +3054,15 @@ function executeAction(action,tag,parent,index,source,executortag)
 						chara = gang.SpawnableVehicule[index]
 						local isAV = false
 						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
+							debugPrint(3,"AV is "..tostring(action.isAV))
 							isAV = action.isAV
 							local group = getGroupfromManager("AV")
 							if(group.entities == nil) then
 								group.entities = {}
 							end
-							debugPrint(1,tag)
+							debugPrint(3,tag)
 							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
+							debugPrint(3,#group.entities)
 						end
 						local positionVec4 = Game.GetPlayer():GetWorldPosition()
 						local entity = nil
@@ -3126,15 +3128,15 @@ function executeAction(action,tag,parent,index,source,executortag)
 						chara = gang.SpawnableVehicule[index]
 						local isAV = false
 						if(action.isAV ~= nil and action.isAV==true) then
-							debugPrint(1,"AV is "..tostring(action.isAV))
+							debugPrint(3,"AV is "..tostring(action.isAV))
 							isAV = action.isAV
 							local group = getGroupfromManager("AV")
 							if(group.entities == nil) then
 								group.entities = {}
 							end
-							debugPrint(1,tag)
+							debugPrint(3,tag)
 							table.insert(group.entities,tag)
-							debugPrint(1,#group.entities)
+							debugPrint(3,#group.entities)
 						end
 						local positionVec4 = Game.GetPlayer():GetWorldPosition()
 						local entity = nil
@@ -3396,10 +3398,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 				local statut = getHouseStatut(currentHouse.tag)
 				local moneyamount = getStackableItemAmount("Items.money")
 				local price = currentHouse.price
-				--debugPrint(1,tostring(isbuyable))
-				--debugPrint(1,tostring(statut))
-				--debugPrint(1,tostring(moneyamount))
-				--debugPrint(1,tostring(price))
+				--debugPrint(3,tostring(isbuyable))
+				--debugPrint(3,tostring(statut))
+				--debugPrint(3,tostring(moneyamount))
+				--debugPrint(3,tostring(price))
 				if(isbuyable == true and (statut == nil or statut < 1) and moneyamount >= price) then
 					local player = Game.GetPlayer()
 					local ts = Game.GetTransactionSystem()
@@ -3464,7 +3466,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local tid = TweakDBID.new("Items.money")
 					local itemid = ItemID.new(tid)
 					local amount =  round(currentHouse.price/2)
-					--debugPrint(1,"amount : "..amount)
+					--debugPrint(3,"amount : "..amount)
 					local result = ts:GiveItem(player, itemid, amount)
 					
 					setScore(currentHouse.tag,"Statut",0)
@@ -3529,7 +3531,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 							local success, result = Game.GetSpatialQueriesSystem():SyncRaycastByCollisionGroup(from, to, filter, false, false)
 							if success then
 								collision = true
-								--debugPrint(1,"collision"..filter)
+								--debugPrint(3,"collision"..filter)
 							end
 						end
 						if(collision == false) then
@@ -3541,7 +3543,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 							end
 						end
 						else
-						--debugPrint(1,"angle.yaw = "..angle.yaw)
+						--debugPrint(3,"angle.yaw = "..angle.yaw)
 						teleportTo(enti, Vector4.new( currentHouse.EnterX, currentHouse.EnterY, currentHouse.EnterZ,1), angle,isplayer)
 					end
 				end
@@ -3577,7 +3579,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 							local success, result = Game.GetSpatialQueriesSystem():SyncRaycastByCollisionGroup(from, to, filter, false, false)
 							if success then
 								collision = true
-								--debugPrint(1,"collision"..filter)
+								--debugPrint(3,"collision"..filter)
 							end
 						end
 						if(collision == false) then
@@ -3589,7 +3591,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 							end
 						end
 						else
-						--debugPrint(1,"angle.yaw = "..angle.yaw)
+						--debugPrint(3,"angle.yaw = "..angle.yaw)
 						teleportTo(enti, Vector4.new( currentHouse.ExitX, currentHouse.ExitY, currentHouse.ExitZ,1), angle,isplayer)
 					end
 				end
@@ -3639,7 +3641,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 					local angle = GetSingleton('Quaternion'):ToEulerAngles(qat)
 					updateItemPosition(obj, objpos, angle, true)
 					else
-					debugPrint(1,"null")
+					debugPrint(3,"null")
 				end
 			end
 		end
@@ -3768,12 +3770,12 @@ function executeAction(action,tag,parent,index,source,executortag)
 					entity = getItemEntityFromManagerByPlayerLookinAt()
 				end
 				if(entity ~= nil) then
-					debugPrint(1,entity.Tag)
-					debugPrint(1,entity.Tag)
-					debugPrint(1,#currentSave.arrayPlayerItems)
+					debugPrint(3,entity.Tag)
+					debugPrint(3,entity.Tag)
+					debugPrint(3,#currentSave.arrayPlayerItems)
 					for i =1, #currentSave.arrayPlayerItems do
 						local mitem = currentSave.arrayPlayerItems[i]
-						debugPrint(1,mitem.Tag)
+						debugPrint(3,mitem.Tag)
 						if(mitem.Tag == entity.Tag) then
 							local housingitem = getHousing(entity.Tag,entity.X,entity.Y,entity.Z)
 							deleteHousing(housingitem.Id)
@@ -3782,7 +3784,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 					end
 					else
-					debugPrint(1,"nope")
+					debugPrint(3,"nope")
 				end
 			end
 		end
@@ -3816,10 +3818,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 						phi = math.atan2(playerAngle.y, playerAngle.x)
 						targetDeltaPos = Vector4.new(((objectDist * math.cos(phi)) + playerPos.x), ((objectDist * math.sin(phi)) + playerPos.y), (objectDist * math.sin(playerAngle.z) + playerPos.z), targetPos.w)
 						targetDeltaPos = Delta(targetDeltaPos, targetPos)
-						debugPrint(1,grabbedTarget, "grabbed.")
+						debugPrint(3,grabbedTarget, "grabbed.")
 						grabbed = true
 						else
-						debugPrint(1,"No target!")
+						debugPrint(3,"No target!")
 					end
 				end)
 			end
@@ -3842,10 +3844,10 @@ function executeAction(action,tag,parent,index,source,executortag)
 								phi = math.atan2(playerAngle.y, playerAngle.x)
 								targetDeltaPos = Vector4.new(((objectDist * math.cos(phi)) + playerPos.x), ((objectDist * math.sin(phi)) + playerPos.y), (objectDist * math.sin(playerAngle.z) + playerPos.z), targetPos.w)
 								targetDeltaPos = Delta(targetDeltaPos, targetPos)
-								debugPrint(1,grabbedTarget, "grabbed.")
+								debugPrint(3,grabbedTarget, "grabbed.")
 								grabbed = true
 								else
-								debugPrint(1,"No target!")
+								debugPrint(3,"No target!")
 							end
 						end
 					end
@@ -3955,7 +3957,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						local mitem = currentSave.arrayPlayerItems[i]
 						if(mitem.Tag == selectedItem.Tag) then
 							Game.FindEntityByID(selectedItem.entityId):GetEntity():Destroy()
-							debugPrint(1,"toto")
+							debugPrint(3,"toto")
 							updatePlayerItemsQuantity(mitem,1)
 							deleteHousing(selectedItem.Id)
 							local index = getItemEntityIndexFromManager(selectedItem.entityId)
@@ -3967,7 +3969,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 						end
 					end
 					else
-					debugPrint(1,"nope")
+					debugPrint(3,"nope")
 				end
 			end
 		end
@@ -4017,7 +4019,7 @@ function executeAction(action,tag,parent,index,source,executortag)
 							end
 						end
 						else
-						debugPrint(1,"nope")
+						debugPrint(3,"nope")
 					end
 				end
 			end
@@ -4278,7 +4280,7 @@ end
 					if i > 1 then
 						local gangs = getGangfromDistrict(test,20)
 						if(#gangs > 0) then
-							debugPrint(1,currentDistricts2.Tag)
+							debugPrint(3,currentDistricts2.Tag)
 							currentSave.Score[gangs[1].tag][test] = currentSave.Score[gangs[1].tag][test] + action.value
 							break
 						end
@@ -4308,9 +4310,9 @@ end
 			if #currentDistricts2.districtLabels > 0 then
 				for i, test in ipairs(currentDistricts2.districtLabels) do
 					if i > 1 then
-						debugPrint(1,i)
-						debugPrint(1,test)
-						debugPrint(1,action.faction)
+						debugPrint(3,i)
+						debugPrint(3,test)
+						debugPrint(3,action.faction)
 						currentSave.Score[action.faction][test] = currentSave.Score[action.faction][test]+ action.value
 						break
 					end
@@ -4532,13 +4534,13 @@ end
 				amount = amount * 2
 			end
 			local result = ts:RemoveItem(player, itemid, amount)
-			------debugPrint(1,"remove money")
+			------debugPrint(3,"remove money")
 			local player = Game.GetPlayer()
 			local ts = Game.GetTransactionSystem()
 			local tid = TweakDBID.new(action.value)
 			local itemid = ItemID.new(tid)
 			local result = ts:GiveItem(player, itemid, tonumber(action.amount))
-			------debugPrint(1,"give item")
+			------debugPrint(3,"give item")
 		end
 		if(action.name == "give_item") then
 			local player = Game.GetPlayer()
@@ -4546,7 +4548,7 @@ end
 			local tid = TweakDBID.new(action.value)
 			local itemid = ItemID.new(tid)
 			local result = ts:GiveItem(player, itemid, tonumber(action.amount))
-			------debugPrint(1,"give item")
+			------debugPrint(3,"give item")
 		end
 		if(action.name == "remove_item") then
 			local player = Game.GetPlayer()
@@ -4565,7 +4567,7 @@ end
 				amount = amount * currentHouse.coef	
 			end
 			local result = ts:GiveItem(player, itemid, amount)
-			------debugPrint(1,"give money")
+			------debugPrint(3,"give money")
 		end
 		if(action.name == "give_money_current_stock") then
 			if(CurrentStock ~= nil and CurrentStock.price ~= nil and CurrentStock.userQuantity ~= nil and CurrentStock.statut ~= 0 and CurrentStock.userQuantity ~= nil and CurrentStock.userQuantity > 0) then
@@ -4578,9 +4580,9 @@ end
 				
 				local result = ts:GiveItem(player, itemid, amount)
 				else
-				print(getLang("nocurrentstock"))
+				debugPrint(10,getLang("nocurrentstock"))
 			end
-			------debugPrint(1,"give money")
+			------debugPrint(3,"give money")
 		end
 		if(action.name == "give_random_money") then
 			local player = Game.GetPlayer()
@@ -4592,7 +4594,7 @@ end
 				amount = amount * currentHouse.coef	
 			end
 			local result = ts:GiveItem(player, itemid, amount)
-			------debugPrint(1,"give money")
+			------debugPrint(3,"give money")
 		end
 		if(action.name == "remove_money") then
 			local player = Game.GetPlayer()
@@ -4607,8 +4609,8 @@ end
 				amount = amount * 2
 			end
 			local result = ts:RemoveItem(player, itemid, amount)
-			debugPrint(1,result)
-			--debugPrint(1,"remove money")
+			debugPrint(3,result)
+			--debugPrint(3,"remove money")
 		end
 		
 		if(action.name == "remove_money_current_stock") then
@@ -4620,11 +4622,11 @@ end
 				local amount = tonumber(CurrentStock.price )
 				
 				local result = ts:RemoveItem(player, itemid, amount)
-				debugPrint(1,result)
+				debugPrint(3,result)
 				else
-				print(getLang("nocurrentstock"))
+				debugPrint(10,getLang("nocurrentstock"))
 			end
-			--debugPrint(1,"remove money")
+			--debugPrint(3,"remove money")
 		end
 		if(action.name == "remove_random_money") then
 			local player = Game.GetPlayer()
@@ -4639,8 +4641,8 @@ end
 				amount = amount * 2
 			end
 			local result = ts:RemoveItem(player, itemid, amount)
-			--debugPrint(1,result)
-			--debugPrint(1,"remove money")
+			--debugPrint(3,result)
+			--debugPrint(3,"remove money")
 		end
 		if(action.name == "give_money_score") then
 			local player = Game.GetPlayer()
@@ -4653,7 +4655,7 @@ end
 			end
 			spdlog.info('test ' .. amount)
 			local result = ts:GiveItem(player, itemid, math.floor(amount))
-			------debugPrint(1,"give money")
+			------debugPrint(3,"give money")
 		end
 		if(action.name == "remove_money_score") then
 			local player = Game.GetPlayer()
@@ -4668,8 +4670,8 @@ end
 				amount = amount * 2
 			end
 			local result = ts:RemoveItem(player, itemid, amount)
-			--debugPrint(1,result)
-			--debugPrint(1,"remove money")
+			--debugPrint(3,result)
+			--debugPrint(3,"remove money")
 		end
 		if(action.name == "draw_mappin") then
 			drawMappin(action.x,action.y)
@@ -4689,13 +4691,13 @@ end
 		end
 		if(action.name == "delete_mappin") then
 			if(mappinPoint ~= nil) then
-				debugPrint(1,"Unregister mappinPoint")
+				debugPrint(3,"Unregister mappinPoint")
 				Game.GetMappinSystem():UnregisterMappin(mappinPoint)
 			end
 		end
 		if(action.name == "clean_custommappin") then
 			if(ActivecustomMappin ~= nil) then
-				------debugPrint(1,"Unregister mappinPoint")
+				------debugPrint(3,"Unregister mappinPoint")
 				
 				ActivecustomMappin = nil
 			end
@@ -4724,8 +4726,8 @@ end
 		end
 		if(action.name == "simple_message_metro") then
 			local obj = getEntityFromManager(action.entity)
-			debugPrint(1,obj.currentNode.tag)
-			debugPrint(1,obj.nextNode.tag)
+			debugPrint(3,obj.currentNode.tag)
+			debugPrint(3,obj.nextNode.tag)
 			local startnode = getNode(obj.currentNode.tag)
 			local endnode = getNode(obj.nextNode.tag)
 			local text = lang["boarding"]..startnode.name..lang["to"]..endnode.name
@@ -5342,7 +5344,7 @@ end
 				end
 				
 				else
-				print("no help founded with the tag "..action.tag)
+				debugPrint(10,"no help founded with the tag "..action.tag)
 			end
 		end
 		
@@ -5370,8 +5372,13 @@ end
 			activeMetroDisplay = action.value
 		end
 		if(action.name == "consolelog") then
-			print(getLang(action.value))
+			debugPrint(10,getLang(action.value))
 		end
+		
+		if(action.name == "log") then
+			logme(getLang(action.value),action.level)
+		end
+		
 		if(action.name == "shard_window") then
 			shardUIevent = NotifyShardRead.new()
 			shardUIevent.text = action.content
@@ -5614,7 +5621,7 @@ end
 			registerMappin(currentpoi.x,currentpoi.y,currentpoi.z,action.tag,action.typemap,action.wall,action.active,action.mapgroup,nil,action.title,action.desc)
 		end
 		if(action.name == "new_map_point_from_currentsubdistrict") then
-			debugPrint(1,currentDistricts2.districtLabels[2])
+			debugPrint(3,currentDistricts2.districtLabels[2])
 			local currentpoi = nil
 			local poilist = {}
 			for i=1,#arrayPOI do
@@ -5685,10 +5692,10 @@ end
 			local position = nil
 			local index = math.random(1,#mappedFastTravelPoint)
 			local point = mappedFastTravelPoint[index]
-			debugPrint(1,#mappedFastTravelPoint)
+			debugPrint(3,#mappedFastTravelPoint)
 			markerref = point.markerrefdata
 			markerref = point.markerrefdata
-			debugPrint(1,dump(point))
+			debugPrint(3,dump(point))
 			position = registerMappin(point.position.x,point.position.y,point.position.z,action.tag,action.typemap,action.wall,action.active,action.mapgroup,point,action.title,action.desc)
 		end
 		if(action.name == "new_map_point_to_entity") then
@@ -5798,17 +5805,17 @@ end
 	
 	if relationregion then
 		if(action.name == "dialog") then
-			--debugPrint(1,"is print(source)
+			--debugPrint(3,"is debugPrint(10,source)
 			local usedial =  SetNextDialog(action.dialog,source,executortag)
-			-- debugPrint(1,source)
-			-- debugPrint(1,executortag)
-			-- debugPrint(1,usedial.Desc)
+			-- debugPrint(3,source)
+			-- debugPrint(3,executortag)
+			-- debugPrint(3,usedial.Desc)
 			createDialog(usedial)	
-			-- debugPrint(1,source)
+			-- debugPrint(3,source)
 			-- if(source == "quest") then
 			-- local dioal = SetNextDialog(action.value,source)
 			-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-			-- debugPrint(1,dioal.Desc)
+			-- debugPrint(3,dioal.Desc)
 			-- openQuestDialogWindow = false
 			-- currentQuestdialog = dioal
 			-- openQuestDialogWindow = true
@@ -5816,7 +5823,7 @@ end
 			-- if(source == "interact") then
 			-- local dioal = SetNextDialog(action.value,source)
 			-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-			-- debugPrint(1,dioal.Desc)
+			-- debugPrint(3,dioal.Desc)
 			-- openEventDialogWindow = false
 			-- currentEventDialog = dioal
 			-- openEventDialogWindow = true
@@ -5824,17 +5831,17 @@ end
 			-- if(source == "phone") then
 			-- local dioal = SetNextDialog(action.value,source)
 			-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-			-- debugPrint(1,dioal.Desc)
+			-- debugPrint(3,dioal.Desc)
 			-- openPhoneDialogWindow = false
 			-- currentPhoneDialog = dioal
 			-- openPhoneDialogWindow = true
 			-- --SetDialogPhoneUI(dioal)
-			-- ------debugPrint(1,"dialog phone enabled")
+			-- ------debugPrint(3,"dialog phone enabled")
 			-- end
 			-- if(source == "speak") then
 			-- local dioal = SetNextDialog(action.value,source)
 			-- if dioal.havequitoption == nil then dioal.havequitoption = true end
-			-- debugPrint(1,dioal.Desc)
+			-- debugPrint(3,dioal.Desc)
 			-- openSpeakDialogWindow = false
 			-- currentSpeakDialog = dioal
 			-- openSpeakDialogWindow = true
@@ -5932,7 +5939,7 @@ end
 		end
 		if(action.name == "subtitle") then 
 			if(currentSubtitlesGameController ~= nil) then
-				--debugPrint(1,"ye")
+				--debugPrint(3,"ye")
 				local linesToShow = {}
 				--currentSubtitlesGameController:Cleanup()
 				local dialogLine = scnDialogLineData.new()
@@ -5994,7 +6001,7 @@ end
 		end
 		if(action.name == "news_subtitle") then 
 			if(currentSubtitlesGameController ~= nil) then
-				--debugPrint(1,"ye")
+				--debugPrint(3,"ye")
 				local linesToShow = {}
 				--currentSubtitlesGameController:Cleanup()
 				local dialogLine = scnDialogLineData.new()
@@ -6060,7 +6067,7 @@ end
 		end
 		if(action.name == "random_subtitle") then 
 			if(currentSubtitlesGameController ~= nil) then
-				--debugPrint(1,"ye")
+				--debugPrint(3,"ye")
 				local linesToShow = {}
 				--currentSubtitlesGameController:Cleanup()
 				local tago = math.random(1,#action.title)
@@ -6148,11 +6155,11 @@ end
 						dialogLine.duration  = action.duration
 						currentChattersGameController:SpawnDialogLine(dialogLine)
 						local temp = tick
-						--debugPrint(1,temp)
+						--debugPrint(3,temp)
 						local nexttemp = temp
-						--debugPrint(1,math.ceil((action.value*60)))
+						--debugPrint(3,math.ceil((action.value*60)))
 						nexttemp =nexttemp +  math.ceil((action.duration*60))
-						--debugPrint(1,nexttemp)
+						--debugPrint(3,nexttemp)
 						action.tick = nexttemp
 						result = false
 					end
@@ -6204,11 +6211,11 @@ end
 						dialogLine.duration  = action.duration
 						currentChattersGameController:SpawnDialogLine(dialogLine)
 						local temp = tick
-						--debugPrint(1,temp)
+						--debugPrint(3,temp)
 						local nexttemp = temp
-						--debugPrint(1,math.ceil((action.value*60)))
+						--debugPrint(3,math.ceil((action.value*60)))
 						nexttemp =nexttemp +  math.ceil((action.duration*60))
-						--debugPrint(1,nexttemp)
+						--debugPrint(3,nexttemp)
 						action.tick = nexttemp
 						result = false
 					end
@@ -6231,7 +6238,7 @@ end
 		end
 		if(action.name == "do_random_dialog")then
 			local tago = math.random(1,#action.dialog)
-			--	debugPrint(1,action.dialog[tago])
+			--	debugPrint(3,action.dialog[tago])
 			if( tago ~= nil) then
 				createDialog(SetNextDialog(action.dialog[tago],source,executortag))
 			end
@@ -6252,14 +6259,14 @@ end
 		end
 		if(action.name == "entity_affinity") then
 			local obj = getEntityFromManager(action.tag)
-			debugPrint(1,dump((obj)))
+			debugPrint(3,dump((obj)))
 			local score = getScoreKey("Affinity",obj.name)
 			if(score == nil) then score = 0 end
 			score = score + action.score
 			setScore("Affinity",obj.name,score)
 		end
 		if(action.name == "custom_star_message") then
-			------debugPrint(1,npcStarSpawn)
+			------debugPrint(3,npcStarSpawn)
 			if(npcStarSpawn) then
 				customEventMessage(action.value, currentStar)
 			end
@@ -6460,7 +6467,7 @@ end
 			local obj = getEntityFromManager(action.tag)
 			if(obj ~= nil and obj.path ~= nil) then
 				local actionlist = {}
-				--debugPrint(1,#actionlist)
+				--debugPrint(3,#actionlist)
 				--doActionofIndex(actionlist,"interact",listaction,currentindex)
 				result = false
 				local path = getEntityFromManager(group.entities[1]).path
@@ -6469,7 +6476,7 @@ end
 						local trackpos = obj.path.locations[i]
 						local nexttrackpos = obj.path.locations[i+1]
 						if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-							debugPrint(1,obj.path.index)
+							debugPrint(3,obj.path.index)
 							local direction = {}
 							local separate = 0
 							if(action.separate ~= nil and action.separate == true) then
@@ -6490,7 +6497,7 @@ end
 								if(path.recordRotation == true) then
 									angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 								end
-								--debugPrint(1,"yaw "..angle.yaw)
+								--debugPrint(3,"yaw "..angle.yaw)
 								local newaction = {}
 								newaction.name = "teleport_entity_at_position"
 								newaction.tag = entityTag
@@ -6522,7 +6529,7 @@ end
 							local trackpos = obj.path.locations[i]
 							local nexttrackpos = obj.path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,obj.path.index)
+								debugPrint(3,obj.path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -6543,7 +6550,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									newaction.name = "teleport_entity_at_position"
 									newaction.tag = entityTag
@@ -6582,7 +6589,7 @@ end
 			local obj = getEntityFromManager(action.tag)
 			if(obj ~= nil ) then
 				local actionlist = {}
-				--debugPrint(1,#actionlist)
+				--debugPrint(3,#actionlist)
 				--doActionofIndex(actionlist,"interact",listaction,currentindex)
 				result = false
 				local path = getPath(action.path)
@@ -6592,7 +6599,7 @@ end
 						local trackpos = path.locations[i]
 						local nexttrackpos = path.locations[i+1]
 						if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-							debugPrint(1,path.index)
+							debugPrint(3,path.index)
 							local direction = {}
 							local separate = 0
 							if(action.separate ~= nil and action.separate == true) then
@@ -6613,7 +6620,7 @@ end
 								if(path.recordRotation == true) then
 									angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 								end
-								--debugPrint(1,"yaw "..angle.yaw)
+								--debugPrint(3,"yaw "..angle.yaw)
 								
 								local newaction = {}
 								if(action.isrelative ~= nil and action.isrelative == true) then
@@ -6652,7 +6659,7 @@ end
 							local trackpos = path.locations[i]
 							local nexttrackpos = path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,path.index)
+								debugPrint(3,path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -6673,7 +6680,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									if(action.isrelative ~= nil and action.isrelative == true) then
 										newaction.name = "teleport_entity_at_relative_position"
@@ -6767,7 +6774,7 @@ end
 				isplayer = true
 			end
 			if(enti ~= nil) then
-				--debugPrint(1,"moveit")
+				--debugPrint(3,"moveit")
 				if(action.atgameplayposition) then
 					teleportTo(enti, Vector4.new( node.GameplayX+action.offset, node.GameplayY, node.GameplayZ,1), 1,isplayer)
 					else
@@ -6791,7 +6798,7 @@ end
 			local node = getNodefromPosition(position.x,position.y,position.z,range)
 			if node ~= nil then
 				if(enti ~= nil) then
-					debugPrint(1,"tp to node "..node.name)
+					debugPrint(3,"tp to node "..node.name)
 					if(action.atgameplayposition) then
 						teleportTo(enti, Vector4.new( node.GameplayX+action.offset, node.GameplayY, node.GameplayZ,1), 1,isplayer)
 						else
@@ -6828,15 +6835,15 @@ end
 			local group =getGroupfromManager(action.tag)
 			for i=1, #group.entities do 
 				local entityTag = group.entities[i]
-				debugPrint(1,entityTag)
-				debugPrint(1,action.circuit)
+				debugPrint(3,entityTag)
+				debugPrint(3,action.circuit)
 				local obj = getEntityFromManager(entityTag)
 				local circuit = getCircuit(action.circuit)
-				debugPrint(1,dump(circuit))
-				debugPrint(1,dump(obj))
+				debugPrint(3,dump(circuit))
+				debugPrint(3,dump(obj))
 				obj.circuit =circuit
-				debugPrint(1,"set circuit.."..obj.circuit.tag)
-				debugPrint(1,"action.reverse"..tostring(action.reverse))
+				debugPrint(3,"set circuit.."..obj.circuit.tag)
+				debugPrint(3,"action.reverse"..tostring(action.reverse))
 				obj.circuit.reverse = action.reverse
 			end
 		end
@@ -6851,14 +6858,14 @@ end
 		end
 		if(action.name == "set_group_node_current_auto") then
 			local group =getGroupfromManager(action.tag)
-			debugPrint(1,"test.."..#group.entities)
+			debugPrint(3,"test.."..#group.entities)
 			for i=1, #group.entities do 
 				local entityTag = group.entities[i]
 				local obj = getTrueEntityFromManager(entityTag)
 				local enti = Game.FindEntityByID(obj.id)
 				local positionVec4 = enti:GetWorldPosition()
 				obj.currentNode = getNodefromPosition(positionVec4.x, positionVec4.y, positionVec4.z, action.range)
-				debugPrint(1,"currentNode "..obj.currentNode.tag)	
+				debugPrint(3,"currentNode "..obj.currentNode.tag)	
 				--	setEntityFromManager(entityTag,obj)
 			end
 		end
@@ -6879,18 +6886,18 @@ end
 		end
 		if(action.name == "set_group_node_next_auto") then
 			local group =getGroupfromManager(action.tag)
-			debugPrint(1,"test.."..#group.entities)
+			debugPrint(3,"test.."..#group.entities)
 			for i=1, #group.entities do 
 				local entityTag = group.entities[i]
 				local obj = getTrueEntityFromManager(entityTag)
-				debugPrint(1,"currentNode "..obj.currentNode.tag)	
-				debugPrint(1,#obj.circuit)
-				debugPrint(1,tostring(obj.circuit.reverse))
+				debugPrint(3,"currentNode "..obj.currentNode.tag)	
+				debugPrint(3,#obj.circuit)
+				debugPrint(3,tostring(obj.circuit.reverse))
 				if(obj.circuit.reverse == false or obj.circuit.reverse == nil) then
 					local nextNodeIndex = getNodeIndexFromCircuit(obj.currentNode.tag,obj.circuit.nodes)
-					debugPrint(1,"nextNodeIndex "..nextNodeIndex)
+					debugPrint(3,"nextNodeIndex "..nextNodeIndex)
 					obj.nextNode = getNode(obj.circuit.nodes[nextNodeIndex+1])
-					debugPrint(1,"nextNode "..obj.nextNode.tag)
+					debugPrint(3,"nextNode "..obj.nextNode.tag)
 					setEntityFromManager(entityTag,obj)
 					else
 					local inversed_circuit = reverseTable(obj.circuit.nodes)
@@ -6925,8 +6932,8 @@ end
 			for i=1, #group.entities do 
 				local entityTag = group.entities[i]
 				local obj = getEntityFromManager(entityTag)
-				debugPrint(1,obj.currentNode.tag)
-				debugPrint(1,obj.nextNode.tag)
+				debugPrint(3,obj.currentNode.tag)
+				debugPrint(3,obj.nextNode.tag)
 				if(obj.circuit.reverse == true) then
 					obj.path = getPathBetweenTwoNode(obj.nextNode.tag, obj.currentNode.tag)
 					else
@@ -6950,7 +6957,7 @@ end
 		if(action.name == "run_group_path_cached" or action.name == "run_group_path") then
 			local group =getGroupfromManager(action.tag)
 			local actionlist = {}
-			--debugPrint(1,#actionlist)
+			--debugPrint(3,#actionlist)
 			--doActionofIndex(actionlist,"interact",listaction,currentindex)
 			result = false
 			local path = getEntityFromManager(group.entities[1]).path
@@ -6963,7 +6970,7 @@ end
 							local trackpos = obj.path.locations[i]
 							local nexttrackpos = obj.path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,obj.path.index)
+								debugPrint(3,obj.path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -6984,7 +6991,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									if(action.isrelative ~= nil and action.isrelative == true) then
 										newaction.name = "teleport_entity_at_relative_position"
@@ -7025,7 +7032,7 @@ end
 							local trackpos = obj.path.locations[i]
 							local nexttrackpos = obj.path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,obj.path.index)
+								debugPrint(3,obj.path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -7046,7 +7053,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									if(action.isrelative ~= nil and action.isrelative == true) then
 										newaction.name = "teleport_entity_at_relative_position"
@@ -7089,7 +7096,7 @@ end
 		if(action.name == "play_group_path_cached" or action.name == "play_group_path") then
 			local group =getGroupfromManager(action.tag)
 			local actionlist = {}
-			--debugPrint(1,#actionlist)
+			--debugPrint(3,#actionlist)
 			--doActionofIndex(actionlist,"interact",listaction,currentindex)
 			result = false
 			local path =  getPath(action.path)
@@ -7102,7 +7109,7 @@ end
 							local trackpos = path.locations[i]
 							local nexttrackpos = path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,path.index)
+								debugPrint(3,path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -7123,7 +7130,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									
 									if(action.isrelative ~= nil and action.isrelative == true) then
@@ -7155,7 +7162,7 @@ end
 							local trackpos = path.locations[i]
 							local nexttrackpos = path.locations[i+1]
 							if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-								debugPrint(1,path.index)
+								debugPrint(3,path.index)
 								local direction = {}
 								local separate = 0
 								if(action.separate ~= nil and action.separate == true) then
@@ -7176,7 +7183,7 @@ end
 									if(path.recordRotation == true) then
 										angle = EulerAngles.new(trackpos.roll, trackpos.pitch,  nexttrackpos.yaw)
 									end
-									--debugPrint(1,"yaw "..angle.yaw)
+									--debugPrint(3,"yaw "..angle.yaw)
 									local newaction = {}
 									
 									if(action.isrelative ~= nil and action.isrelative == true) then
@@ -7237,7 +7244,7 @@ end
 						nexttrackpos = obj.path.locations[obj.path.index-1]
 					end
 					if(nexttrackpos ~= nil) and (trackpos ~= nil) then 
-						debugPrint(1,obj.path.index)
+						debugPrint(3,obj.path.index)
 						local direction = {}
 						local separate = 0
 						if(action.separate ~= nil and action.separate == true) then
@@ -7255,7 +7262,7 @@ end
 							end
 							local dirVector = diffVector(enti:GetWorldPosition(), direction)
 							local angle = GetSingleton('Vector4'):ToRotation(dirVector)
-							debugPrint(1,"yaw "..angle.yaw)
+							debugPrint(3,"yaw "..angle.yaw)
 							teleportTo(enti, enti:GetWorldPosition(), angle,isplayer)
 						end
 					end
@@ -7366,7 +7373,7 @@ end
 				end
 				if(action.source == "district_leader" or action.source == "subdistrict_leader") then
 					local gangs = getGangfromDistrict(action.source_tag,20)
-					debugPrint(1,dump(gangs))
+					debugPrint(3,dump(gangs))
 					if(#gangs > 0) then
 						local gang = getFactionByTag(gangs[1].tag)
 						if(action.source_use_rival == true) then
@@ -7574,7 +7581,7 @@ end
 							group.tag = action.group
 							group.entities = {}
 							questMod.GroupManager[action.group] = group
-							debugPrint(1,"group created")
+							debugPrint(3,"group created")
 							
 						end
 						if(questMod.GroupManager[action.group] ~= nil) then
@@ -7592,7 +7599,7 @@ end
 			if(objLook ~= nil) then
 				local enti = getEntityFromManagerById(objLook:GetEntityID()) 
 				if(enti ~= nil)then
-					debugPrint(1,"yahoo")
+					debugPrint(3,"yahoo")
 					despawnEntity(enti.tag)
 					else
 					Game.GetPreventionSpawnSystem():RequestDespawn(objLook:GetEntityID())
@@ -7766,7 +7773,15 @@ end
 		
 		-- end
 		-- end
-		
+		if(action.name == "set_entity_highlight") then
+			local obj = getEntityFromManager(action.tag)
+			local enti = Game.FindEntityByID(obj.id)
+			if(enti ~= nil) then
+				obj.isquest = action.value
+				enti:MarkAsQuest(obj.isquest)
+			end
+			
+		end
 		if(action.name == "bound_entity_to_entity") then
 			
 			if(arrayBoundedEntity[action.tag] == nil) then
@@ -8212,7 +8227,7 @@ end
 						local success, result = Game.GetSpatialQueriesSystem():SyncRaycastByCollisionGroup(from, to, filter, false, false)
 						if success then
 							collision = true
-							--debugPrint(1,"collision"..filter)
+							--debugPrint(3,"collision"..filter)
 						end
 					end
 					if(collision == false) then
@@ -8224,7 +8239,7 @@ end
 						end
 					end
 					else
-					--debugPrint(1,"angle.yaw = "..angle.yaw)
+					--debugPrint(3,"angle.yaw = "..angle.yaw)
 					teleportTo(enti, Vector4.new( action.x, action.y, action.z,1), angle,isplayer)
 				end
 			end
@@ -8432,7 +8447,7 @@ end
 			local oldangle = GetSingleton('Vector4'):ToRotation(player:GetWorldPosition())
 			
 			local how = angle.yaw -oldangle.yaw
-			print(how)
+			debugPrint(10,how)
 			local actionlist = {}
 			for i=1,0-how do
 				local newaction = {}
@@ -8471,7 +8486,7 @@ end
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
 			if(enti ~= nil) then
-				--debugPrint(1,"go")
+				--debugPrint(3,"go")
 				getAppearance(enti)
 				setAppearance(enti,action.appearance)
 			end
@@ -8650,7 +8665,7 @@ end
 					end
 					
 					
-					print("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
+					debugPrint(10,"spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
 					spdlog.error("spawn item. item tweak : "..chara.." position : "..dump(spawnedItem))
 					else
 					error("bad item or position. item tweak : "..chara.." position : "..dump(position))
@@ -8977,7 +8992,7 @@ end
 					table.insert(actionlist,action.action[y])
 				end
 			end
-			--debugPrint(1,#actionlist)
+			--debugPrint(3,#actionlist)
 			--doActionofIndex(actionlist,"interact",listaction,currentindex)
 			runSubActionList(actionlist, "forlist_"..math.random(1,99999), tag,source,false,executortag)
 			result = false
@@ -9006,11 +9021,11 @@ end
 		end
 		if(action.name == "wait_second") then
 			local temp = tick
-			--debugPrint(1,temp)
+			--debugPrint(3,temp)
 			local nexttemp = temp
-			--debugPrint(1,math.ceil((action.value*60)))
+			--debugPrint(3,math.ceil((action.value*60)))
 			nexttemp =nexttemp +  math.ceil((action.value*60))
-			--debugPrint(1,nexttemp)
+			--debugPrint(3,nexttemp)
 			action.tick = nexttemp
 			result = false
 		end
@@ -9070,7 +9085,7 @@ end
 			if( boj ~= nil) then
 				local event = boj.event
 				if(action.bypass ~= nil and action.bypass == true) then
-					debugPrint(1,"Doing event : "..event.name)
+					debugPrint(3,"Doing event : "..event.name)
 					if(action.parallele == nil or action.parallele == false)then
 						runSubActionList(event.action, action.value, tag,source,false,executortag)
 						result=false
@@ -9080,8 +9095,8 @@ end
 					else
 					local trigger = event.trigger 
 					if(checkTriggerRequirement(event.requirement,trigger))then
-						--debugPrint(1,"check for "..interact2.name)
-						debugPrint(1,"Doing event : "..event.name)
+						--debugPrint(3,"check for "..interact2.name)
+						debugPrint(3,"Doing event : "..event.name)
 						if(action.parallele == nil or action.parallele == false)then
 							runSubActionList(event.action, action.value, tag,source,false,executortag)
 							result=false
@@ -9100,12 +9115,12 @@ end
 		end
 		if(action.name == "do_event") then
 			local boj = arrayEvent[action.value]
-			debugPrint(1,action.value)
+			debugPrint(3,action.value)
 			if( boj ~= nil) then
 				local event = boj.event
-				debugPrint(1,boj.event.tag)
+				debugPrint(3,boj.event.tag)
 				if(action.bypass ~= nil and action.bypass == true) then
-					debugPrint(1,"Doing event : "..event.name)
+					debugPrint(3,"Doing event : "..event.name)
 					if(action.parallele == nil or action.parallele == false)then
 						runSubActionList(event.action, action.value, tag,source,false,executortag)
 						result=false
@@ -9116,8 +9131,8 @@ end
 					else
 					local trigger = event.trigger
 					if(checkTriggerRequirement(event.requirement,trigger))then
-						--debugPrint(1,"check for "..interact2.name)
-						debugPrint(1,"Doing event : "..event.name)
+						--debugPrint(3,"check for "..interact2.name)
+						debugPrint(3,"Doing event : "..event.name)
 						if(action.parallele == nil or action.parallele == false)then
 							runSubActionList(event.action, action.value, tag,source,false,executortag)
 							result=false
@@ -9164,18 +9179,18 @@ end
 			local list = workerTable[tag]["action"]
 			local parent = workerTable[tag]["parent"]
 			local pending = workerTable[tag]["pending"]	
-			debugPrint(1,index)
-			debugPrint(1,dump(list))
-			debugPrint(1,parent)
-			debugPrint(1,tostring(pending))
+			debugPrint(3,index)
+			debugPrint(3,dump(list))
+			debugPrint(3,parent)
+			debugPrint(3,tostring(pending))
 			if(list[index].parent == true) then
-				debugPrint(1,"Go to"..action.index.." of "..parent)
+				debugPrint(3,"Go to"..action.index.." of "..parent)
 				workerTable[parent]["index"] = action.index-1
 				workerTable[tag]["index"] = workerTable[tag]["index"]+1
 				workerTable[parent]["pending"] =  false
 				tag = parent
 				else
-				debugPrint(1,"Go to"..action.index.." of "..tag)
+				debugPrint(3,"Go to"..action.index.." of "..tag)
 				workerTable[tag]["index"] = action.index 
 			end
 		end
@@ -9194,13 +9209,13 @@ end
 				if(action.tag == v.alias) then
 					
 					if(list[index].parent == true) then
-						debugPrint(1,"Go to"..i.." of "..parent.."(alias :"..v.tag..")")
+						debugPrint(3,"Go to"..i.." of "..parent.."(alias :"..v.tag..")")
 						workerTable[parent]["index"] = i-1
 						workerTable[tag]["index"] = workerTable[tag]["index"]+1
 						workerTable[parent]["pending"] =  false
 						tag = parent
 						else
-						debugPrint(1,"Go to"..i.." of "..tag.."(alias :"..v.tag..")")
+						debugPrint(3,"Go to"..i.." of "..tag.."(alias :"..v.tag..")")
 						workerTable[tag]["index"] = i
 					end
 					
@@ -9212,7 +9227,7 @@ end
 		
 		if(action.name == "do_random_function")then
 			local tago = math.random(1,#action.funcs)
-			debugPrint(1,action.funcs[tago])
+			debugPrint(3,action.funcs[tago])
 			local boj = arrayFunction[action.funcs[tago]]
 			if( boj ~= nil) then
 				
@@ -9280,7 +9295,7 @@ end
 		end
 		if(action.name == "open_interface") then
 			currentInterface = arrayInterfaces[action.tag].ui
-			--debugPrint(1,dump(currentInterface))
+			--debugPrint(3,dump(currentInterface))
 			if(currentInterface ~= nil) then
 				--openInterface = true
 				if UIPopupsManager.IsReady() then
@@ -9606,7 +9621,7 @@ end
 			mappin.y = action.y
 			mappin.z = action.z
 			local actionlist = {}
-			debugPrint(1,#actionlist)
+			debugPrint(3,#actionlist)
 			local obj = getEntityFromManager(action.tag)
 			local enti = Game.FindEntityByID(obj.id)
 			if(enti ~= nil) then
@@ -9620,9 +9635,9 @@ end
 				local numbertimes = 0
 				if(action.isAV == true) then
 					local ztimes = action.zfly - myPos.z
-					debugPrint(1,"ztimes "..ztimes)
+					debugPrint(3,"ztimes "..ztimes)
 					numbertimes = math.floor(ztimes / action.speed)
-					debugPrint(1,"ztimes "..ztimes)
+					debugPrint(3,"ztimes "..ztimes)
 					for i=1,numbertimes do 
 						local oldPos = newPos
 						newPos.z = newPos.z +   action.speed
@@ -9645,12 +9660,12 @@ end
 					local newangle = GetSingleton('Vector4'):ToRotation(dirVector)
 					newangle.roll = 0
 					newangle.pitch = 0
-					debugPrint(1,"newangle.yaw "..newangle.yaw)
+					debugPrint(3,"newangle.yaw "..newangle.yaw)
 					local anglesub = newangle.yaw/100
 					for i=1,100 do 
 						local oldPos = newPos
 						tempangle.yaw = tempangle.yaw + anglesub
-						debugPrint(1,"tempangle.yaw "..tempangle.yaw)
+						debugPrint(3,"tempangle.yaw "..tempangle.yaw)
 						local angletomake= tempangle
 						local newaction = {}
 						newaction.name = "rotate_entity"
@@ -9707,7 +9722,7 @@ end
 					for i=1,100 do 
 						local oldPos = newPos
 						tempangle.yaw =tempangle.yaw + anglesub
-						debugPrint(1,"tempangle.yaw "..tempangle.yaw)
+						debugPrint(3,"tempangle.yaw "..tempangle.yaw)
 						local angletomake= tempangle
 						local newaction = {}
 						newaction.name = "teleport_entity_at_position"
@@ -9719,7 +9734,7 @@ end
 						newaction.angle.roll = 0+angletomake.roll
 						newaction.angle.pitch = 0+angletomake.pitch
 						newaction.angle.yaw = 0+angletomake.yaw
-						debugPrint(1,"newaction.angle.yaw "..newaction.angle.yaw)
+						debugPrint(3,"newaction.angle.yaw "..newaction.angle.yaw)
 						newaction.pathfinding = action.pathfinding
 						newaction.collision = false
 						newaction.axis = "y"
@@ -9781,7 +9796,7 @@ end
 				local namescript = "vehicule_autodrive_activate_"..math.random(1,99999)
 				-- local file = assert(io.open("json/report/"..namescript..".json", "w"))
 				-- local stringg = dump(actionlist)
-				-- debugPrint(1,stringg)
+				-- debugPrint(3,stringg)
 				-- file:write(stringg)
 				-- file:close()
 				-- end
@@ -9793,7 +9808,7 @@ end
 			if(ActivecustomMappin ~= nil) then
 				local mappin = ActivecustomMappin:GetWorldPosition()
 				local actionlist = {}
-				debugPrint(1,#actionlist)
+				debugPrint(3,#actionlist)
 				--doActionofIndex(actionlist,"interact",listaction,currentindex)
 				local obj = getEntityFromManager(action.tag)
 				local enti = Game.FindEntityByID(obj.id)
@@ -9807,9 +9822,9 @@ end
 				local numbertimes = 0
 				if(action.isAV == true) then
 					local ztimes = action.zfly - myPos.z
-					debugPrint(1,"ztimes "..ztimes)
+					debugPrint(3,"ztimes "..ztimes)
 					numbertimes = math.floor(ztimes / action.speed)
-					debugPrint(1,"ztimes "..ztimes)
+					debugPrint(3,"ztimes "..ztimes)
 					for i=1,numbertimes do 
 						local oldPos = newPos
 						newPos.z = newPos.z +   action.speed
@@ -9832,12 +9847,12 @@ end
 					local newangle = GetSingleton('Vector4'):ToRotation(dirVector)
 					newangle.roll = 0
 					newangle.pitch = 0
-					debugPrint(1,"newangle.yaw "..newangle.yaw)
+					debugPrint(3,"newangle.yaw "..newangle.yaw)
 					local anglesub = newangle.yaw/100
 					for i=1,100 do 
 						local oldPos = newPos
 						tempangle.yaw = tempangle.yaw + anglesub
-						debugPrint(1,"tempangle.yaw "..tempangle.yaw)
+						debugPrint(3,"tempangle.yaw "..tempangle.yaw)
 						local angletomake= tempangle
 						local newaction = {}
 						newaction.name = "teleport_entity_at_position"
@@ -9849,7 +9864,7 @@ end
 						newaction.angle.roll = 0+angletomake.roll
 						newaction.angle.pitch = 0+angletomake.pitch
 						newaction.angle.yaw = 0+angletomake.yaw
-						debugPrint(1,"newaction.angle.yaw "..newaction.angle.yaw)
+						debugPrint(3,"newaction.angle.yaw "..newaction.angle.yaw)
 						newaction.pathfinding = action.pathfinding
 						newaction.collision = false
 						newaction.axis = "x"
@@ -9898,7 +9913,7 @@ end
 					for i=1,100 do 
 						local oldPos = newPos
 						tempangle.yaw =tempangle.yaw + anglesub
-						debugPrint(1,"tempangle.yaw "..tempangle.yaw)
+						debugPrint(3,"tempangle.yaw "..tempangle.yaw)
 						local angletomake= tempangle
 						local newaction = {}
 						newaction.name = "teleport_entity_at_position"
@@ -9910,7 +9925,7 @@ end
 						newaction.angle.roll = 0+angletomake.roll
 						newaction.angle.pitch = 0+angletomake.pitch
 						newaction.angle.yaw = 0+angletomake.yaw
-						debugPrint(1,"newaction.angle.yaw "..newaction.angle.yaw)
+						debugPrint(3,"newaction.angle.yaw "..newaction.angle.yaw)
 						newaction.pathfinding = action.pathfinding
 						newaction.collision = false
 						newaction.axis = "y"
@@ -9973,7 +9988,7 @@ end
 				local namescript = "vehicule_autodrive_activate_custom_mappin_"..math.random(1,99999)
 				-- local file = assert(io.open("json/report/"..namescript..".json", "w"))
 				-- local stringg = dump(actionlist)
-				-- debugPrint(1,stringg)
+				-- debugPrint(3,stringg)
 				-- file:write(stringg)
 				-- file:close()
 				-- end
@@ -10008,10 +10023,10 @@ end
 						entity.availableSeat = GetSeats(vehicule)
 						entity.driver = "player"
 						questMod.EntityManager[entity.tag]=entity
-						--debugPrint(1,"new "..entity.tag)
+						--debugPrint(3,"new "..entity.tag)
 						obj = entity
 					end
-					debugPrint(1,obj.tag)
+					debugPrint(3,obj.tag)
 					local obj = getTrueEntityFromManager(obj.tag)
 					if(obj.isAV == true) then
 						obj.isAV = false
@@ -10022,14 +10037,14 @@ end
 								table.remove(questMod.GroupManager["AV"].entities,i)
 							end
 						end
-						--debugPrint(1,"removedAV"..obj.tag)
+						--debugPrint(3,"removedAV"..obj.tag)
 						else
 						
 						obj.isAV = true
 						if(questMod.GroupManager["AV"].entities == nil) then
 							questMod.GroupManager["AV"].entities = {}
 						end
-						debugPrint(1,"addedAV"..obj.tag)
+						debugPrint(3,"addedAV"..obj.tag)
 						table.insert(questMod.GroupManager["AV"].entities,obj.tag)
 					end
 				end
@@ -10378,7 +10393,7 @@ end
 					enabled = true
 					id = true
 					grabbedTarget = Game.FindEntityByID(selectedItemMulti.entityId)
-					if(grabbedTarget:IsA('gameObject') == false)then
+					if(grabbedTarget~= nil and grabbedTarget:IsA('gameObject') == false)then
 						grabbedTarget = nil
 						grabbed = false
 						objPush = false
@@ -10403,7 +10418,7 @@ end
 							phi = math.atan2(playerAngle.y, playerAngle.x)
 							targetDeltaPos = Vector4.new(((objectDist * math.cos(phi)) + playerPos.x), ((objectDist * math.sin(phi)) + playerPos.y), (objectDist * math.sin(playerAngle.z) + playerPos.z), targetPos.w)
 							targetDeltaPos = Delta(targetDeltaPos, targetPos)
-							debugPrint(1,grabbedTarget, "grabbed.")
+							debugPrint(3,grabbedTarget, "grabbed.")
 							grabbed = true
 							else
 							error("No target!")
@@ -10438,15 +10453,16 @@ end
 					local angle = GetSingleton('Quaternion'):ToEulerAngles(qat)
 					updateItemPositionMulti(selectedItemMulti, objpos, angle, true)
 					UpdateItem(selectedItemMulti.Tag, selectedItemMulti.X, selectedItemMulti.Y, selectedItemMulti.Z, selectedItemMulti.Roll, selectedItemMulti.Pitch ,selectedItemMulti.Yaw )
+					
 				end
 			end
 			if(action.name == "move_selected_item_Z_multi" and  ActualPlayerMultiData ~= nil and ActualPlayerMultiData.instance ~= nil and ActualPlayerMultiData.instance.CanBuild == true) then
 				if selectedItemMulti ~= nil then
-					debugPrint(1,"yep01")
+					debugPrint(3,"yep01")
 					local entity = Game.FindEntityByID(selectedItemMulti.entityId)
 					if(entity ~= nil) then
 						local objpos = entity:GetWorldPosition()
-						debugPrint(1,"yep02")
+						debugPrint(3,"yep02")
 						local worldpos = Game.GetPlayer():GetWorldTransform()
 						objpos.z = objpos.z + action.value
 						local qat = entity:GetWorldOrientation()
@@ -10454,7 +10470,7 @@ end
 						updateItemPositionMulti(selectedItemMulti, objpos, angle, true)
 						UpdateItem(selectedItemMulti.Tag, selectedItemMulti.X, selectedItemMulti.Y, selectedItemMulti.Z, selectedItemMulti.Roll, selectedItemMulti.Pitch ,selectedItemMulti.Yaw )
 						else
-						debugPrint(1,"Nope")
+						debugPrint(3,"Nope")
 					end
 				end
 			end
@@ -10539,18 +10555,17 @@ end
 					local entity = Game.FindEntityByID(selectedItemMulti.entityId)
 					if(entity ~= nil) then
 						Game.FindEntityByID(selectedItemMulti.entityId):GetEntity():Destroy()
-						debugPrint(1,"toto")
+						debugPrint(3,"toto")
 						updatePlayerItemsQuantity(selectedItemMulti,1)
-						deleteHousing(selectedItemMulti.Id)
-						DeleteItem(selectedItemMulti.Tag)
+					
+						
 						local index = getItemEntityIndexFromManager(selectedItemMulti.entityId)
-						--despawnItem(selectedItemMulti.Id)
+						
 						table.remove(currentItemMultiSpawned,index)
-						Cron.After(1, function()
-							selectedItemMulti = nil
-						end)
+						DeleteItem(selectedItemMulti.Tag)
+					
 						else
-						debugPrint(1,"nope")
+						debugPrint(3,"nope")
 					end
 				end
 			end
@@ -10599,7 +10614,7 @@ end
 							end
 						end
 						else
-						debugPrint(1,"nope")
+						debugPrint(3,"nope")
 					end
 				end
 			end
@@ -10737,7 +10752,7 @@ end
 		end
 		if(action.name == "select_stock") then
 			CurrentStock = action.value
-			debugPrint(1,dump(CurrentStock))
+			debugPrint(3,dump(CurrentStock))
 		end
 		if(action.name == "clean_current_stock") then
 			CurrentStock = nil

@@ -139,7 +139,7 @@ function makeNativeSettings()
 	
  	ImportDataPack()
 	LoadDataPackCache()
-	print( getLang("ui_setting_actions_rebuild_done"))
+	debugPrint(2, getLang("ui_setting_actions_rebuild_done"))
  	
  end)
  
@@ -272,7 +272,7 @@ function makeNativeSettings()
 	nativeSettings.addButton("/CM/actions", getLang("ui_setting_actions_refresh"), getLang("ui_setting_actions_refresh"), "Refresh", 45, function()
 	CheckandUpdateDatapack()
 	LoadDataPackCache()
-	print("CyberScript : Datapack Cache refreshed")
+	debugPrint(2,"CyberScript : Datapack Cache refreshed")
  	
  end)
  
@@ -294,7 +294,7 @@ function makeNativeSettings()
 	
  	ImportDataPack()
 	LoadDataPackCache()
-	print( getLang("ui_setting_actions_rebuild_done"))
+	debugPrint(2, getLang("ui_setting_actions_rebuild_done"))
  	
  end)
  
@@ -307,7 +307,7 @@ function makeNativeSettings()
 	for k,v in arrayDatapack do
 	
 			if(k ~="default") then
-			print(k)
+			debugPrint(10,k)
 			DeleteModpack(k)
 			end
 	end
@@ -328,7 +328,7 @@ function makeNativeSettings()
 	
  	ImportDataPack()
 	LoadDataPackCache()
-	print( getLang("ui_setting_actions_rebuild_done"))
+	debugPrint(2, getLang("ui_setting_actions_rebuild_done"))
  	
  end)
  
@@ -420,6 +420,13 @@ function makeNativeSettings()
 		debugOptions = state
 		
 	end)
+	
+	nativeSettings.addSwitch("/CMCHEAT/player",  getLang("ui_setting_cheat_debug_log"),  getLang("ui_setting_cheat_debug_log"), debugLog, false, function(state) -- path, label, desc, currentValue, defaultValue, callback
+		debugLog = state
+		
+	end)
+	
+	
 	end)
 	
 	if status == false then
@@ -464,7 +471,7 @@ function makeNativeSettings()
 	
  	ImportDataPack()
 	LoadDataPackCache()
-	print( getLang("ui_setting_actions_rebuild_done"))
+	debugPrint(2, getLang("ui_setting_actions_rebuild_done"))
  	
  end)
 		end
@@ -540,7 +547,7 @@ function loadHUD()
 				displayHUD[k]:SetName(CName.new(hud.tag))
 				displayHUD[k]:SetAnchor(inkEAnchor.Fill)
 				displayHUD[k]:Reparent(rootContainer, -1)
-				print("create "..hud.tag)
+				debugPrint(10,"create "..hud.tag)
 			
 			end
 		end
@@ -578,7 +585,7 @@ function loadHUD()
 				else
 					displayHUD[k]:Reparent(displayHUD[hud.container], -1)
 				end
-				print("create "..hud.tag)
+				debugPrint(10,"create "..hud.tag)
 			end
 		
 		end
@@ -721,7 +728,7 @@ function debugWindows()
 				
 				local qeh = jm:GetEntryHash(qe)
 				jm:ChangeEntryStateByHash(qeh, "Succeeded", "Notify")
-				debugPrint(1,"Current game active quest ended")
+				debugPrint(6,"Current game active quest ended")
 			end
 			ImGui.Spacing()
 			
@@ -835,7 +842,7 @@ function debugWindows()
 			
 			if CPS:CPButton("Get mission by trigger") then
 				getMissionByTrigger()
-				debugPrint(1,"enabled mission"..#possibleQuest)
+				debugPrint(6,"enabled mission"..#possibleQuest)
 			end
 			ImGui.Spacing()
 			ImGui.Spacing()
@@ -845,7 +852,7 @@ function debugWindows()
 			
 			if CPS:CPButton("showFaction")  then
 				for k,v in pairs(arrayFaction)do
-					debugPrint(1,k)
+					debugPrint(6,k)
 				end
 			end
 			ImGui.Spacing()
@@ -866,10 +873,10 @@ function debugWindows()
 			if CPS:CPButton("check quest conditions") then
 				
 				local qu = getQuestByTag(inputquest)
-				debugPrint(1,testTriggerRequirement(qu.trigger_condition_requirement,qu.trigger_condition))
-				debugPrint(1,testTriggerRequirement(qu.start_condition_requirement,qu.start_condition))
-				debugPrint(1,testTriggerRequirement(qu.end_condition_requirement,qu.end_condition))
-				debugPrint(1,testTriggerRequirement(qu.failure_condition_requirement,qu.failure_condition))
+				debugPrint(6,testTriggerRequirement(qu.trigger_condition_requirement,qu.trigger_condition))
+				debugPrint(6,testTriggerRequirement(qu.start_condition_requirement,qu.start_condition))
+				debugPrint(6,testTriggerRequirement(qu.end_condition_requirement,qu.end_condition))
+				debugPrint(6,testTriggerRequirement(qu.failure_condition_requirement,qu.failure_condition))
 			end
 			ImGui.Spacing()
 			-- inputkey = ImGui.InputText("Score/Variable Key", inputkey, 100, ImGuiInputTextFlags.AutoSelectAll)
@@ -885,7 +892,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -939,7 +946,7 @@ function debugWindows()
 				ImGui.Text("This entity has been registered as AV ?"..tostring(obj.isAV))
 				ImGui.Spacing()
 				if ImGui.Button("dump") then
-					print(tostring(dump(obj)))
+					debugPrint(10,tostring(dump(obj)))
 				end
 				local group = getEntityGroupfromEntityTag(obj.tag)
 				
@@ -1057,7 +1064,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1128,7 +1135,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1167,7 +1174,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1199,7 +1206,7 @@ function debugWindows()
 		for i=1, #currentItemSpawned do
 			
 			local enti = currentItemSpawned[i]
-			debugPrint(1,dump(enti))
+			debugPrint(6,dump(enti))
 			ImGui.Text("Tag : "..enti.Tag)
 			ImGui.Text("Id : "..tostring(enti.entityId))
 		end
@@ -1266,7 +1273,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1321,7 +1328,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1365,7 +1372,7 @@ function debugWindows()
 		if status == false then
 		
 		
-			print(result)
+			debugPrint(10,result)
 			spdlog.error(result)
 		end
 		
@@ -1375,6 +1382,59 @@ function debugWindows()
 	
 	CPS.styleEnd(1)
 	ImGui.EndTabBar()
+	ImGui.End()
+	CPS:setThemeEnd()
+end
+
+
+function frameworklog()
+	
+	if CPS == nil then return end
+	CPS:setThemeBegin()
+	ImGui.SetNextWindowPos(900, 500, ImGuiCond.Appearing) -- set window position x, y
+	ImGui.SetNextWindowSize(1600, 800, ImGuiCond.Appearing) -- set window size w, h
+	
+	if ImGui.Begin("CyberScript Log Windows") then
+		
+	
+	
+	
+	
+	
+	logLevel = ImGui.InputInt(getLang("Log Level"), logLevel, 1,10, ImGuiInputTextFlags.None)
+	ImGui.Spacing()
+	logFilter = ImGui.InputText(getLang("Log Filter"), logFilter, 100, ImGuiInputTextFlags.AutoSelectAll)
+	ImGui.Spacing()
+	if ImGui.Button("Clear log and log file") then
+		logTable = {}
+		logf:close()
+		io.open("cyberscript.log", "w"):close()
+		logf = io.open("cyberscript.log", "a")
+	end
+	ImGui.Spacing()
+	ImGui.Separator()
+	ImGui.Spacing()
+	
+	
+	ImGui.BeginChild("log", 1500, 600)
+	
+		for i,v in ipairs(logTable) do
+			if(v.level <= logLevel and (logFilter == nil or logFilter == "" or (logFilter ~= nil and logFilter ~= "" and string.match(v.msg, logFilter)))) then
+				ImGui.Text("[Level:"..v.level.."]"..v.datestring..":"..v.msg)
+			end
+		end
+		
+	ImGui.EndChild()
+		
+	
+	
+	
+	
+	
+	
+	end
+	
+	
 	ImGui.End()
 	CPS:setThemeEnd()
 end
@@ -1419,7 +1479,7 @@ function entitySelection()
 				
 				local obj = getEntityFromManager("selection" .. tostring(selectionSlot))
 				obj.id = objLook:GetEntityID()
-				debugPrint(1,"targeted !!")
+				debugPrint(6,"targeted !!")
 			end
 			selectedEntity = true
 			enableEntitySelection = false
@@ -1562,7 +1622,7 @@ function InstancePassword()
 		ImGui.SetWindowFontScale(menufont)
 		ImGui.Text(getLang("ui_multi_instance_password_msg"))
 		ImGui.SetKeyboardFocusHere()
-		selectedInstancePassword =  ImGui.InputText("##onlineMessageContent", selectedInstancePassword, 100, ImGuiInputTextFlags.AutoSelectAll)
+		selectedInstancePassword =  ImGui.InputText("##password", selectedInstancePassword, 100, ImGuiInputTextFlags.AutoSelectAll)
 		
 		if ImGui.Button("Save") then
 			onlinePasswordPopup = false
@@ -1572,18 +1632,18 @@ end
 
 function Multi_InstanceCreate()
 	
-	if ImGui.Begin(getLang("ui_multi_instance_password")) then
+	if ImGui.Begin(getLang("ui_multi_instance_create")) then
 		ImGui.SetNextWindowPos(800,800, ImGuiCond.Appearing) -- set window position x, y
 		ImGui.SetNextWindowSize(menuWindowsX, menuWindowsY, ImGuiCond.Appearing) -- set window size w, h
 		ImGui.SetWindowSize(menuWindowsX, menuWindowsY)
 		ImGui.SetWindowFontScale(menufont)
 		
 		
-		CreateInstance.title =  ImGui.InputText(getLang("ui_multi_instance_password"), CreateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
-		CreateInstance.isreadonly =ImGui.Checkbox(getLang("ui_multi_instance_password"), CreateInstance.isreadonly)
-		CreateInstance.nsfw =ImGui.Checkbox(getLang("ui_multi_instance_password"), CreateInstance.nsfw)
+		CreateInstance.title =  ImGui.InputText(getLang("ui_multi_instance_edit_title"), CreateInstance.title, 100, ImGuiInputTextFlags.AutoSelectAll)
+		CreateInstance.isreadonly =ImGui.Checkbox(getLang("ui_multi_instance_edit_isreadonly"), CreateInstance.isreadonly)
+		CreateInstance.nsfw =ImGui.Checkbox(getLang("ui_multi_instance_edit_nsfw"), CreateInstance.nsfw)
 		
-		if ImGui.BeginCombo(getLang("ui_multi_instance_password"), defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
+		if ImGui.BeginCombo(getLang("ui_multi_instance_edit_privacy"), defaultprivacy) then -- Remove the ## if you'd like for the title to display above combo box
 			for i,v in ipairs(instancePrivacy) do
 				
 				if ImGui.Selectable(v, (CreateInstance.privacy == i)) then
@@ -1596,16 +1656,16 @@ function Multi_InstanceCreate()
 		end
 		
 		if(CreateInstance.privacy == 2) then
-			CreateInstance.password =  ImGui.InputText(getLang("ui_multi_instance_password"), CreateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
+			CreateInstance.password =  ImGui.InputText(getLang("ui_multi_instance_edit_password"), CreateInstance.password, 100, ImGuiInputTextFlags.AutoSelectAll)
 			else
 			CreateInstance.password =  "nothing"
 		end
 		
-		if ImGui.Button(getLang("ui_multi_instance_password")) then
+		if ImGui.Button(getLang("ui_multi_instance_edit_valid")) then
 			createInstance()
 		end
 		
-		if ImGui.Button(getLang("ui_multi_instance_password")) then
+		if ImGui.Button(getLang("ui_multi_instance_edit_close")) then
 			onlineInstanceCreation = false
 		end		
 	end
@@ -1808,7 +1868,7 @@ function Multi_EditItemsWindows()
 					
 					if(entity ~= nil) then
 						Game.FindEntityByID(selectedItemMulti.entityId):GetEntity():Destroy()
-						debugPrint(1,"toto")
+						debugPrint(6,"toto")
 						updatePlayerItemsQuantity(selectedItemMulti,1)
 						deleteHousing(selectedItemMulti.Id)
 						DeleteItem(selectedItemMulti.Tag)
@@ -1821,7 +1881,7 @@ function Multi_EditItemsWindows()
 							selectedItemMultiBackup = nil
 						end)
 						else
-						debugPrint(1,"nope")
+						debugPrint(6,"nope")
 					end
 				end
 				openEditItemsMulti = false
@@ -1935,8 +1995,8 @@ end
 
 ---Native UI---
 function HousingWindows()
-	-- debugPrint(1,tostring(currentHouse ~= nil))
-	-- debugPrint(1,tostring(isInHouse))
+	-- debugPrint(6,tostring(currentHouse ~= nil))
+	-- debugPrint(6,tostring(isInHouse))
 	
 	if currentHouse ~= nil and isInHouse and #currentSave.arrayPlayerItems > 0 and inEditMode == true then
 		
@@ -1969,7 +2029,7 @@ function HousingWindows()
 									local angles = GetSingleton('Quaternion'):ToEulerAngles(Game.GetPlayer():GetWorldOrientation())
 									
 									local spawnedItem = {}
-									debugPrint(1,pos.x)
+									debugPrint(6,pos.x)
 									spawnedItem.Tag = mitems.Tag
 									spawnedItem.HouseTag = currentHouse.tag
 									spawnedItem.ItemPath = mitems.Path
@@ -2236,7 +2296,7 @@ function HousingWindows()
 									
 									if mitem.Tag == selectedItem.Tag then
 										Game.FindEntityByID(selectedItem.entityId):GetEntity():Destroy()
-										debugPrint(1,"toto")
+										debugPrint(6,"toto")
 										updatePlayerItemsQuantity(mitem,1)
 										deleteHousing(selectedItem.Id)
 										
@@ -2249,7 +2309,7 @@ function HousingWindows()
 									end
 								end
 								else
-								debugPrint(1,"nope")
+								debugPrint(6,"nope")
 							end
 						end
 						ImGui.Spacing()
@@ -2816,7 +2876,7 @@ function PlacedItemsUIMulti()
 			label.style = {}
 			label.margin.top = 15
 			label.style.fontsize = 35
-			buttons.parent = "placed_items_ui_varea"
+			label.parent = "placed_items_ui_varea"
 			label.requirement = {}
 			
 			local requirement = {}
@@ -5054,8 +5114,8 @@ function Keystone_Datapack()
 				localversion = CurrentDownloadedVersion(datapack.tag)
 				descc = descc.."\n"..getLang("ui_keystone_datapack_msg04")..localversion
 				
-				print(localversion)
-				print(datapack.version)
+				debugPrint(10,localversion)
+				debugPrint(10,datapack.version)
 				
 				if(localversion~=datapack.version and checkVersionNumber(localversion,datapack.version) == true) then
 				descc = descc.."\n"..getLang("ui_keystone_datapack_msg05")
@@ -6979,7 +7039,7 @@ function Multi_InstanceUserList()
 	
 	if ActualPlayersList ~= nil and #ActualPlayersList > 0 then
 		for i = 1,#ActualPlayersList  do
-			debugPrint(1,dump(ActualPlayersList))
+			debugPrint(6,dump(ActualPlayersList))
 			
 			local score = ActualPlayersList[i]
 			
@@ -7632,7 +7692,7 @@ function Multi_FriendList()
 		local score = {}
 		score.name=k
 		score.data=v
-		debugPrint(1,dump(score))
+		debugPrint(6,dump(score))
 		
 		if(score ~= nil) then
 			buttons = {}
@@ -7831,10 +7891,10 @@ function cycleInteract()
 	
 	currentInteractGroupIndex = currentInteractGroupIndex or 1
 
-	debugPrint(1,"possibleInteractDisplay"..#possibleInteractDisplay)
-	-- debugPrint(1,"currentInteractGroupIndex"..currentInteractGroupIndex)
-	-- debugPrint(1,"currentInteractGroup"..currentInteractGroup[currentInteractGroupIndex])
-	-- debugPrint(1,actionValue)
+	debugPrint(6,"possibleInteractDisplay"..#possibleInteractDisplay)
+	-- debugPrint(6,"currentInteractGroupIndex"..currentInteractGroupIndex)
+	-- debugPrint(6,"currentInteractGroup"..currentInteractGroup[currentInteractGroupIndex])
+	-- debugPrint(6,actionValue)
 
 	if currentPossibleInteractChunkIndex == 0 then
 		-- currentPossibleInteractChunkIndex = 1
@@ -7846,7 +7906,7 @@ function cycleInteract()
 
 		getTriggeredActionsDisplay()
 
-		debugPrint(1,"tyau")
+		debugPrint(6,"tyau")
 		createInteraction(true)
 	end
 
@@ -7871,12 +7931,12 @@ function cycleInteract()
 		else
 			--createInteraction(true)
 			isdialogactivehub = false
-			debugPrint(1,"tyu")
+			debugPrint(6,"tyu")
 		end
 	else
 		createInteraction(true)
 		isdialogactivehub = false
-		debugPrint(1,"tyuss")
+		debugPrint(6,"tyuss")
 	end
 
 	inputInAction = false
@@ -7885,8 +7945,8 @@ end
 function cycleInteractgroup()
 	inputcount = inputcount +1
 
-	debugPrint(1,"possibleInteractDisplay"..#possibleInteractDisplay)
-	-- debugPrint(1,actionValue)
+	debugPrint(6,"possibleInteractDisplay"..#possibleInteractDisplay)
+	-- debugPrint(6,actionValue)
 
 	if currentPossibleInteractChunkIndex == 0 then
 		-- currentPossibleInteractChunkIndex = 1
@@ -8047,7 +8107,7 @@ function playRandomfromRadio()
 				if(sound ~= nil) then
 					
 					local path = questMod.soundpath..sound.path
-					debugPrint(1,path..sound.name)
+					debugPrint(6,path..sound.name)
 					PlaySound(sound.name,path,"music",currentRadioVolume)
 					
 					local message = SimpleScreenMessage.new()
@@ -8071,7 +8131,7 @@ function playRandomfromRadio()
 				local iscar = Game.GetWorkspotSystem():IsActorInWorkspot(Game.GetPlayer())
 				
 				if(iscar == false) then
-					debugPrint(1,"stop music")
+					debugPrint(6,"stop music")
 					Stop("music")
 				end
 			end
@@ -8130,7 +8190,7 @@ function RadioWindows()
 							if(sound ~= nil) then
 								
 								local path = questMod.soundpath..sound.path
-								debugPrint(1,path..sound.name)
+								debugPrint(6,path..sound.name)
 								PlaySound(sound.name,path,"music",currentRadioVolume)
 							end
 						end

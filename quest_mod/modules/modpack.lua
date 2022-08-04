@@ -34,10 +34,10 @@ local function exportDatapackArray(t, max, depth, result)
 				if not sessionDataRelaxed then
 					--vtype = vstr:match('^sol%.(.+):')
 					if ktype == 'string' then
-						print(('Cannot store userdata in the %q field.'):format(k))
+						debugPrint(10,('Cannot store userdata in the %q field.'):format(k))
 						--raiseError(('Cannot store userdata of type %q in the %q field.'):format(vtype, k))
 						else
-						print(('Cannot store userdata in the list.'))
+						debugPrint(10,('Cannot store userdata in the list.'))
 						--raiseError(('Cannot store userdata of type %q.'):format(vtype))
 					end
 					else
@@ -47,9 +47,9 @@ local function exportDatapackArray(t, max, depth, result)
 			elseif vtype == 'function' or vtype == 'thread' then
 			if not sessionDataRelaxed then
 				if ktype == 'string' then
-					print(('Cannot store %s in the %q field.'):format(vtype, k))
+					debugPrint(10,('Cannot store %s in the %q field.'):format(vtype, k))
 					else
-					print(('Cannot store %s.'):format(vtype))
+					debugPrint(10,('Cannot store %s.'):format(vtype))
 				end
 			end
 			else
@@ -90,13 +90,13 @@ function exportCompiledDatapackFolder(directories,msg)
 	
 		local k = directories
 		local file = io.open("data/cache/"..k..".lua", "w")	
-		--file:write('print('..k..' Cache Loaded) return ')
+		--file:write('debugPrint(10,'..k..' Cache Loaded) return ')
 		file:write('return ')
 		file:write(exportDatapackArray(arrayDatapack[k]))
 		file:close()
 		
-		print(k)
-		print(getLang("datapack_datapack_created")..msg)
+		debugPrint(3,k)
+		debugPrint(2,getLang("datapack_datapack_created")..msg)
 	
 end
 
@@ -118,15 +118,15 @@ function ImportDataPackFolder(directories)
 			try {
 				function()
 					loadDatapackObject(directories)
-					print("Creating cache for "..directories)
+					debugPrint(2,"Creating cache for "..directories)
 					
 					
 					
 				end,
 				catch {
 					function(error)
-						print(getLang("datapack_error_import")..directories..') '..error)
-						spdlog.error(getLang("datapack_error_import")..directories..') '..error)
+						debugPrint(1,getLang("datapack_error_import")..directories..') '..error)
+						
 						arrayDatapack[directories] = nil
 					end
 				}
@@ -201,23 +201,20 @@ function RecoverDatapack()
 			LoadDataPackCache()
 			
 			
-			print(getLang("datapack_recover"))
-			spdlog.error(getLang("datapack_recover"))
+			debugPrint(1,getLang("datapack_recover"))
 			
 			
 		end,
 		catch {
 			function(error)
-				print(getLang("datapack_recover_fail")..error)
-				spdlog.error(getLang("datapack_recover_fail")..error)
+				debugPrint(1,getLang("datapack_recover_fail")..error)
 				
 			end
 		}
 	}
 	else
-	print(getLang("datapack_wrong_default")..tostring(lines))
+	debugPrint(1,getLang("datapack_wrong_default")..tostring(lines))
 	error(getLang("datapack_wrong_default")..tostring(lines))
-	spdlog.error(getLang("datapack_wrong_default")..tostring(lines))
 	
 	end
 	
@@ -280,7 +277,7 @@ function CheckandUpdateDatapack()
 			
 			else
 			
-			print("No DESC FOR "..k)
+			debugPrint(10,"No DESC FOR "..k)
 			spdlog.error("No DESC FOR "..k)
 			arrayDatapack[k] = nil
 		end
@@ -331,7 +328,7 @@ function CheckandUpdateDatapack()
 						loadDatapackObject(k)
 						arrayDatapack[k].enabled = isenabled
 						arrayDatapack[k].state = nil
-						print(getLang("datapack_updated_01")..k..getLang("datapack_updated_02"))
+						debugPrint(10,getLang("datapack_updated_01")..k..getLang("datapack_updated_02"))
 						arrayDatapack[k].cachedata={}
 						arrayDatapack[k].cachedata.CacheVersion=cacheVersion
 						arrayDatapack[k].cachedata.modVersion=questMod.version
@@ -340,7 +337,7 @@ function CheckandUpdateDatapack()
 					end,
 					catch {
 						function(error)
-							print(getLang("datapack_error_import")..k..') '..error)
+							debugPrint(10,getLang("datapack_error_import")..k..') '..error)
 							spdlog.error(getLang("datapack_error_import")..k..') '..error)
 							arrayDatapack[k] = nil
 						end
@@ -354,8 +351,8 @@ function CheckandUpdateDatapack()
 				local test2 = (arrayDatapack[k] ~= nil and ((table_contains(arrayDatapack[k].metadata.flags,"compile",false) == true and DatapackChecker(arrayDatapack[k].metadata) == true ) ))
 				local test3 = arrayDatapack[k] == nil 
 				
-				print("Can't load "..k.." from the cache : jsondesc is not null : "..tostring(test1).." | datapack can compile : "..tostring(test2).." | datapack is null : "..tostring(test3))
-				spdlog.error("Can't load "..k.." from the cache : jsondesc is not null : "..tostring(test1).." | datapack can compile : "..tostring(test2).." | datapack is null : "..tostring(test3))
+				debugPrint(1,"Can't load "..k.." from the cache : jsondesc is not null : "..tostring(test1).." | datapack can compile : "..tostring(test2).." | datapack is null : "..tostring(test3))
+				
 			end 
 		end
 		
@@ -495,7 +492,7 @@ function DeleteDatapackFromCache(tag)
 	if(file_exists('data/cache/'..tag..'.lua') == true) then
 						
 			os.remove('data/cache/'..tag..'.lua')
-			print(tag.." datapack no longer exist, deleting cache...")
+			debugPrint(2,tag.." datapack no longer exist, deleting cache...")
 		
 	end
 end
@@ -782,24 +779,22 @@ end
 								FillList(objtype,arrayDatapack[k][objtype],k)
 								
 								else
-							--	print("can't find "..objtype.." for "..k)
+							--	debugPrint(10,"can't find "..objtype.." for "..k)
 								
 							end
 							
 						end
 					else
-					print("Output : "..tostring(DatapackChecker(v.metadata)))
-					print("can't load : "..k.." data :"..tostring(dump(v.metadata)))
-					spdlog.error("Output : "..tostring(DatapackChecker(v.metadata)))
-					spdlog.error("can't load : "..k.." data :"..tostring(dump(v.metadata)))
+					debugPrint(10,"Output : "..tostring(DatapackChecker(v.metadata)))
+					debugPrint(1,"can't load : "..k.." data :"..tostring(dump(v.metadata)))
+					
 					end
 				end
 			end
 		end,
 		catch {
 			function(error)
-				print('Error during loading cache for datatpack: '..error)
-				spdlog.error(' during loading cache for datatpack: '..error)
+				debugPrint(1,'Error during loading cache for datatpack: '..error)
 				RecoverDatapack()
 			end
 		}
@@ -1140,8 +1135,7 @@ end
 			end,
 			catch {
 				function(error)
-					print('Error during creating cache for datatpack: '..error.." "..objtype.." "..datapackname.." path : "..rootpath)
-					spdlog.error(' during creating cache for datatpack: '..error.." "..objtype.." "..datapackname.." path : "..rootpath)
+					debugPrint(1,'Error during creating cache for datatpack: '..error.." "..objtype.." "..datapackname.." path : "..rootpath)
 					RecoverDatapack()
 				end
 			}

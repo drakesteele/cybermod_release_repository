@@ -265,7 +265,7 @@ if spawnRegion then
 		
 		
 		if (('string' == type(chara)) and (string.match(tostring(chara), "AMM_Character.") == nil or (string.match(tostring(chara), "AMM_Character.") ~= nil and AMM ~= nil)  )  )then
-			debugPrint(1,appearance)
+			debugPrint(2,appearance)
 			
 			if ('string' == type(chara)) and string.match(chara, "Vehicle.") then
 				
@@ -373,7 +373,7 @@ if spawnRegion then
 			
 			else
 			
-			print(getLang("npc_spawnnpc_error_amm"))
+			debugPrint(10,getLang("npc_spawnnpc_error_amm"))
 			
 		end
 	end
@@ -410,7 +410,7 @@ local param = isAV
 Cron.After(0.7, function(param)
 
 local NPC = vehicleEntId
-debugPrint(1,NPC)
+debugPrint(2,NPC)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -434,7 +434,7 @@ end)
 else
 local postp = Vector4.new( x, y, z,1)
 local NPC = exEntitySpawner.SpawnRecord(chara, postp)
-debugPrint(1,NPC)
+debugPrint(2,NPC)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -460,7 +460,7 @@ end
 else
 local player = Game.GetPlayer()
 local worldpos = player:GetWorldTransform()
-debugPrint(1,chara)
+debugPrint(2,chara)
 range = 5
 
 if prev then
@@ -553,8 +553,8 @@ isAV = false
 end
 
 if string.match(chara, "Vehicle.") and prev == false then
-debugPrint(1,chara)
-debugPrint(1,#arrayVehicles)
+debugPrint(2,chara)
+debugPrint(2,#arrayVehicles)
 calledfromgarage = false
 spawnVehicle(chara,nil,nil,nil)
 
@@ -563,7 +563,7 @@ local param = isAV
 Cron.After(0.5, function(param)
 
 local NPC = vehicleEntId
-debugPrint(1,NPC)
+debugPrint(2,NPC)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -634,7 +634,7 @@ function spawnEntityPath(chara, tag, x, y ,z, spawnlevel)
 
 
 if string.match(chara, "Vehicle.") and prev == false then
-debugPrint(1,"vehicule are not allowed")
+debugPrint(2,"vehicule are not allowed")
 
 else
 local player = Game.GetPlayer()
@@ -895,7 +895,7 @@ group2.entities = {}
 
 questMod.GroupManager[group.tag] = group
 end
-debugPrint(1,"Despawn finished")
+debugPrint(2,"Despawn finished")
 
 end
 
@@ -1001,13 +1001,13 @@ if(AMM ~= nil) then
 local possibleApp = AMM.API.GetAppearancesForEntity(entity)
 
 for _, app in ipairs(possibleApp) do
-print((tostring(app)))
+debugPrint(10,(tostring(app)))
 end
 
 
 else
 for _, app in ipairs(entity:GetRecord():CrowdAppearanceNames()) do
-debugPrint(1,tostring(app))
+debugPrint(2,tostring(app))
 end
 end
 end
@@ -1310,10 +1310,10 @@ end
 
 
 function makeFacial(tag,reactiontodo)
-print(tag)
+debugPrint(10,tag)
 local obj = getEntityFromManager(tag)
-print(dump(obj))
-print(dump(reactiontodo))
+debugPrint(10,dump(obj))
+debugPrint(10,dump(reactiontodo))
 local enti = Game.FindEntityByID(obj.id)
 
 local StimReaction = enti:GetStimReactionComponent()
@@ -1323,7 +1323,7 @@ local stimComp = enti:FindComponentByName("ReactionManager")
 local animComp = enti:FindComponentByName("AnimationControllerComponent")
 
 if stimComp and animComp then
-print("test")
+debugPrint(10,"test")
 stimComp:ResetFacial(0)
 
 Cron.After(0.2, function()
@@ -1332,7 +1332,7 @@ local animFeat = NewObject("handle:AnimFeature_FacialReaction")
 animFeat.category = reactiontodo.category
 animFeat.idle = reactiontodo.idle
 animComp:ApplyFeature(CName.new("FacialReaction"), animFeat)
-print("test2")
+debugPrint(10,"test2")
 end)
 end
 
@@ -1430,7 +1430,7 @@ end
 
 function MoveTo(targetPuppet, targetPosition, targetDistance, movementType, v2)
 
---debugPrint(1,"moving....")
+--debugPrint(2,"moving....")
 if not targetPosition then
 targetPosition = Game.GetPlayer():GetWorldPosition()
 
@@ -1486,7 +1486,7 @@ end
 
 
 function teleportTo(objlook, position, rotation, isplayer)
---debugPrint(1,rotation)
+--debugPrint(2,rotation)
 if rotation == nil then
 
 rotation = 1
@@ -1494,7 +1494,7 @@ rotation = 1
 end
 
 local rot = rotation
---debugPrint(1,rot)
+--debugPrint(2,rot)
 if(rotation ~= 1) then
 
 rot = EulerAngles.new(0,0,0)
@@ -1515,14 +1515,14 @@ local item = nil
 
 pcall(function()
 if objlook:IsVehicle() == true then
--- debugPrint(1,position.x)
--- debugPrint(1,position.y)
--- debugPrint(1,position.z)
--- debugPrint(1,rot)
+-- debugPrint(2,position.x)
+-- debugPrint(2,position.y)
+-- debugPrint(2,position.z)
+-- debugPrint(2,rot)
 rot.roll = 0
 rot.pitch = 0
 Game.GetTeleportationFacility():Teleport(objlook, Vector4.new(position.x, position.y, position.z,1), rot)
--- debugPrint(1,"ok")
+-- debugPrint(2,"ok")
 else
 inVehicule = Game.GetWorkspotSystem():IsActorInWorkspot(objlook)
 if (inVehicule) then
@@ -1533,7 +1533,7 @@ GetSingleton('gameTeleportationFacility'):Teleport(vehicule, Vector4.new(positio
 else
 
 if(isplayer) then
-print(tostring(rot.pitch))
+debugPrint(10,tostring(rot.pitch))
 
 
 Game.GetTeleportationFacility():Teleport(Game.GetPlayer(), Vector4.new(position.x, position.y, position.z,1) , rot)
@@ -1669,7 +1669,7 @@ end
 end
 end
 if npcType == false then
-debugPrint(1,"is not crowd")
+debugPrint(2,"is not crowd")
 local NPC = FriendlyFollower:GetAIControllerComponent()
 local targetTeam = FriendlyFollower:GetAttitudeAgent()
 
@@ -1687,11 +1687,11 @@ Game['senseComponent::RequestPresetChange;GameObjectTweakDBIDBool'](FriendlyFoll
 
 NPC:SetAIRole(SetState)
 FriendlyFollower.movePolicies:Toggle(true)
-debugPrint(1,"become friend")
+debugPrint(2,"become friend")
 ToggleImmortal(FriendlyFollower, false)
 
 else
-debugPrint(1,"is crowd, destroy")
+debugPrint(2,"is crowd, destroy")
 
 FriendlyFollower:Dispose()
 
@@ -1712,7 +1712,7 @@ end
 
 
 function setAggressiveKillMission()
-----debugPrint(1,"setAggressiveKillMission")
+----debugPrint(2,"setAggressiveKillMission")
 
 if #questMod.EnemyManager > 0 then
 for i = 1, #questMod.EnemyManager do		
@@ -1737,7 +1737,7 @@ handle.movePolicies:Toggle(true)
 targetAttAgent:SetAttitudeGroup(CName.new("hostile"))
 reactionComp:SetReactionPreset(GetSingleton("gamedataTweakDBInterface"):GetReactionPresetRecord(TweakDBID.new("ReactionPresets.Ganger_Aggressive")))
 --		reactionComp:TriggerCombat(Game.GetPlayer())
-debugPrint(1,"aggressive ok")
+debugPrint(2,"aggressive ok")
 -- >_< Remove invulnerability from "GodModed" enemies
 local get_godmode = Game.GetGodModeSystem()
 get_godmode:ClearGodMode(questMod.EnemyManager[i], CName.new("Default"))	
@@ -1748,7 +1748,7 @@ end
 end
 
 function setPassiveMission()
-----debugPrint(1,"setAggressiveKillMission")
+----debugPrint(2,"setAggressiveKillMission")
 
 if #questMod.NPCManager > 0 then
 for i = 1, #questMod.NPCManager do		
@@ -2325,7 +2325,7 @@ targetAttAgent:SetAttitudeTowardsAgentGroup(targetAttAgent, targetAttAgent, Enum
 
 
 local targetgroup =getGroupfromManager(targetgroup)
-debugPrint(1,targetgroup.tag)
+debugPrint(2,targetgroup.tag)
 for y=1, #targetgroup.entities do 
 local entityTag2 = targetgroup.entities[i]
 
@@ -2427,13 +2427,13 @@ if(from_behind == nil or from_behind == false) then
 Game.GetVehicleSystem():ToggleSummonMode()
 end
 
-print(tostring(scriptlevel))
+debugPrint(10,tostring(scriptlevel))
 
 if(from_behind == nil or from_behind == false) then
 Cron.After(0.7, function(param)
 
 local NPC = vehicleEntId
-print(npc)
+debugPrint(10,npc)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -2471,7 +2471,7 @@ else
 Cron.After(0.7, function(param)
 
 local NPC = vehicleEntId
-debugPrint(1,NPC)
+debugPrint(2,NPC)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -2505,8 +2505,8 @@ end
 Cron.After(wait_for_vehicle_second, function(param)
 local postp = Vector4.new( x, y, z,1)
 teleportTo(Game.FindEntityByID(NPC), postp, 1, false)
--- print("tp "..wait_for_vehicle_second)
-	-- print("tp "..x.." "..y.." "..z)
+-- debugPrint(10,"tp "..wait_for_vehicle_second)
+	-- debugPrint(10,"tp "..x.." "..y.." "..z)
 
 end)
 else
@@ -2601,7 +2601,7 @@ end
 
 else
 
-print(getLang("npc_spawnnpc_error_amm"))
+debugPrint(10,getLang("npc_spawnnpc_error_amm"))
 end
 
 
@@ -2630,7 +2630,7 @@ end
 end
 
 TweakDB:SetFlat('Vehicle.vehicle_list.list', unlockableVehicles)
-print("unlocked")
+debugPrint(10,"unlocked")
 end
 
 
@@ -2652,7 +2652,7 @@ vehio.fakeAV = fakeAV
 
 table.insert(currentSave.garage,vehio)
 
-print("added")
+debugPrint(10,"added")
 else
 
 
@@ -2670,9 +2670,9 @@ end
 
 
 function getVehiclefromCustomGarage(vehiclePath)
---debugPrint(1, #currentSave.garage)
+--debugPrint(2, #currentSave.garage)
 for i = 1, #currentSave.garage do
---		debugPrint(1,currentSave.garage[i].path)
+--		debugPrint(2,currentSave.garage[i].path)
 if(currentSave.garage[i].path == vehiclePath) then
 
 return currentSave.garage[i]
@@ -2684,9 +2684,9 @@ end
 end
 
 function getVehiclefromCustomGarageTag(tag)
---debugPrint(1, #currentSave.garage)
+--debugPrint(2, #currentSave.garage)
 for i = 1, #currentSave.garage do
---debugPrint(1,currentSave.garage[i].path)
+--debugPrint(2,currentSave.garage[i].path)
 if(currentSave.garage[i].tag == tag) then
 
 return currentSave.garage[i]
@@ -2730,7 +2730,7 @@ end
 Cron.After(0.7, function(param)
 
 local NPC = vehicleEntId
-debugPrint(1,NPC)
+debugPrint(2,NPC)
 local entity = {}
 entity.id = NPC
 entity.tag = tag
@@ -2830,12 +2830,12 @@ vehicule = Game.FindEntityByID(vehiculeobj.id)
 
 
 end
-debugPrint(1,"testing")
-debugPrint(1,vehicule)
-debugPrint(1,entity)
-debugPrint(1,tostring(vehicule:IsVehicle()))
+debugPrint(2,"testing")
+debugPrint(2,vehicule)
+debugPrint(2,entity)
+debugPrint(2,tostring(vehicule:IsVehicle()))
 if(vehicule ~= nil and entity ~= nil and vehicule:IsVehicle() == true) then
-debugPrint(1,"ok")
+debugPrint(2,"ok")
 
 
 if seat == "seat_front_left" and vehiculeobj.driver == nil then
@@ -2869,7 +2869,7 @@ end
 
 
 if(seat ~= nil) then
-debugPrint(1,seat)
+debugPrint(2,seat)
 if(entitytag == "player") then
 
 local player = Game.GetPlayer()
@@ -2916,7 +2916,7 @@ cmd.mountData = mountData
 cmd = cmd:Copy()
 
 executeCmd(entity,cmd)
-debugPrint(1,"ok2")
+debugPrint(2,"ok2")
 if(vehiculeobj.takenSeat == nil) then
 vehiculeobj.takenSeat = {}
 end
@@ -3070,7 +3070,7 @@ for i=1, #seats do
 
 if Game['VehicleComponent::HasSlot;GameInstanceVehicleObjectCName'](entityveh, CName.new( seats[i])) then
 table.insert(vehiculeSeat, seats[i])
--- debugPrint(1,seats[i])
+-- debugPrint(2,seats[i])
 end
 end
 

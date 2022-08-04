@@ -1,5 +1,5 @@
 debugPrint(3,"CyberScript: netcontract module loaded")
---print("CyberScript: netcontract module loaded")
+--debugPrint(10,"CyberScript: netcontract module loaded")
 questMod.module = questMod.module +1
 
 processing = "processing..."
@@ -1627,7 +1627,7 @@ function MyMissions()
 		ImGui.BeginChild("MyDatapack", 1200, 700)
 		CPS.colorBegin("Text", "FFFFFF")
 		CPS.colorBegin("Button",{"941005",1})
-		debugPrint(1,"arrayMymissions"..#arrayMymissions)
+		debugPrint(2,"arrayMymissions"..#arrayMymissions)
 		local counter = 0
 		if waiting == false and mainwait == false then
 			if arrayMymissions ~= nil then

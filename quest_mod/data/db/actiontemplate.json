@@ -2934,7 +2934,16 @@
 		"tag":"item01",
 		"helper": "This action will unbound entity position",
 		"helperTitle": "Entity : Unbound Entity Position  "
+	},
+	
+	{
+		"name":"set_entity_highlight",
+		"tag":"judy01",
+		"value":true,
+		"helper": "This action will toggle gold highlight the entity",
+		"helperTitle": "Entity : Toggle Hightlight  "
 	}
+	
 	
 	
 	]

@@ -32,9 +32,9 @@ function ScriptExecutionEngine()
 				local parent = workerTable[k]["parent"]
 				local pending = workerTable[k]["pending"]
 				
-				-- debugPrint(1,k)
-				-- debugPrint(1,list)
-				-- debugPrint(1,index)
+				-- debugPrint(4,k)
+				-- debugPrint(4,list)
+				-- debugPrint(4,index)
 				
 				if(workerTable[k]["index"] > #workerTable[k]["action"] and workerTable[k]["pending"] == false and workerTable[k]["started"] == true) then
 					
@@ -89,14 +89,14 @@ function ScriptExecutionEngine()
 								if(list[index].name == "goto") then
 									
 									if(list[index].parent == true) then
-										debugPrint(1,"Go to"..list[index].index.." of "..parent)
+										debugPrint(4,"Go to"..list[index].index.." of "..parent)
 										
 										workerTable[parent]["index"] = list[index].index-1
 										workerTable[k]["index"] = workerTable[k]["index"]+1
 										workerTable[parent]["pending"] =  false
 										k = parent
 										else
-										debugPrint(1,"Go to"..list[index].index.." of "..k)
+										debugPrint(4,"Go to"..list[index].index.." of "..k)
 										
 										
 										workerTable[k]["index"] = list[index].index 
@@ -113,8 +113,8 @@ function ScriptExecutionEngine()
 									
 									if status == false then
 									
-										print(getLang("scripting_error") .. retval)
-										print(getLang("scripting_error") .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
+										
+										debugPrint(1,getLang("scripting_error") .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
 										spdlog.error(getLang("scripting_error") .. retval.." Action : "..tostring(JSON:encode_pretty((list[index]))).." tag "..k.." parent "..parent.." index "..workerTable[k]["index"])
 										--Game.GetPlayer():SetWarningMessage("CyberScript Scripting error, check the log for more detail")
 										workerTable[k] =  nil
@@ -133,7 +133,7 @@ function ScriptExecutionEngine()
 											
 											workerTable[k]["index"] = workerTable[k]["index"]+1
 											
-											--debugPrint(1,"action finished")
+											--debugPrint(4,"action finished")
 											workerTable[k]["pending"] = false
 											
 											else
@@ -261,7 +261,7 @@ function checkWaitingAction(action,tag,parent,index)
 		
 		
 		isFadeIn = true
-		--debugPrint(1,opacity)
+		--debugPrint(4,opacity)
 		
 		
 		if(tick >= action.tick) then
@@ -281,8 +281,8 @@ function checkWaitingAction(action,tag,parent,index)
 			local currentcursor = tonumber(tick)
 			
 			
-			--debugPrint(1,fadeincursor)
-			--debugPrint(1,currentcursor)
+			--debugPrint(4,fadeincursor)
+			--debugPrint(4,currentcursor)
 			
 			
 			opacity = (100/(fadeincursor-currentcursor))
@@ -296,7 +296,7 @@ function checkWaitingAction(action,tag,parent,index)
 		
 		
 		
-		--debugPrint(1,opacity)
+		--debugPrint(4,opacity)
 		
 		
 		if(tick >= action.tick) then
@@ -316,8 +316,8 @@ function checkWaitingAction(action,tag,parent,index)
 			local currentcursor = tonumber(tick)
 			
 			
-			--debugPrint(1,fadeincursor)
-			--debugPrint(1,currentcursor)
+			--debugPrint(4,fadeincursor)
+			--debugPrint(4,currentcursor)
 			
 			
 			opacity = 1 - (100/(fadeoutcursor-currentcursor))
@@ -366,7 +366,7 @@ function checkWaitingAction(action,tag,parent,index)
 		
 		local trigger = action.trigger
 		result = checkTrigger(trigger)
-		debugPrint(1,"while one "..tostring(result))
+		debugPrint(4,"while one "..tostring(result))
 		executeAction(action.action,tag,parent,index,source,executortag)
 		
 		
@@ -414,7 +414,7 @@ function cleanThreadManager()
 		
 		
 		if(count == #workerTable) then
-			----debugPrint(1,"clean worker table")
+			----debugPrint(4,"clean worker table")
 			workerTable = {}
 			actionistaken = false
 		end
@@ -489,25 +489,25 @@ function testTriggerRequirement(requirement,triggerlist)
 		local requirementcondition = requirement[i]
 		
 		local count = 0
-		print("Requirement : "..#requirementcondition)
-		debugPrint(1,dump(requirementcondition))
+		debugPrint(10,"Requirement : "..#requirementcondition)
+		debugPrint(4,dump(requirementcondition))
 		for y =1,#requirementcondition do --pour chaque condition du requirement en cours
 			
-			print("Requirement : "..requirementcondition[y])
+			debugPrint(10,"Requirement : "..requirementcondition[y])
 			if(result == false) then --si un requirement n'a pas été validé déja
-				print("Trigger : "..requirementcondition[y])
+				debugPrint(10,"Trigger : "..requirementcondition[y])
 				local trigger = triggerlist[requirementcondition[y]]
-				print("Trigger : ")
-				print(trigger.name)
+				debugPrint(10,"Trigger : ")
+				debugPrint(10,trigger.name)
 				
 				local triggerIsOk = checkTrigger(trigger) --on evalue le trigger
-				print(triggerIsOk)
+				debugPrint(10,triggerIsOk)
 				if(triggerIsOk) then --on incrémente le compteur si le trigger est ok
 					
 					
 					
 					count = count +1
-					print(count)
+					debugPrint(10,count)
 				end
 				
 				
@@ -627,12 +627,12 @@ function doEvent(tag)
 		
 		if(checkTriggerRequirement(event.requirement,event.trigger))then
 		
-			--print("CyberScript : Doing event : "..event.name)
+			--debugPrint(10,"CyberScript : Doing event : "..event.name)
 			
 			--	doActionof(event.action,"interact")
 			runActionList(event.action, tag, "interact",false,"nothing")
 			else
-			--print("CyberScript : can't do event : "..event.name)
+			--debugPrint(10,"CyberScript : can't do event : "..event.name)
 			
 		end
 	end
@@ -642,7 +642,7 @@ function doFunction(tag)
 	
 	local boj = arrayFunction[tag]
 	local event = boj.func
-	debugPrint(1,event.tag)
+	debugPrint(4,event.tag)
 	runActionList(event.action, tag, "interact",false,"nothing",boj.func.bypassmenu)
 	
 end
@@ -662,7 +662,7 @@ function doTriggeredEvent()
 		local event = arrayEvent[key].event
 		
 		if(event.way == "world") then
-			--debugPrint(1,"check for "..event.name)
+			--debugPrint(4,"check for "..event.name)
 			--testTriggerRequirement(event.requirement,event.trigger)
 			if(checkTriggerRequirement(event.requirement,event.trigger))then
 				
@@ -703,7 +703,7 @@ function doInitEvent()
 	end
 	
 	worldprocessing = false
-	print("CyberScript : doing init event...")
+	debugPrint(10,"CyberScript : doing init event...")
 	
 end
 
@@ -719,11 +719,11 @@ function doIf(action,list,currentindex,listaction)
 			newlist[currentindex+i] =  list[i]
 		end
 		
-		debugPrint(1,"List Is :")
+		debugPrint(4,"List Is :")
 		for i=1, #newlist do
-			debugPrint(1,newlist[i].name)
+			debugPrint(4,newlist[i].name)
 		end
-		debugPrint(1,"End of ")
+		debugPrint(4,"End of ")
 		action.newlist = newlist
 		
 		
@@ -789,19 +789,19 @@ function checkAmbush()
 	local ambushevent = {}
 	
 	if(AmbushEnabled == true and isAVinService == false) then
-		--debugPrint(1,"mark1")
+		--debugPrint(4,"mark1")
 		if(currentDistricts2.customdistrict ~= nil) then
-			--debugPrint(1,"mark1")		
+			--debugPrint(4,"mark1")		
 			
 			
-			print("check ambsush")
-			--	debugPrint(1,"mark1")	
+			debugPrint(3,"check ambsush")
+			--	debugPrint(4,"mark1")	
 			for k,v in pairs(arrayEvent) do
 				
 				if(arrayEvent[k].event.way == "ambush") then
-					--debugPrint(1,arrayEvent[k].event.way)
+					--debugPrint(4,arrayEvent[k].event.way)
 					--table.insert(ambushevent,k)
-					print(k)
+					debugPrint(10,k)
 					doEvent(k)
 					
 					
@@ -810,7 +810,7 @@ function checkAmbush()
 			
 			-- if(#ambushevent > 0) then
 				-- local tag = math.random(1,#ambushevent)
-				-- debugPrint(1,"doing ambush "..tag)
+				-- debugPrint(4,"doing ambush "..tag)
 				-- doEvent(ambushevent[tag])
 			-- end
 			
@@ -850,7 +850,7 @@ function checkSpeakDialog()
 			isdialogactivehub = false
 			removeDialog()
 			currentDialogHub = nil
-			debugPrint(1,"totot")
+			debugPrint(4,"totot")
 			end
 		end
 		
@@ -873,7 +873,7 @@ function checkFixer()
 		
 		if phonedFixer == false then
 			if curPos ~= nil then
-				--	debugPrint(1,curPos)
+				--	debugPrint(4,curPos)
 				currentfixer = checkWithFixer(curPos)
 			end
 		end
@@ -917,7 +917,7 @@ function checkFixer()
 							
 							fixerCanSpawn = false
 							
-							debugPrint(1,oldfixer)
+							debugPrint(4,oldfixer)
 						end
 						
 					end
@@ -925,7 +925,7 @@ function checkFixer()
 				end
 				
 				if(currentfixer.spawn_action ~= nil and #currentfixer.spawn_action >0 and fixerIsSpawn == false) then
-					debugPrint(1,"fixer Ok")
+					debugPrint(4,"fixer Ok")
 					--doActionof(currentfixer.action,"interact")
 					
 					runActionList(currentfixer.spawn_action, currentfixer.Tag.."_Spawn",nil,nil,currentfixer.Tag)
@@ -953,8 +953,8 @@ function checkFixer()
 			end
 			
 			if(string.match(tarbName, "NPCPuppet"))then
-				--debugPrint(1,tostring(TweakDBID.new(dbPnjId.TweakIDs)))
-				--debugPrint(1,tostring(objLook:GetRecordID()))
+				--debugPrint(4,tostring(TweakDBID.new(dbPnjId.TweakIDs)))
+				--debugPrint(4,tostring(objLook:GetRecordID()))
 				--if string.match(currentfixer.Name,targName) then
 				if objLook ~= nil and currentfixer ~= nil and objLook:GetEntityID() == currentfixer.Id and tostring(TweakDBID.new(currentfixer.NPCId)) == tostring(objLook:GetRecordID()) then
 					
@@ -985,7 +985,7 @@ function checkFixer()
 			
 			
 			if fixerIsSpawn == true then
-				debugPrint(1,"oldfixer")
+				debugPrint(4,"oldfixer")
 				if(oldfixer ~= nil)then
 					
 					despawnEntity(oldfixer)
@@ -1320,7 +1320,7 @@ function checkNPC()
 								
 								if(workerTable[npc.tag.."_routine"] == nil and npc.repeat_routine == true and #npc.routineaction > 0 and npc.doroutineaction == true) then
 									runActionList(npc.routineaction, npc.tag.."_routine", "interact",false,npc.tag)
-								--	debugPrint(1,"doing routine of "..npc.name)
+								--	debugPrint(4,"doing routine of "..npc.name)
 									
 								end
 								
@@ -1460,7 +1460,7 @@ function getTriggeredActions()
 		--testTriggerRequirement(interact2.requirement,interact2.trigger)
 		if(checkTriggerRequirement(interact2.requirement,interact2.trigger)) and (interact2.group == currentInteractGroup[currentInteractGroupIndex] or key == "open_datapack_group_ui") then
 			
-		--debugPrint(1,"check for "..interact2.name.." "..tostring(checkTriggerRequirement(interact2.requirement,interact2.trigger)))
+		--debugPrint(4,"check for "..interact2.name.." "..tostring(checkTriggerRequirement(interact2.requirement,interact2.trigger)))
 			table.insert(possibleinteractchunk, interact2)
 		else
 			
@@ -1629,14 +1629,14 @@ function getMissionByTrigger()
 		for key,value in pairs(arrayQuest2) do --actualcode
 			
 			
-			-- debugPrint(1,tostring(QuestManager.isVisited(key)))
+			-- debugPrint(4,tostring(QuestManager.isVisited(key)))
 			if(checkQuestStatutByTag(key, nil) == true or checkQuestStatutByTag(key, -1) == true) then
 				local quest = arrayQuest2[key].quest
-				debugPrint(1,key)
-			--	debugPrint(1,tostring(HaveTriggerCondition(quest)))
+				debugPrint(4,key)
+			--	debugPrint(4,tostring(HaveTriggerCondition(quest)))
 				if(HaveTriggerCondition(quest))then
-				debugPrint(1,key.."is triggerable")
-					--------debugPrint(1,"trigger")
+				debugPrint(4,key.."is triggerable")
+					--------debugPrint(4,"trigger")
 					
 					--if(possibleQuest[quest] ~= nil) then
 					table.insert(possibleQuest, quest)
@@ -1645,10 +1645,10 @@ function getMissionByTrigger()
 					--end
 					
 					else
-					--debugPrint(1,tostring(QuestManager.isVisited(key)))
+					--debugPrint(4,tostring(QuestManager.isVisited(key)))
 					if not QuestManager.isVisited(key) then
 						QuestManager.MarkQuestAsInactive(key)
-						--debugPrint(1,"remove"..key)
+						--debugPrint(4,"remove"..key)
 					end
 				end
 					
@@ -1699,9 +1699,9 @@ end
 --GET objects
 
 function getEventByTag(tag)
-	debugPrint(1,"d,f,	")
+	debugPrint(4,"d,f,	")
 	for i=1,#arrayEvent do
-		debugPrint(1,arrayEvent[i].event.name)
+		debugPrint(4,arrayEvent[i].event.name)
 		if(arrayEvent[i].event.tag == tag)then
 			
 			return arrayEvent[i].event
@@ -1765,7 +1765,7 @@ function getInteractsBySortTag(tag)
 	for i = 1, #possibleInteract do
 		
 		for z = 1, #possibleInteract[i] do
-			--debugPrint(1,possibleInteract[i].name)
+			--debugPrint(4,possibleInteract[i].name)
 			if(possibleInteract[i][z].sorttag == tag)then
 				
 				table.insert(result, possibleInteract[i][z])
@@ -1826,19 +1826,19 @@ function FindPOI(tag,district,subdistrict,iscar,poitype,locationtag,fromposition
 					
 					local location = v.poi.locations[y]
 					
-					-- debugPrint(1,"TEST POI ---")
-					-- debugPrint(1,"tag : "..tostring((
+					-- debugPrint(4,"TEST POI ---")
+					-- debugPrint(4,"tag : "..tostring((
 									-- ((tag == nil or tag == "" or (v.poi.tag ~= nil and v.poi.tag == tag)) and locationtag == false) or
 									-- ((tag == nil or tag == "" or (location.Tag ~= nil and location.Tag == tag)) and locationtag == true)
 								-- )))
 								
-					-- debugPrint(1,"district : "..tostring((district == nil or district == "" or (district ~= nil and location.district == district))))
-					-- debugPrint(1,"subdistrict : "..tostring((subdistrict == nil or subdistrict == "" or (subdistrict ~= nil and location.subdistrict == subdistrict))))
+					-- debugPrint(4,"district : "..tostring((district == nil or district == "" or (district ~= nil and location.district == district))))
+					-- debugPrint(4,"subdistrict : "..tostring((subdistrict == nil or subdistrict == "" or (subdistrict ~= nil and location.subdistrict == subdistrict))))
 					
-					-- debugPrint(1,"iscar : "..tostring((iscar == nil or (iscar ~= nil and location.inVehicule == iscar))))
-					-- debugPrint(1,"poitype : "..tostring((poitype == nil or poitype == 1 or (poitype == v.poi.isFor))))
-					-- debugPrint(1,"fromposition : "..tostring((fromposition == false or	(fromposition == true and check3DPos(curPos, location.x, location.y, location.z, range)))))
-					-- debugPrint(1,"TEST POI ---")
+					-- debugPrint(4,"iscar : "..tostring((iscar == nil or (iscar ~= nil and location.inVehicule == iscar))))
+					-- debugPrint(4,"poitype : "..tostring((poitype == nil or poitype == 1 or (poitype == v.poi.isFor))))
+					-- debugPrint(4,"fromposition : "..tostring((fromposition == false or	(fromposition == true and check3DPos(curPos, location.x, location.y, location.z, range)))))
+					-- debugPrint(4,"TEST POI ---")
 							
 							if
 							(
@@ -1927,14 +1927,14 @@ function getNodeIndexFromCircuit(tag,listnodes)
 end
 
 function getPathBetweenTwoNode(CurrentNode, NextNode)
-	debugPrint(1,"CurrentNode"..CurrentNode)
-	debugPrint(1,"NextNode"..NextNode)
+	debugPrint(4,"CurrentNode"..CurrentNode)
+	debugPrint(4,"NextNode"..NextNode)
 	for k,v in pairs(arrayPath)do
 		
 		
 		local path = v.gamepath
-		debugPrint(1,"startNode"..path.startNode)
-		debugPrint(1,"endNode"..path.endNode)
+		debugPrint(4,"startNode"..path.startNode)
+		debugPrint(4,"endNode"..path.endNode)
 		
 		if(path.startNode == CurrentNode and path.endNode == NextNode)then
 			return path
@@ -2205,7 +2205,7 @@ end
 
 function GetEntityGender(entity)
   -- True = Female / False = Male
-  debugPrint(1,tostring(Game.NameToString(entity:GetBodyType())))
+  debugPrint(4,tostring(Game.NameToString(entity:GetBodyType())))
   if string.find(tostring(Game.NameToString(entity:GetBodyType())), "oman") then
 		return "female"
 	else
@@ -2219,7 +2219,7 @@ function getQuestByTag(tag)
 	local quest = nil
 	if(parentquest ~= nil) then
 		quest =  parentquest.quest
-		--debugPrint(1,parentquest.file)
+		--debugPrint(4,parentquest.file)
 	end
 	return quest
 	
@@ -2319,7 +2319,7 @@ function getVIPfromfactionbyscore(factiontag)
 	end
 	
 	if(#tempvip == 0) then
-	print(getLang("scripting_novip01")..factiontag..getLang("scripting_novip02")..playerscore)
+	debugPrint(10,getLang("scripting_novip01")..factiontag..getLang("scripting_novip02")..playerscore)
 	end
 	
 	return tempvip
@@ -2434,7 +2434,7 @@ function getGangfromDistrictAndSubdistrict(district,minimum)
 		
 		
 		if(currentSave.Score[k][mydistrict.Tag] ~= nil and currentSave.Score[k][mydistrict.Tag] >= minimum) then
-			-- debugPrint(1,k)
+			-- debugPrint(4,k)
 			
 			local obj = {}
 			obj.tag = k
@@ -2506,7 +2506,7 @@ function getGangAffinityfromDistrictAndSubdistrict(district,minimum)
 	for i=1,#mydistrict.SubDistrict do
 	
 	local subdist = mydistrict.SubDistrict[i]
-	debugPrint(1,subdist)
+	debugPrint(4,subdist)
 		for k,v in pairs(currentSave.Score) do
 			
 			
@@ -2521,7 +2521,7 @@ function getGangAffinityfromDistrictAndSubdistrict(district,minimum)
 					obj.tag = k
 					obj.score = getScorebyTag(k)
 					table.insert(factiontable,obj)
-					debugPrint(1,k)
+					debugPrint(4,k)
 					
 				end
 				
@@ -3089,7 +3089,7 @@ function getPhonedNPCByName(name)
 end
 
 function findPhonedNPCByName(name)
-	debugPrint(1,#arrayPhoneNPC)
+	debugPrint(4,#arrayPhoneNPC)
 	for i=1, #arrayPhoneNPC do
 		
 		if string.find(string.lower(name),string.lower(arrayPhoneNPC[i].Names) ) then
@@ -3181,7 +3181,7 @@ function getSoundByNameNamespace(name,namespace)
 	
 		if k == name and v.sound.namespace == namespace then
 			
-			debugPrint(1,"sound founded")
+			debugPrint(4,"sound founded")
 			
 			return v.sound
 		end

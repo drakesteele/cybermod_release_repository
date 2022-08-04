@@ -170,7 +170,7 @@ function waitPlayerInTaxi(timer,functionprint)
 		if (isDelamainDrived == true and inMenu == false) then
 			
 			
-			functionprint()	
+			functionprint()
 			else
 			
 			
@@ -187,10 +187,10 @@ function waitForCustomMappin(timer,functionprint)
 	
 		if (ActivecustomMappin ~= nil and inMenu == false) then
 			
-			debugPrint(1,"mappin ok")
-			functionprint()	
+			debugPrint(6,"mappin ok")
+			functionprint()
 			else
-			debugPrint(1,"not in av")
+			debugPrint(6,"not in av")
 			
 			waitForCustomMappin(timer,functionprint)
 		end
@@ -205,8 +205,8 @@ function waitPlayerNotInTaxi(timer,functionprint)
 	
 		if (isDelamainDrived == false and inMenu == false) then
 			
-			debugPrint(1,"not in taxi")
-			functionprint()	
+			debugPrint(6,"not in taxi")
+			functionprint()
 			else
 			
 			
@@ -222,12 +222,12 @@ function taxiIsArrived(timer,functionprint)
 	
 		if (curPos.x == lastcurpos.x and curPos.y == lastcurpos.y) then
 			
-			--debugPrint(1,"arrived")
-			functionprint()	
+			--debugPrint(6,"arrived")
+			functionprint()
 			
 			else
 			lastcurpos = curPos
-			--debugPrint(1,"not arrived")
+			--debugPrint(6,"not arrived")
 			taxiIsArrived(timer,functionprint)
 		end
 	end)

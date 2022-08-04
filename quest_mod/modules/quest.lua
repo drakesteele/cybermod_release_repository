@@ -4,18 +4,18 @@ questMod.module = questMod.module +1
 
 --Main function
 function QuestThreadManager()
-		--debugPrint(1,getScoreKey("joytoy_quest_radiant","Score"))
+		--debugPrint(2,getScoreKey("joytoy_quest_radiant","Score"))
 	if currentQuest ~= nil and GameUI.IsMenu() == false then
 	
 	
 		possibleQuest = {}
-		-- debugPrint(1,"Score quest init")
-		-- debugPrint(1,getScoreKey(currentQuest.tag,"Score"))
+		-- debugPrint(2,"Score quest init")
+		-- debugPrint(2,getScoreKey(currentQuest.tag,"Score"))
 	
 		
 			if(getScoreKey(currentQuest.tag,"Score") == 0)then
 				setScore(currentQuest.tag,"Score",1)
-				--debugPrint(1,"Score quest init")
+				--debugPrint(2,"Score quest init")
 				end
 			
 			if(getScoreKey(currentQuest.tag,"Score") == 1)then
@@ -25,7 +25,7 @@ function QuestThreadManager()
 					doTriggerAction(currentQuest)
 					
 					canDoTriggerAction = false
-					debugPrint(1,"Quest Trigger ACtion")
+					debugPrint(2,"Quest Trigger ACtion")
 					end
 					
 					
@@ -57,15 +57,15 @@ function QuestThreadManager()
 				
 					
 					if(QuestManager.GetObjectiveState(objectif.tag).isActive == true) then
-					--print(objectif.tag.." active "..tostring(QuestManager.GetObjectiveState(objectif.tag).isActive))
+					--debugPrint(10,objectif.tag.." active "..tostring(QuestManager.GetObjectiveState(objectif.tag).isActive))
 						
 						local result = false
 						result = checkTriggerRequirement(objectif.requirement,objectif.trigger)
-						--debugPrint(1,objectif.tag.." result "..tostring(result))
+						--debugPrint(2,objectif.tag.." result "..tostring(result))
 					
 						
 						if(result == true and workerTable[objectif.tag.."_action"] == nil) then
-					--	debugPrint(1,objectif.tag.." ACtion")
+					--	debugPrint(2,objectif.tag.." ACtion")
 					
 							local action ={}
 							action.name = "quest_notification"
@@ -123,7 +123,7 @@ function QuestThreadManager()
 						action.duration = 4
 						action.type = "success"
 						executeAction(action,"success_mission","",0,"see","")
-						debugPrint(1,"mark5")
+						debugPrint(2,"mark5")
 						if(currentQuest.isNCPD ~= nil and currentQuest.isNCPD == true ) then
 							local action = {}
 							action.name = "npcd_finish_notification"
@@ -146,7 +146,7 @@ function QuestThreadManager()
 							
 							closeQuest(currentQuest)
 							canDoEndAction = false
-							debugPrint(1,"Quest End ACtion")
+							debugPrint(2,"Quest End ACtion")
 						
 				end
 			end
@@ -165,7 +165,7 @@ function QuestThreadManager()
 						doFailAction(currentQuest)
 						setScore(currentQuest.tag,"Score",0)
 						canDoFailAction = false
-						debugPrint(1,"Quest Fail ACtion")
+						debugPrint(2,"Quest Fail ACtion")
 					--	closeQuest(currentQuest)
 					end
 				
@@ -178,7 +178,7 @@ function QuestThreadManager()
 			
 					if(DoedResetAction == false) then
 						resetQuest()
-						debugPrint(1,"Quest Reset")
+						debugPrint(2,"Quest Reset")
 					end
 				
 					
@@ -203,8 +203,8 @@ end
 --Quest States
 function startQuest(quest)
 	
-	-- print(tostring(QuestManager.GetQuestState(quest.tag).isActive))
-	-- print("is null "..tostring(getScoreKey(quest.tag,"Score") == nil))
+	-- debugPrint(10,tostring(QuestManager.GetQuestState(quest.tag).isActive))
+	-- debugPrint(10,"is null "..tostring(getScoreKey(quest.tag,"Score") == nil))
 	
 	
 	if(QuestManager.GetQuestState(quest.tag).isActive == true) then
@@ -229,7 +229,7 @@ function startQuest(quest)
 			
 				currentQuest.alreadyStart = true
 				currentQuest.lastIndex = i
-				debugPrint(1,"alreadustart")
+				debugPrint(2,"alreadustart")
 				
 				
 			end
@@ -262,7 +262,7 @@ function startQuest(quest)
 end
 
 function TriggerQuest(unlockTagQuest)
-	------debugPrint(1,unlockTagQuest)
+	------debugPrint(2,unlockTagQuest)
 	if(unlockTagQuest ~= nil and unlockTagQuest ~= "") then
 		
 		isAlreadyDo = false
@@ -284,7 +284,7 @@ function TriggerQuest(unlockTagQuest)
 			startQuest(quest)
 			
 			--Game.GetPlayer():SetWarningMessage(getLang("quest_trigger") .. quest.Title)
-			------debugPrint(1,"Forced Contract" .. quest.Title)
+			------debugPrint(2,"Forced Contract" .. quest.Title)
 			
 			
 		end
@@ -296,7 +296,7 @@ function TriggerQuest(unlockTagQuest)
 end
 
 function restoreQuestProgression(CurrentQuestStatut)
-	debugPrint(1,"resume progression")
+	debugPrint(2,"resume progression")
 	if(CurrentQuestStatut ~= nil and CurrentQuestStatut ~= "nil")then
 		
 		if(CurrentQuestStatut == 0)then
@@ -385,7 +385,7 @@ function resetQuest()
 	DoedEndAction = false
 	DoedFailAction = false
 	
-	debugPrint(1,"Interrupt quest")
+	debugPrint(2,"Interrupt quest")
 	
 end
 
@@ -415,7 +415,7 @@ function closeQuest(quest)
 	
 	QuestManager.resetQuestfromJson(quest.tag)
 	setScore(quest.tag,"Score",-1)
-	debugPrint(1,"resetjson")
+	debugPrint(2,"resetjson")
 	end
 	
 	QuestTrackerUI.Reset()
@@ -431,7 +431,7 @@ function closeQuest(quest)
 	currentSave.arrayPlayerData.CurrentQuestStatut = nil
 	currentSave.arrayPlayerData.CurrentQuestState = nil
 	updatePlayerData(currentSave.arrayPlayerData)
-	debugPrint(1,"closed quest")
+	debugPrint(2,"closed quest")
 	canDoTriggerAction = false
 	canDoStartAction = false
 	canDoEndAction = false
@@ -452,9 +452,9 @@ function HaveTriggerCondition(quest)
 	local result = false
 	--testTriggerRequirement(quest.trigger_condition_requirement,quest.trigger_condition)
 	result = checkTriggerRequirement(quest.trigger_condition_requirement,quest.trigger_condition)
-	----debugPrint(1,askTriggerRequirement(quest.trigger_condition_requirement,quest.trigger_condition))
+	----debugPrint(2,askTriggerRequirement(quest.trigger_condition_requirement,quest.trigger_condition))
 	if(result)then
-		----debugPrint(1,quest.title.." is okk")
+		----debugPrint(2,quest.title.." is okk")
 	end
 	return result
 end
@@ -493,7 +493,7 @@ end
 
 
 function HaveFailCondition(quest)
-	--debugPrint(1,"toto")
+	--debugPrint(2,"toto")
 	local result = false
 	--testTriggerRequirement(quest.failure_condition_requirement,quest.failure_condition)
 	result = checkTriggerRequirement(quest.failure_condition_requirement,quest.failure_condition)

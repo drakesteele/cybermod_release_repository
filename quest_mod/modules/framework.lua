@@ -1,4 +1,4 @@
-debugPrint(3,"CyberScript: framework module loaded")
+debugPrint(2,"CyberScript: framework module loaded")
 questMod.module = questMod.module +1
 
 
@@ -15,10 +15,10 @@ function GetModpackList()
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
-			debugPrint(1,"OK...")
+			debugPrint(2,"OK...")
 			
 		
-			debugPrint(1,#arrayDatapack3)
+			debugPrint(2,#arrayDatapack3)
 			arrayMyDatapack = {}
 			arrayMyDatapack = readDatapackDownloaded()
 			
@@ -52,7 +52,7 @@ function FetchData()
 				arrayDatapack3 = fetcheddata.datapack
 				
 			
-				debugPrint(1,#arrayDatapack3)
+				debugPrint(2,#arrayDatapack3)
 				
 				fetchdatatime = fetcheddata.updatetime
 				currentbranch = fetcheddata.branch
@@ -147,12 +147,12 @@ function UpdateModpack(datapackfile,tag)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			print("update")
-			print(tag)
+			debugPrint(10,"update")
+			debugPrint(10,tag)
 			
 			CheckandUpdateDatapack()
 	
-			print(tag..getLang("framework_modpack_updated") ..arrayDatapack[tag].metadata.version)
+			debugPrint(10,tag..getLang("framework_modpack_updated") ..arrayDatapack[tag].metadata.version)
 			
 		end)
 	
@@ -205,7 +205,7 @@ function DeleteModpack(tag)
 			arrayDatapack3 = readDatapackStore()
 			
 			
-			print(tag..getLang("framework_modpack_deleted") ..tostring(arrayDatapack[tag]== nil))
+			debugPrint(10,tag..getLang("framework_modpack_deleted") ..tostring(arrayDatapack[tag]== nil))
 			
 			
 			currentpack = ""
@@ -231,7 +231,7 @@ function GetModVersion()
 			
 			CurrentServerModVersion = {}
 			CurrentServerModVersion = readCurrentServerModVersion()
-			debugPrint(1,CurrentServerModVersion.version)
+			debugPrint(2,CurrentServerModVersion.version)
 		
 		end
 		)
@@ -355,7 +355,7 @@ function DeleteMission(tag)
 		
 		local file2 = assert(io.open("net/mymissions.json", "w"))
 		local stringg2 = JSON:encode_pretty(arrayMymissions)
-		debugPrint(1,stringg2)
+		debugPrint(2,stringg2)
 		file2:write(stringg2)
 		file2:close()
 	
@@ -690,7 +690,7 @@ function sendMessage(usertag,content)
 			
 			
 			else
-				debugPrint(1,"here4")
+				
 					local newconversation = {}
 					newconversation.tag = "online_"..CurrentOnlineMessage[i].Sender
 					newconversation.name = CurrentOnlineMessage[i].Sender
@@ -726,7 +726,7 @@ function sendMessageFriend(usertag,content)
 		local action = {}
 		action.action = "sendMessageFriend"
 		action.parameter = usertag.."||".."\""..content.."\""
-		debugPrint(1,action.parameter)
+		debugPrint(2,action.parameter)
 		WriteAction(action)
 		
 			waitforactionfinished(0.1,false, function()
@@ -747,7 +747,7 @@ function sendMessageFriend(usertag,content)
 				if(index ~= 0) then
 					
 					
-					debugPrint(1,"send1")
+					debugPrint(2,"send1")
 					count = count+1
 					local mes = {}
 						
@@ -765,7 +765,7 @@ function sendMessageFriend(usertag,content)
 				
 				
 				else
-					debugPrint(1,"send2")
+					debugPrint(2,"send2")
 					local newconversation = {}
 					newconversation.tag = "online_"..usertag.."_0000".."_r"
 					newconversation.name = usertag
@@ -910,7 +910,7 @@ function sendActionstoUser(usertag,actionlist)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -927,13 +927,13 @@ function AddFriend()
 		
 		
 		action.parameter = selectedUser.pseudo
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -949,13 +949,13 @@ function BlockFriend()
 		
 		
 		action.parameter = selectedUser.pseudo
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -971,13 +971,13 @@ function DeleteFriend()
 		
 		
 		action.parameter = selectedUser.pseudo
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -993,13 +993,13 @@ function UnblockFriend()
 		
 		
 		action.parameter = selectedUser.pseudo
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1025,7 +1025,7 @@ function createGuild()
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1043,7 +1043,7 @@ function updateGuild()
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1063,7 +1063,7 @@ function joinGuild(usertag, instanceid)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1081,7 +1081,7 @@ function leaveGuild(usertag)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1099,7 +1099,7 @@ function acceptGuild(usertag)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1117,7 +1117,7 @@ function refuseGuild(usertag)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1135,7 +1135,7 @@ function removeGuild(usertag)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1162,7 +1162,7 @@ function setInstanceScore(usertag,score,value)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1184,7 +1184,7 @@ function operateInstanceScore(usertag,score,value)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1205,7 +1205,7 @@ function deleteInstanceScore(usertag,score)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1229,7 +1229,7 @@ function GetInstances()
 			
 			arrayInstanceList = {}
 			arrayInstanceList =  readFile("net/currentInstance.json",false)
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 		
 		end)
 	
@@ -1237,36 +1237,19 @@ function GetInstances()
 end
 
 
--- function connectInstance()
-		-- local action = {}
-		-- debugPrint(1,selectedInstance.."||"..selectedInstancePassword)
-		-- action.action = "connectInstance"
-		-- action.parameter = selectedInstance.."||"..selectedInstancePassword
-		-- debugPrint(1,dump(action))
-		-- WriteAction(action)
-		
-		-- waitforactionfinished(0.1,false, function()
-			
-			
-			-- debugPrint(1,"OK")
-		
-		-- end)
-	
-	
--- end
 
 function connectInstance(instanceid,password)
 		local action = {}
-		debugPrint(1,instanceid.."||"..password)
+		debugPrint(2,instanceid.."||"..password)
 		action.action = "connectInstance"
 		action.parameter = instanceid.."||"..password
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 		
 		end)
 	
@@ -1275,16 +1258,16 @@ end
 
 function createInstance()
 		local action = {}
-		debugPrint(1,selectedInstance.."||"..selectedInstancePassword)
+		debugPrint(2,selectedInstance.."||"..selectedInstancePassword)
 		action.action = "createInstance"
 		action.parameter = "&privacy="..CreateInstance.privacy.."&isreadonly="..tostring(CreateInstance.isreadonly).."&nsfw="..tostring(CreateInstance.nsfw).."&password="..CreateInstance.password.."&Title="..CreateInstance.title
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			onlineInstanceCreation = false
 			CreateInstance = {}
 		end)
@@ -1301,13 +1284,13 @@ function updateInstance()
 		
 		
 		action.parameter = JSON:encode(UpdateInstance)
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			onlineInstanceUpdate = false
 			UpdateInstance = {}
 		end)
@@ -1320,13 +1303,13 @@ function createInstancePlace()
 		
 		action.action = "createInstancePlace"
 		action.parameter = JSON:encode(CreateInstancePlace)
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			onlineInstanceCreation = false
 			CreateInstancePlace = {}
 		end)
@@ -1356,7 +1339,7 @@ function banUserFromInstance()
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1383,7 +1366,7 @@ function unBanUserFromInstance()
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1410,7 +1393,7 @@ function kickUserFromInstance()
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1433,14 +1416,20 @@ function UpdateItem(tag, x, y, z, roll, pitch ,yaw )
 		objt.pitch = pitch
 		objt.yaw = yaw
 		action.parameter = JSON:encode(objt)
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
-			
+			debugPrint(2,"OK")
+			selectedItemMulti = nil
+			if(currentMultiHouse ~= nil) then
+			despawnItemFromMultiHouse()
+			Cron.After(0.5, function()
+			--spawnItemFromHouseMultiTag()
+			end)
+			end
 		end)
 	
 	
@@ -1460,13 +1449,20 @@ function SetItem(tag, x, y, z, roll, pitch ,yaw )
 		objt.pitch = pitch
 		objt.yaw = yaw
 		action.parameter = JSON:encode(objt)
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
+			selectedItemMulti = nil
+			if(currentMultiHouse ~= nil) then
+			despawnItemFromMultiHouse()
+			Cron.After(0.5, function()
+			--spawnItemFromHouseMultiTag()
+			end)
+			end
 			
 		end)
 	
@@ -1478,13 +1474,20 @@ function SetItemList(itemlist )
 		
 		action.action = "SetItemList"
 		action.parameter = JSON:encode(itemlist)
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
+			selectedItemMulti = nil
+			if(currentMultiHouse ~= nil) then
+			despawnItemFromMultiHouse()
+				Cron.After(0.5, function()
+			--spawnItemFromHouseMultiTag()
+			end)
+			end
 			
 		end)
 	
@@ -1497,13 +1500,20 @@ function DeleteAllItem(houseTag )
 		
 		action.action = "DeleteAllItem"
 		action.parameter = ActualPlayerMultiData.currentPlaces[1].tag
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
+			selectedItemMulti = nil
+			if(currentMultiHouse ~= nil) then
+			despawnItemFromMultiHouse()
+				Cron.After(0.5, function()
+			----spawnItemFromHouseMultiTag()
+			end)
+			end
 			
 		end)
 	
@@ -1516,13 +1526,20 @@ function DeleteItem(tag )
 		action.action = "DeleteItem"
 		
 		action.parameter = tag
-		debugPrint(1,dump(action))
+		debugPrint(2,dump(action))
 		WriteAction(action)
 		
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
+			selectedItemMulti = nil
+			if(currentMultiHouse ~= nil) then
+			despawnItemFromMultiHouse()
+				Cron.After(0.5, function()
+			--spawnItemFromHouseMultiTag()
+			end)
+			end
 			
 		end)
 	
@@ -1542,7 +1559,7 @@ function deleteInstancePlace()
 		waitforactionfinished(0.1,false, function()
 			
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			onlineInstanceCreation = false
 			CreateInstancePlace = {}
 		end)
@@ -1591,7 +1608,7 @@ function editServerScoreUser(score, value)
 		
 			waitforactionfinished(0.1,false, function()
 			
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 			
 		end)
 	
@@ -1858,7 +1875,7 @@ function GetScores()
 			
 			arrayMarket = {}
 			arrayMarket =  readFile("net/currentMarket.json",false)
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 		
 		end)
 	
@@ -1967,7 +1984,7 @@ function GetItems()
 			
 			a = {}
 			arrayMarketItem =  readFile("net/currentItemsMarket.json",false)
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 		
 		end)
 	
@@ -2074,7 +2091,7 @@ local f = io.open("net/userInput.txt")
 	
 	end
 	
-	debugPrint(1,encdo)
+	debugPrint(2,encdo)
 	
 	
 	
@@ -2091,35 +2108,36 @@ end
 
 
 function readFile(filepath, todelete)
-	
-
-	
-	local f = assert(io.open(filepath))
-	
-	lines = f:read("*a")
 	local tableDis = {}
-	
-	if(lines ~= "") then
-	local encdo = lines
-	
-	tableDis = trydecodeJSOn(encdo, f, filepath)
-	
-	end
-	
-	
-	
-	
-	
-	
-	
-	
+	if(file_exists(filepath)) then
 
-	f:close()
 	
-	if(todelete)then
-		os.remove(filepath)
+		local f = assert(io.open(filepath))
+		
+		lines = f:read("*a")
+		
+		
+		if(lines ~= "") then
+		local encdo = lines
+		
+		tableDis = trydecodeJSOn(encdo, f, filepath)
+		
+		end
+		
+		
+		
+		
+		
+		
+		
+		
+
+		f:close()
+		
+		if(todelete)then
+			os.remove(filepath)
+		end
 	end
-	
 	return tableDis
 	
 	
@@ -2127,7 +2145,7 @@ end
 
 
 function waitforactionfinished(timer,bool,functionprint)
-	--debugPrint(1,"first waiting...")
+	
 	waiting = true
 	Cron.After(timer, function()
 		if (file_exists("successaction.txt")) then
@@ -2136,10 +2154,10 @@ function waitforactionfinished(timer,bool,functionprint)
 			waiting = false
 			os.remove("successaction.txt")
 			functionprint()
-			debugPrint(1,"OK")
+			debugPrint(2,"OK")
 		else
 			
-			--debugPrint(1,"waiting...")
+		
 			waitforactionfinished(timer,bool,functionprint)
 		end
 		end)
@@ -2147,7 +2165,7 @@ function waitforactionfinished(timer,bool,functionprint)
 end
 
 function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
-	--debugPrint(1,"first waiting...")
+	
 	waiting = true
 	Cron.After(timer, function()
 		if (file_exists("successaction.txt")) then
@@ -2155,7 +2173,7 @@ function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
 			finishwaiting(bool)
 			os.remove("successaction.txt")
 				functionprint()
-				debugPrint(1,"OK")
+				debugPrint(2,"OK")
 				waiting = false
 		else
 			if (file_exists("failaction.txt")) then
@@ -2163,12 +2181,12 @@ function waitforactionfailorsuccess(timer,bool,functionprint, failfunctionprint)
 				finishwaiting(bool)
 				os.remove("failaction.txt")
 				failfunctionprint()
-				debugPrint(1,"NOK")
+				debugPrint(2,"NOK")
 				waiting = false
 				
 			else
 				
-				--debugPrint(1,"waiting...")
+				
 				waitforactionfailorsuccess(timer,bool,functionprint,failfunctionprint)
 			end
 		
@@ -2179,13 +2197,13 @@ end
 
 function WriteAction(action)
 	
---		debugPrint(1,action.action)
+
 
 			
 		
 		local file = assert(io.open("net/action.json", "w"))
 		local stringg = JSON:encode_pretty(action)
-	--	debugPrint(1,stringg)
+	
 		file:write(stringg)
 		file:close()
 		

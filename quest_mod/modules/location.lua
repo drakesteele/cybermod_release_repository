@@ -1,4 +1,4 @@
-debugPrint(3,"CyberScript: location module loaded")
+debugPrint(2,"CyberScript: location module loaded")
 questMod.module = questMod.module +1
 
 function openLocation()
@@ -62,27 +62,27 @@ if recorderEntity == "player" then
         local v = Vector4.new(-Game.GetCameraSystem():GetActiveCameraForward().x, -Game.GetCameraSystem():GetActiveCameraForward().y, -Game.GetCameraSystem():GetActiveCameraForward().z, -Game.GetCameraSystem():GetActiveCameraForward().w)
 		euler = GetSingleton('Vector4'):ToRotation(v)
 		euler.yaw = euler.yaw + 180
-		print(recorderEntity)
+		debugPrint(10,recorderEntity)
 end
 	if recorderEntity == "mounted_vehicle" then
 		if Game['GetMountedVehicle;GameObject'](Game.GetPlayer()) ~= nil then
 			local qat = Game['GetMountedVehicle;GameObject'](Game.GetPlayer()):GetWorldOrientation()
 			euler = GetSingleton('Quaternion'):ToEulerAngles(qat)
-			print("GetMountedVehicle")
-			print(recorderEntity)
+			debugPrint(10,"GetMountedVehicle")
+			debugPrint(10,recorderEntity)
 			else
 			local qat = Game.GetPlayer():GetWorldOrientation()
 			euler = GetSingleton('Quaternion'):ToEulerAngles(qat)
-			print("Quaternion")
-			print(recorderEntity)
+			debugPrint(10,"Quaternion")
+			debugPrint(10,recorderEntity)
 		end  
 	end   
 		
 	if recorderEntity == "player_entity" then
 		local qat = Game.GetPlayer():GetWorldOrientation()
 		euler = GetSingleton('Quaternion'):ToEulerAngles(qat)
-		print("player_entity")
-		print(recorderEntity)
+		debugPrint(10,"player_entity")
+		debugPrint(10,recorderEntity)
 	end  
 	
 	if recorderEntity == "player_camera" then
@@ -128,7 +128,7 @@ end
 
 table.insert(tempLocation,location)
 
-debugPrint(1,"Location "..location.district.." "..location.subdistrict.." "..location.x.." "..location.y.." "..location.z.." is saved in /json/report/savelocation.json")
+debugPrint(2,"Location "..location.district.." "..location.subdistrict.." "..location.x.." "..location.y.." "..location.z.." is saved in /json/report/savelocation.json")
 
 
 end
@@ -140,7 +140,7 @@ savelocation.locations = tempLocation
 
 local file = assert(io.open("json/report/"..savelocation.desc..".json", "w"))
 		local stringg = JSON:encode_pretty(savelocation)
-		debugPrint(1,stringg)
+		debugPrint(2,stringg)
 		file:write(stringg)
 		file:close()
 tempLocation = {}		

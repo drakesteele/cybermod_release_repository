@@ -29,7 +29,7 @@ function spawnItemFromHouseTag(houseTag)
 			item.entityId = spawnItem(item, postion, angle)
 			table.insert(currentItemSpawned,item)
 			Cron.After(0.5, function()
-				print("Spawning item ok")
+				debugPrint(10,"Spawning item ok")
 			end)
 		end
 	end
@@ -50,7 +50,7 @@ function spawnItemFromHouseMultiTag()
 				if(item.Tag == itemmulti.Tag) then
 				isnew = false
 					if(item.LastUpdateDate ~= itemmulti.LastUpdateDate) then
-						debugPrint(1,"Updating item")
+						debugPrint(2,"Updating item")
 						local entityid = item.entityId
 						local test = Game.FindEntityByID(item.entityId)
 						if(test ~= nil) then 
@@ -68,23 +68,23 @@ function spawnItemFromHouseMultiTag()
 							end
 						end
 						Cron.After(0.5, function()
-							debugPrint(1,"Updating item ok")
+							debugPrint(2,"Updating item ok")
 						end)
 					end
 				end
 			end
 			else
 			isnew = true
-			debugPrint(1,"nex2")
+			debugPrint(2,"nex2")
 			end
 		if(isnew == true) then
 				local postion = Vector4.new(itemsof[i].X, itemsof[i].Y, itemsof[i].Z, 1)
 				local angle = EulerAngles.new(itemsof[i].Roll,itemsof[i].Pitch,itemsof[i].Yaw)
-						debugPrint(1,"Spawning item")
+						debugPrint(2,"Spawning item")
 				itemsof[i].entityId = spawnItem(itemmulti, postion, angle)
 				table.insert(currentItemMultiSpawned,itemsof[i])
 				Cron.After(0.5, function()
-					debugPrint(1,"Spawning item ok")
+					debugPrint(2,"Spawning item ok")
 				end)
 			end
 		end
@@ -104,14 +104,14 @@ function spawnItemFromHouseMultiTag()
 						if(test ~= nil) then 
 						test:GetEntity():Destroy()
 						end
-						debugPrint(1,"Delete item")
+						debugPrint(2,"Delete item")
 				table.insert(toremove,i)
 			end
 		end
 		if(#toremove > 0) then
 			for i = 1, #toremove do
 				table.remove(currentItemMultiSpawned,toremove[i])
-				debugPrint(1,"delete item ok")
+				debugPrint(2,"delete item ok")
 			end
 		end
 	end
@@ -128,7 +128,7 @@ function itemMover()
 		playerDeltaWorldPos.w = 1
 		if (id == true) then
 			if (target ~= nil) then
-				debugPrint(1,target, targetPos)
+				debugPrint(2,target, targetPos)
 			end
 			id = false
 		end
@@ -175,13 +175,13 @@ end
 function updateItemPosition(obj, pos, angle,test)
 	--accept an vector4, an eulerangle
     if obj.entityId then
-		-- debugPrint(1,obj.X)
-		-- debugPrint(1,obj.Y)
-		-- debugPrint(1,obj.Z)
-		-- debugPrint(1,obj.Yaw)
-		-- debugPrint(1,pos.x)
-		-- debugPrint(1,pos.y)
-		-- debugPrint(1,pos.z)
+		-- debugPrint(2,obj.X)
+		-- debugPrint(2,obj.Y)
+		-- debugPrint(2,obj.Z)
+		-- debugPrint(2,obj.Yaw)
+		-- debugPrint(2,pos.x)
+		-- debugPrint(2,pos.y)
+		-- debugPrint(2,pos.z)
         if test then
 		local entityid = obj.entityId
 		local testitem = Game.FindEntityByID(entityid)
@@ -212,7 +212,7 @@ function updateItemPosition(obj, pos, angle,test)
 					transform:SetOrientationEuler(angle)
 					obj.entityId = exEntitySpawner.Spawn(obj.ItemPath, transform)
 					else
-					debugPrint(1,"error")
+					debugPrint(2,"error")
 				end
 			end
        else
@@ -221,25 +221,25 @@ function updateItemPosition(obj, pos, angle,test)
         end)
         end
 		else 
-		debugPrint(1,"noID")	
+		debugPrint(2,"noID")	
 	end
 end
 function updateItemPositionMulti(obj, pos, angle,test)
 	--accept an vector4, an eulerangle
     if obj.entityId then
-		-- debugPrint(1,obj.X)
-		-- debugPrint(1,obj.Y)
-		-- debugPrint(1,obj.Z)
-		-- debugPrint(1,obj.Yaw)
-		-- debugPrint(1,pos.x)
-		-- debugPrint(1,pos.y)
-		-- debugPrint(1,pos.z)
+		-- debugPrint(2,obj.X)
+		-- debugPrint(2,obj.Y)
+		-- debugPrint(2,obj.Z)
+		-- debugPrint(2,obj.Yaw)
+		-- debugPrint(2,pos.x)
+		-- debugPrint(2,pos.y)
+		-- debugPrint(2,pos.z)
         if test then
 			local entityid = obj.entityId
 			local testitem = Game.FindEntityByID(entityid)
 			if(testitem ~= nil) then 
-			testitem:GetEntity():Destroy()
-			end
+			
+			
             local transform = Game.GetPlayer():GetWorldTransform()
             transform:SetOrientation(GetSingleton('EulerAngles'):ToQuat(angle))
             transform:SetPosition(pos)
@@ -249,14 +249,34 @@ function updateItemPositionMulti(obj, pos, angle,test)
 				obj.Roll = angle.roll
 				obj.Pitch = angle.pitch
 				obj.Yaw = angle.yaw
-				if(true) then
-					local transform = Game.GetPlayer():GetWorldTransform()
-					transform:SetPosition(pos)
-					transform:SetOrientationEuler(angle)
+				
+				local transform = Game.GetPlayer():GetWorldTransform()
+				transform:SetPosition(pos)
+				transform:SetOrientationEuler(angle)
+				obj.entityId = exEntitySpawner.Spawn(obj.ItemPath, transform)
+				
+				if(obj.entityId == nil) then --failsafe
+				
 					obj.entityId = exEntitySpawner.Spawn(obj.ItemPath, transform)
+					
+						if(obj.entityId == nil) then --failsafe
+				
+							obj.entityId = exEntitySpawner.Spawn(obj.ItemPath, transform)
+							else
+							testitem:GetEntity():Destroy()
+							
+						end
+					
+					
 					else
-					debugPrint(1,"error")
+					testitem:GetEntity():Destroy()
+					
 				end
+				
+				
+				else
+				logme(1,"No items !!!")
+			end
        else
 		pcall(function ()
             -- Game.GetTeleportationFacility():Teleport(Game.FindEntityByID(obj.entityId), pos,  angle)
@@ -269,7 +289,7 @@ function updateItemPositionMulti(obj, pos, angle,test)
         end)
         end
 		else 
-		debugPrint(1,"noID")	
+		debugPrint(2,"noID")	
 	end
 end
 
@@ -286,7 +306,7 @@ function despawnItemFromHouse()
 				despawnItem(currentItemSpawned[i].entityId)
 				Cron.After(0.5, function()
 					currentItemSpawned = {}
-					debugPrint(1,"despawning item ok")
+					debugPrint(2,"despawning item ok")
 				end)
 			end
 		end
@@ -318,14 +338,14 @@ function despawnItemFromMultiHouse()
 			local entity = Game.FindEntityByID(currentItemMultiSpawned[i].entityId)
 			if entity ~= nil then
 				despawnItem(currentItemMultiSpawned[i].entityId)
-				Cron.After(0.5, function()
-					currentItemMultiSpawned = {}
-					debugPrint(1,"despawning item ok")
-				end)
+				
 			end
 		end
-		currentItemMultiSpawned = {}
+		Cron.After(0.5, function()
+					currentItemMultiSpawned = {}
+					debugPrint(1,"despawning item ok")
+		end)
 		else
-		debugPrint(1,"despawning not ok")
+		debugPrint(2,"despawning not ok")
 	end
 end

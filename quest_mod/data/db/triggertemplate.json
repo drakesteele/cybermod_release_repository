@@ -759,5 +759,12 @@
 		"tag": "judy01",
 		"helper": "This trigger will check if the entity is already scanned or not ",
 		"helperTitle": "Entity :Is Scanned"
-	}
+	},
+	
+	{
+		"name": "player_is_hit",
+
+		"helper": "This trigger will be triggered when player is hit and the hit doesn't miss. (whatever is in godmode or not)",
+		"helperTitle": "Player : Player is Hit"
+	},
 ]

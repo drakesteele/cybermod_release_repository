@@ -53,6 +53,8 @@ function checkVersionNumber(current,new) --true means the current is outdated
     
 end
 
+
+
 function tonullstring(value)
 	
 	if(value == nil) then tostring("nil") else tostring(value) end
@@ -268,7 +270,7 @@ function modDirectory(filename)
 		return "./"
 	end
 	
-	debugPrint(1,"wtf")
+	debugPrint(2,"wtf")
 end
 
 function ObjectToText(objectName, object)
@@ -337,10 +339,10 @@ function getCWD(mod_name)
 end
 
 function ImportLanguage()
-	debugPrint(1,"Importing Language...")
-	debugPrint(1,file_exists("data/lang/language.json"))
+	debugPrint(2,"Importing Language...")
+	debugPrint(2,file_exists("data/lang/language.json"))
 	
-	debugPrint(1,"Language default...")
+	debugPrint(2,"Language default...")
 	
 	local f = io.open("data/lang/default.json")
 	lines = f:read("*a")
@@ -351,7 +353,7 @@ function ImportLanguage()
 	f:close()
 	
 	if file_exists("data/lang/language.json") then
-		debugPrint(1,"Language founded... overwrite default")
+		debugPrint(2,"Language founded... overwrite default")
 		
 		local f = io.open("data/lang/language.json")
 		
@@ -367,16 +369,16 @@ function ImportLanguage()
 		f:close()
 	end
 	
-	debugPrint(1,lang.testOverwrite)
+	debugPrint(2,lang.testOverwrite)
 	
 	return true
 end
 
 function ImportTheme()
-	debugPrint(1,"Importing Theme...")
-	debugPrint(1,file_exists("data/db/theme.json"))
+	debugPrint(2,"Importing Theme...")
+	debugPrint(2,file_exists("data/db/theme.json"))
 	
-	debugPrint(1,"Theme default...")
+	debugPrint(2,"Theme default...")
 	
 	local f = io.open("data/db/theme.json")
 	
@@ -388,7 +390,7 @@ function ImportTheme()
 	f:close()
 	
 	if file_exists("data/db/theme.json") then
-		debugPrint(1,"Theme founded... overwrite default")
+		debugPrint(2,"Theme founded... overwrite default")
 		
 		local f = io.open("data/db/theme.json")
 		
@@ -404,7 +406,7 @@ function ImportTheme()
 		f:close()
 	end
 	
-	--debugPrint(1,IRPtheme.testOverwrite)
+	--debugPrint(2,IRPtheme.testOverwrite)
 	
 	return true
 end
@@ -497,8 +499,8 @@ end
 function checkPosFixer(vec4, x, y,fixerrange)
 	boole = false
 	--rint(vecToRdString(vec4))
-	-- --debugPrint(1,"x "..ftos2(vec4.x))
-	-- --debugPrint(1,"y "..ftos2(vec4.y))
+	-- --debugPrint(2,"x "..ftos2(vec4.x))
+	-- --debugPrint(2,"y "..ftos2(vec4.y))
 	
 	
 	
@@ -518,11 +520,11 @@ end
 function getDistanceFrom(startPoint, endPoint)
 	
 	local resX = ((startPoint.x - endPoint.x)^2)
-	--debugPrint(1,resX)
+	--debugPrint(2,resX)
 	local resY = ((startPoint.y - endPoint.y)^2)
-	--debugPrint(1,resY)
+	--debugPrint(2,resY)
 	local resZ = ((startPoint.z - endPoint.z)^2)
-	--debugPrint(1,resZ)
+	--debugPrint(2,resZ)
 	
 	return math.sqrt(resX + resY + resZ)
 end
@@ -630,9 +632,9 @@ temp.day = GetSingleton('GameTime'):Days(gameTime)
 
 -- local thour = lt.hour - ut.hour
 -- -- tmin = lt.min - ut.min
--- --debugPrint(1,"timezone"..thour)
--- -- debugPrint(1,tmin)
--- --debugPrint(1,"first date "..temp.hour.." "..temp.min)
+-- --debugPrint(2,"timezone"..thour)
+-- -- debugPrint(2,tmin)
+-- --debugPrint(2,"first date "..temp.hour.." "..temp.min)
 -- --temp.hour = temp.hour - thour
 
 
@@ -677,7 +679,7 @@ nexttemp = nexttemp -24
 end
 
 Game.GetTimeSystem():SetGameTimeByHMS(nexttemp, 00,00)
-debugPrint(1,nexttemp)
+debugPrint(2,nexttemp)
 return getGameTime()
 
 end
@@ -731,7 +733,7 @@ unknow.Polygon = {}
 unknow.POI = {}
 
 nameD=unknow
---debugPrint(1,arrayDistricts[1].Name)
+--debugPrint(2,arrayDistricts[1].Name)
 
 for i = 1, #arrayDistricts do
 
@@ -766,7 +768,7 @@ if targetPS ~= nil then
 
 if targetPS.currentTimeToDepart  ~= nil then
 
-debugPrint(1,targetPS.currentTimeToDepart)
+debugPrint(2,targetPS.currentTimeToDepart)
 
 
 end
@@ -816,7 +818,7 @@ end
 function checkWithFixer(curPos)
 
 for k,v in pairs(arrayFixer) do
---debugPrint(1,arrayFixer[i].Name)
+--debugPrint(2,arrayFixer[i].Name)
 if(arrayFixer[k].fixer.Name ~= "Delamain")then
 if(checkPosFixer(curPos,arrayFixer[k].fixer.LOC_X,arrayFixer[k].fixer.LOC_Y,arrayFixer[k].fixer.range))then
 Game.ChangeZoneIndicatorSafe()
@@ -858,8 +860,8 @@ function checkNearFastTravel(curPos)
 
 for i=1, #arrayFastTravel do
 local FT = arrayFastTravel[i]
-debugPrint(1,curPos.x)
-debugPrint(1,curPos.y)
+debugPrint(2,curPos.x)
+debugPrint(2,curPos.y)
 if(checkPos(curPos, FT.X, FT.Y,10)) then 
 
 return true
@@ -897,13 +899,13 @@ return tostring(t:GetDisplayName())
 end
 
 function drawMappin(posx,posy)
-debugPrint(1,posx)
-debugPrint(1,posy)
+debugPrint(2,posx)
+debugPrint(2,posy)
 local posX = posx
 local posY = posy
 
 if(mappinPoint ~= nil) then
-debugPrint(1,"Unregister mappinPoint")
+debugPrint(2,"Unregister mappinPoint")
 Game.GetMappinSystem():UnregisterMappin(mappinPoint)
 
 end
@@ -913,7 +915,7 @@ mappinData = NewObject('gamemappinsMappinData')
 mappinData.mappinType = TweakDBID.new('Mappins.DefaultStaticMappin')
 mappinData.variant = Enum.new('gamedataMappinVariant', 'ExclamationMarkVariant')
 mappinData.visibleThroughWalls = true
-debugPrint(1,"Point draw at x:"..tostring(posX).." y:"..tostring(posY))
+debugPrint(2,"Point draw at x:"..tostring(posX).." y:"..tostring(posY))
 
 offset = ToVector4{ x = posX, y = posY, z = 200 , w = 1} -- Move the pin a bit up relative to the target
 
@@ -927,14 +929,14 @@ updatePlayerData(currentSave.arrayPlayerData)
 end
 
 function draw3DMappin(posx,posy,posz)
-debugPrint(1,posx)
-debugPrint(1,posy)
+debugPrint(2,posx)
+debugPrint(2,posy)
 local posX = posx
 local posY = posy
 local posZ = posz
 
 if(mappinPoint ~= nil) then
-debugPrint(1,"Unregister mappinPoint")
+debugPrint(2,"Unregister mappinPoint")
 Game.GetMappinSystem():UnregisterMappin(mappinPoint)
 
 end
@@ -944,7 +946,7 @@ mappinData = NewObject('gamemappinsMappinData')
 mappinData.mappinType = TweakDBID.new('Mappins.DefaultStaticMappin')
 mappinData.variant = Enum.new('gamedataMappinVariant', 'ExclamationMarkVariant')
 mappinData.visibleThroughWalls = true
-debugPrint(1,"Point draw at x:"..tostring(posX).." y:"..tostring(posY).." Z:"..tostring(posZ))
+debugPrint(2,"Point draw at x:"..tostring(posX).." y:"..tostring(posY).." Z:"..tostring(posZ))
 
 offset = ToVector4{ x = posX, y = posY, z = posZ , w = 1} -- Move the pin a bit up relative to the target
 
@@ -958,13 +960,13 @@ updatePlayerData(currentSave.arrayPlayerData)
 end
 
 function drawCustomMappin(posx,posy)
-debugPrint(1,posx)
-debugPrint(1,posy)
+debugPrint(2,posx)
+debugPrint(2,posy)
 local posX = posx
 local posY = posy
 
 if(customMappinPoint ~= nil) then
-debugPrint(1,"Unregister customMappinPoint")
+debugPrint(2,"Unregister customMappinPoint")
 Game.GetMappinSystem():UnregisterMappin(customMappinPoint)
 
 updatePlayerData(currentSave.arrayPlayerData)
@@ -976,7 +978,7 @@ mappinCustomData = NewObject('gamemappinsMappinData')
 mappinCustomData.mappinType = TweakDBID.new('Mappins.DefaultStaticMappin')
 mappinCustomData.variant = Enum.new('gamedataMappinVariant', 'CustomPositionVariant')
 mappinCustomData.visibleThroughWalls = true
-debugPrint(1,"Point draw at x:"..tostring(posX).." y:"..tostring(posY))
+debugPrint(2,"Point draw at x:"..tostring(posX).." y:"..tostring(posY))
 
 offset = ToVector4{ x = posX, y = posY, z = 35 , w = 1} -- Move the pin a bit up relative to the target
 
@@ -990,14 +992,14 @@ updatePlayerData(currentSave.arrayPlayerData)
 end
 
 function draw3DCustomMappin(posx,posy,posz)
-debugPrint(1,posx)
-debugPrint(1,posy)
+debugPrint(2,posx)
+debugPrint(2,posy)
 local posX = posx
 local posY = posy
 local posZ = posz
 
 if(customMappinPoint ~= nil) then
-debugPrint(1,"Unregister customMappinPoint")
+debugPrint(2,"Unregister customMappinPoint")
 Game.GetMappinSystem():UnregisterMappin(customMappinPoint)
 
 updatePlayerData(currentSave.arrayPlayerData)
@@ -1009,7 +1011,7 @@ mappinCustomData = NewObject('gamemappinsMappinData')
 mappinCustomData.mappinType = TweakDBID.new('Mappins.DefaultStaticMappin')
 mappinCustomData.variant = Enum.new('gamedataMappinVariant', 'CustomPositionVariant')
 mappinCustomData.visibleThroughWalls = true
-debugPrint(1,"Point draw at x:"..tostring(posX).." Y:"..tostring(posY).." Z:"..tostring(posZ))
+debugPrint(2,"Point draw at x:"..tostring(posX).." Y:"..tostring(posY).." Z:"..tostring(posZ))
 
 offset = ToVector4{ x = posX, y = posY, z = posZ , w = 1} -- Move the pin a bit up relative to the target
 
@@ -1130,7 +1132,7 @@ end
 end	
 
 function printGameDump(value)
-debugPrint(1,GameDump(value))
+debugPrint(2,GameDump(value))
 end
 
 function setMappinPositionByTag(tag,posx,posy,posZ)
@@ -1181,7 +1183,7 @@ local success, result = Game.GetSpatialQueriesSystem():SyncRaycastByCollisionGro
 
 if success then
 collision = true
---debugPrint(1,"collision"..filter)
+--debugPrint(2,"collision"..filter)
 end
 end
 
@@ -1211,7 +1213,7 @@ local success, result = Game.GetSpatialQueriesSystem():SyncRaycastByCollisionGro
 
 if success then
 collision = true
---debugPrint(1,"collision"..filter)
+--debugPrint(2,"collision"..filter)
 end
 end
 
@@ -1418,7 +1420,7 @@ local itemFound = false
 local success, items = Game.GetTransactionSystem():GetItemList(Game.GetPlayer())
 
 for _, itemData in ipairs(items) do
---------debugPrint(1,tostring(itemData:GetID().id))
+--------debugPrint(2,tostring(itemData:GetID().id))
 if tostring(itemData:GetID().id) == tostring(itemTDBID) then
 itemFound = true
 break
@@ -1440,7 +1442,7 @@ local itemFound = false
 local success, items = Game.GetTransactionSystem():GetItemList(Game.GetPlayer())
 
 for _, itemData in ipairs(items) do
---------debugPrint(1,tostring(itemData:GetID().id))
+--------debugPrint(2,tostring(itemData:GetID().id))
 if tostring(itemData:GetID().id) == tostring(itemTDBID) then
 count = count +1
 end
@@ -1493,7 +1495,7 @@ local itemTDBID = TweakDBID.new(item)
 local success, items = Game.GetTransactionSystem():GetItemList(Game.GetPlayer())
 
 for _, itemData in ipairs(items) do
---------debugPrint(1,tostring(itemData:GetID().id))
+--------debugPrint(2,tostring(itemData:GetID().id))
 if tostring(itemData:GetID().id) == tostring(itemTDBID) then
 count = count +1
 

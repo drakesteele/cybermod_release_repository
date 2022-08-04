@@ -21,7 +21,7 @@ function QuestTrackerUI.Initialize()
 	Observe('QuestTrackerGameController', 'UpdateTrackerData', function(self)
 		
 		QuestTrackerGameController = self
-		print("	QuestTrackerGameController = self")
+	
 	end)
 
 	---@param self QuestTrackerGameController
@@ -40,13 +40,13 @@ function TrackObjective()
 		
 			--print('QuestTrackerGameController', 'CustomTrack')
 			-- print('QuestTrackerGameController')
-			print(currentObjectiveId)
+			
 		--	if not QuestManager.IsTrackedObjective(currentObjectiveId) then
 				
 				local trackedQuestId = QuestManager.GetTrackedQuestId()
 				local trackedQuestDef = QuestManager.GetQuest(trackedQuestId)
 				local trackedObjectiveId = QuestManager.GetTrackedObjectiveId()
-				print(trackedQuestId)
+			
 				QuestTrackerGameController.root:SetVisible(true)
 
 				inkTextRef.SetText(QuestTrackerGameController.QuestTitle, trackedQuestDef.title)
@@ -82,10 +82,10 @@ function TrackObjective()
 		elseif currentObjectiveId ~= 0 then
 				QuestTrackerGameController.root:SetVisible(false)
 				currentObjectiveId = 0
-				print("remove")
+				
 		else
 			QuestTrackerGameController:UpdateTrackerData()
-			print('QuestTrackerGameController2')
+			
 		end
 	
 end

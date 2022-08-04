@@ -4,21 +4,21 @@ questMod.module = questMod.module +1
 
 function Migrate()
 	local queries = {}
-	debugPrint(1,"Starting Migration")
+	debugPrint(2,"Starting Migration")
 	if( file_exists("json/db/migration.json") ) then
 		
-		debugPrint(1,"migration file is founded")
+		debugPrint(2,"migration file is founded")
 		local f = io.open("json/db/migration.json")
 		lines = f:read("*a")
 		if(lines ~= "") then
 		
-			debugPrint(1,json.decode(lines))
+			debugPrint(2,json.decode(lines))
 			queries = json.decode(lines)
 			
 			
 			else
 			
-			debugPrint(1,"migration file is empty")
+			debugPrint(2,"migration file is empty")
 		end
 		f:close()
 		
@@ -26,11 +26,11 @@ function Migrate()
 	end 
 	if(#queries > 0) then
 	for i=1,#queries do
-		debugPrint(1,queries[i])
+		debugPrint(2,queries[i])
 		res = assert (db:execute(queries[i]))
 		readDBOutput(res)
 	end
-	debugPrint(1,"Migration finished")
+	debugPrint(2,"Migration finished")
 	end
 end
 
@@ -157,16 +157,16 @@ function loadAffinity(arrayAffinity)
 		affinity.NpcId= row.NpcId
 		affinity.Score= row.Score
 		affinity.Names= row.Names
-		--debugPrint(1,affinity.NpcId)
-		--debugPrint(1,affinity.Score)
-		--debugPrint(1,affinity.Names)
+		--debugPrint(2,affinity.NpcId)
+		--debugPrint(2,affinity.Score)
+		--debugPrint(2,affinity.Names)
 		
 		table.insert(arrayAffinity, affinity)
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
-	--debugPrint(1,"load affinity")
+	--debugPrint(2,"load affinity")
 	
 end
 
@@ -180,7 +180,7 @@ function loadCharacters(arrayPnjDb)
 		quest.Names= row.Names
 		table.insert(arrayPnjDb, quest)
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
 	
@@ -232,7 +232,7 @@ function loadHouseStatut(arrayHouseStatut)
 		
 		table.insert(arrayHouseStatut, houseShop)
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
 	
@@ -258,7 +258,7 @@ function loadFriend(tag)
 		
 		end
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
 	
@@ -268,7 +268,7 @@ end
 
 function SavePlayerPos(item)
 	local stat = string.format("SELECT COUNT(*) AS `rowmax` FROM Multiplayer WHERE tag='player'")
-	--debugPrint(1,stat)
+	--debugPrint(2,stat)
 	for row in db:nrows(stat) do
 		
 		count = row.rowmax
@@ -282,13 +282,13 @@ function SavePlayerPos(item)
 	
 	if(count > 0) then
 		stat = string.format([[UPDATE Multiplayer SET x="%s",y="%s",z="%s",yaw="%s",pitch="%s",roll="%s",avatar="%s",friend="%s" WHERE tag='player']],item.x,item.y,item.z,item.yaw,item.pitch,item.roll,item.avatar,item.friend)
-		--debugPrint(1,stat)
+		--debugPrint(2,stat)
 		res = assert (db:execute(stat))
 		
 		else
 		
 		stat = string.format([[INSERT INTO Multiplayer VALUES ("player","%s","%s","%s","%s","%s","%s","%s","%s",1,1,"test")]],item.x,item.y,item.z,item.yaw,item.pitch,item.roll,item.avatar,item.friend)
-		--debugPrint(1,stat)
+		--debugPrint(2,stat)
 		res = assert (db:execute(stat))
 		
 	end
@@ -315,7 +315,7 @@ function loadPlayerItems(arrayPlayerItems)
 		
 		table.insert(arrayPlayerItems, houseShop)
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
 	
@@ -331,7 +331,7 @@ function loadItems(arrayItems)
 		item.Name= row.Name
 		table.insert(arrayItems, item)
 		
-		-- ----debugPrint(1,arrayQuest[row.Id].Id) 
+		-- ----debugPrint(2,arrayQuest[row.Id].Id) 
 		
 	end
 	
@@ -345,7 +345,7 @@ function loadPlayerData(arrayPlayerData)
 		arrayPlayerData.CurrentQuest = row.CurrentQuest
 		arrayPlayerData.CurrentQuestStatut = row.CurrentQuestStatut
 	end
-	--debugPrint(1,arrayPlayerData.CurrentQuest)
+	--debugPrint(2,arrayPlayerData.CurrentQuest)
 	
 end
 
@@ -364,7 +364,7 @@ function updatePlayerData(arrayPlayerDatas)
 	)
 	))
 	
-	debugPrint(1,"UpdateDATAPlayer")
+	debugPrint(2,"UpdateDATAPlayer")
 	
 	readDBOutput(res)
 	return res
@@ -419,8 +419,8 @@ function updateSettingData(arraySettingDatas)
 	
 	)
 	))
-	--debugPrint(1,res)
-	--debugPrint(1,"Update Setting Data")
+	--debugPrint(2,res)
+	--debugPrint(2,"Update Setting Data")
 	
 	readDBOutput(res)
 	arraySettingData = initSettingData()
@@ -433,10 +433,10 @@ function readDBOutput(res)
 	
 	if(res == 0) then
 		
-		debugPrint(1,"DB saved")
+		debugPrint(2,"DB saved")
 		
 		else
-		debugPrint(1,"Error in DB : "..res)
+		debugPrint(2,"Error in DB : "..res)
 		error("db error code " .. res)
 		error (db:errmsg())
 		db:interrupt()
@@ -449,19 +449,19 @@ function resetDB(arrayPlayerDatas)
 	
 	query = "DELETE FROM Affinity;"
 	res = assert (db:execute(query))
-	--debugPrint(1,"Delete Affinity"..res)
+	--debugPrint(2,"Delete Affinity"..res)
 	
 	query = "DELETE FROM FactionScore;"
 	res = assert (db:execute(query))
-	--debugPrint(1,"Delete FactionScore"..res)
+	--debugPrint(2,"Delete FactionScore"..res)
 	
 	query = "DELETE FROM QuestStatut;"
 	res = assert (db:execute(query))
-	--debugPrint(1,"Delete QuestStatut"..res)
+	--debugPrint(2,"Delete QuestStatut"..res)
 	
 	query = "DELETE FROM HouseStatut;"
 	res = assert (db:execute(query))
-	--debugPrint(1,"Delete HouseStatut"..res)
+	--debugPrint(2,"Delete HouseStatut"..res)
 	
 	arrayPlayerDatas.CurrentQuest = nil
 	
@@ -470,7 +470,7 @@ function resetDB(arrayPlayerDatas)
 	
 	reloadDB()
 	
-	debugPrint(1,"Database have been reset")
+	debugPrint(2,"Database have been reset")
 	
 end
 
@@ -508,7 +508,7 @@ function reloadDB()
 	
 	arrayPhoneNPC = {}
 	
-	print("reloadbd")
+	debugPrint(10,"reloadbd")
 	
 	nexttimer_ambush =  math.random(arraySettingData.AmbushMin,arraySettingData.AmbushMax)
 	

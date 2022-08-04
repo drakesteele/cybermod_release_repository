@@ -41,7 +41,7 @@ function trydecodeJSOn(text, file,path)
 		end,
 		catch {
 			function(error)
-				print('Error decoding JSON : '..error.." ( path : "..path)
+				debugPrint(10,'Error decoding JSON : '..error.." ( path : "..path)
 				spdlog.error('Error decoding JSON : '..error.." ( path : "..path)
 				file:close()
 			end
@@ -124,7 +124,7 @@ playerTargeted = false
 entityTargetPlayer = {}
 
 
-
+PlayerisHitten = false
 AMM = nil
 AMMversion = nil
 datapackObjectType = { "circuit","dialog","event","faction","fixer","function","housing","help","interact","interfaces","lang","mission","node","npc","phone_dialog","place","poi","radio","shard","sound","texture","scene","housing_template","hud"}
@@ -2255,7 +2255,7 @@ arraytriggertemplate = {}
 
 
 for i = 1,#triggertemplate do 
-	----debugPrint(1,triggertemplate[i].helperTitle)
+	----debugPrint(2,triggertemplate[i].helperTitle)
 	--table.insert(arraytriggertemplate,triggertemplate[i].helperTitle)
 	arraytriggertemplate[triggertemplate[i].helperTitle] = triggertemplate[i].name
 	
@@ -2305,7 +2305,7 @@ f2:close()
 
 
 for i = 1,#actiontemplate do 
-	----debugPrint(1,actiontemplate[i].helperTitle)
+	----debugPrint(2,actiontemplate[i].helperTitle)
 	arrayactiontemplate[actiontemplate[i].helperTitle] = actiontemplate[i].name
 	
 	
@@ -2540,8 +2540,8 @@ if(file_exists("net/userLogin.txt"))then
 	
 
 end
---print("CyberScript: variable module loaded")
---debugPrint(1,"Variables init finish")
+--debugPrint(10,"CyberScript: variable module loaded")
+--debugPrint(2,"Variables init finish")
 
 
 	

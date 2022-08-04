@@ -109,11 +109,11 @@ end
 
 function WriteMultiAction(action)
 	
-	debugPrint(1,action.action)
+	debugPrint(2,action.action)
 	
 	local file = assert(io.open("net/multi.json", "w"))
 	local stringg = JSON:encode_pretty(action)
-	--debugPrint(1,stringg)
+	--debugPrint(2,stringg)
 	file:write(stringg)
 	file:close()
 end
@@ -159,7 +159,7 @@ function syncPosition(pos,rot)
 	
 	if tokenIsValid == true then
 		local action = {}
-		--debugPrint(1,"syncpos")
+		--debugPrint(2,"syncpos")
 		
 		action.x = pos.x
 		action.y = pos.y
@@ -185,7 +185,7 @@ function syncPosition(pos,rot)
 		pcall(function()
 			
 			local stringg = JSON:encode_pretty(action)
-			--debugPrint(1,stringg)
+			--debugPrint(2,stringg)
 			local file = io.open("net/multi/mypos.json", "w")
 			file:write(stringg)
 			file:close()
@@ -213,7 +213,7 @@ function syncPosition(pos,rot)
 		pcall(function()
 			local file = assert(io.open("net/multi/mypos.json", "w"))
 			local stringg = JSON:encode_pretty(action)
-			--debugPrint(1,stringg)
+			--debugPrint(2,stringg)
 			file:write(stringg)
 			file:close()
 			
@@ -245,7 +245,7 @@ function onlineMessageProcessing()
 				end
 				
 				if(index ~= 0) then
-					debugPrint(1,"mark1")
+					debugPrint(2,"mark1")
 					if(OnlineConversation.conversation.message ~= nil and #OnlineConversation.conversation.message > 0) then
 						for y=1,#OnlineConversation.conversation.message do
 							if(OnlineConversation.conversation.message[y].tag ==  "online_"..CurrentOnlineMessage[i].Sender.."_"..string.sub(CurrentOnlineMessage[i].CreationDate,1,16)) then
@@ -256,7 +256,7 @@ function onlineMessageProcessing()
 					
 					if(canAdd == true) then
 				
-						debugPrint(1,"mark2")
+						debugPrint(2,"mark2")
 						count = #OnlineConversation.conversation[index].message+1
 						
 						local mes = {}
@@ -275,7 +275,7 @@ function onlineMessageProcessing()
 					end
 				
 				else
-					debugPrint(1,"mark3")
+					debugPrint(2,"mark3")
 					local newconversation = {}
 					newconversation.tag = "online_"..CurrentOnlineMessage[i].Sender.."_"..string.sub(CurrentOnlineMessage[i].CreationDate,1,16)
 					newconversation.name = CurrentOnlineMessage[i].Sender
@@ -318,7 +318,7 @@ end
 
 function onlineInstanceMessageProcessing()
 		local index = 0
-		debugPrint(1,"onlin")
+		debugPrint(2,"onlin")
 	
 		if#OnlineConversation.conversation > 0 then
 		for y=1,#OnlineConversation.conversation do
@@ -331,8 +331,8 @@ function onlineInstanceMessageProcessing()
 		
 		
 		if(index ~= 0) then
-			debugPrint(1,"index "..index)
-			debugPrint(1,OnlineConversation.conversation[index].name)
+			debugPrint(2,"index "..index)
+			debugPrint(2,OnlineConversation.conversation[index].name)
 			OnlineConversation.conversation[index] = {}
 		end
 		
@@ -351,7 +351,7 @@ function onlineInstanceMessageProcessing()
 		
 		
 			
-			debugPrint(1,CurrentOnlineInstanceMessage[i].Content)
+			debugPrint(2,CurrentOnlineInstanceMessage[i].Content)
 					
 					
 					local mes = {}
@@ -477,7 +477,7 @@ function testFriend(pos,rot)
 	
 	local file = assert(io.open("net/multi/mypos.json", "w"))
 	local stringg = JSON:encode_pretty(action)
-	--debugPrint(1,stringg)
+	--debugPrint(2,stringg)
 	file:write(stringg)
 	file:close()
 	
@@ -568,9 +568,9 @@ function getGuildfromDistrict(district,minimum)
 	for k,v in pairs(ActualPlayerMultiData.guildscores) do
 		
 		if(ActualPlayerMultiData.guildscores[k][district] ~= nil and ActualPlayerMultiData.guildscores[k][district] >= minimum) then
-			debugPrint(1,k)
-		debugPrint(1,district)
-		debugPrint(1,ActualPlayerMultiData.guildscores[k][district])
+			debugPrint(2,k)
+		debugPrint(2,district)
+		debugPrint(2,ActualPlayerMultiData.guildscores[k][district])
 			local factionscore= {}
 			factionscore.tag = k
 			factionscore.score = ActualPlayerMultiData.guildscores[k][district]
@@ -625,7 +625,7 @@ function getFriendPos()
 				end
 				
 				
-				if(canAdd == true) then table.insert(CurrentOnlineMessage,ActualPlayerMultiData.messages[i]) debugPrint(1,"added") end
+				if(canAdd == true) then table.insert(CurrentOnlineMessage,ActualPlayerMultiData.messages[i]) debugPrint(2,"added") end
 			end
 			
 			
@@ -633,7 +633,32 @@ function getFriendPos()
 			
 		end
 		
+	if #ActualPlayerMultiData.currentPlaces > 0 then --if inside multi place
 	
+		if(currentMultiHouse ~= nil) then --if already inside
+		
+			if(tostring(currentMultiHouse.LastUpdateDate) ~= tostring(ActualPlayerMultiData.currentPlaces[1].LastUpdateDate)) then --if there is an update
+			
+				despawnItemFromMultiHouse() -- we delete exisiting item
+				
+				ItemOfHouseMultiSpawned = false
+				
+				currentMultiHouse = ActualPlayerMultiData.currentPlaces[1] --we update and place.lua will do the job
+				print("update")
+			end
+			--we dont if not 
+			else --if not already in
+			ItemOfHouseMultiSpawned = false
+			currentMultiHouse = ActualPlayerMultiData.currentPlaces[1] -- we set and place.lua will do the job
+			print("set")
+		end
+	else -- if not we empty and place.lua will do the job for delete them
+	
+	if(currentMultiHouse~= nil) then
+		currentMultiHouse = nil
+		print("empty")
+	end
+	end
 	
 	
 	if ActualPlayerMultiData.actions ~= nil and #ActualPlayerMultiData.actions > 0 and workerTable[myTag.."_multi_script"] == nil then
@@ -662,11 +687,11 @@ function getFriendPos()
 			if table_has_value(previousConnectedPlayersList, ActualPlayersList[i]) then
 			--for update a player position
 				local obj = getEntityFromManager(ActualPlayersList[i].pseudo)
-				--debugPrint(1,"object ID " .. tostring(obj.id))
+				--debugPrint(2,"object ID " .. tostring(obj.id))
 				if obj.id ~= nil then
 					local enti = Game.FindEntityByID(obj.id)
 					
-					--debugPrint(1,"object Entity" .. tostring(enti))
+					--debugPrint(2,"object Entity" .. tostring(enti))
 					
 					if enti ~= nil then
 
@@ -676,13 +701,13 @@ function getFriendPos()
 						
 						
 						
-						--debugPrint(1,"Previous player position X : " .. tostring(PreviousPlayerPosition.x)..", " .. "Y : " .. tostring(PreviousPlayerPosition.y)..", " .. "Z : " .. tostring(PreviousPlayerPosition.z))
-						--debugPrint(1,"New player position X : " .. tostring(ActualPlayersList[i].x)..", " .. "Y : " .. tostring(ActualPlayersList[i].y)..", " .. "Z : " .. tostring(ActualPlayersList[i].z))
+						--debugPrint(2,"Previous player position X : " .. tostring(PreviousPlayerPosition.x)..", " .. "Y : " .. tostring(PreviousPlayerPosition.y)..", " .. "Z : " .. tostring(PreviousPlayerPosition.z))
+						--debugPrint(2,"New player position X : " .. tostring(ActualPlayersList[i].x)..", " .. "Y : " .. tostring(ActualPlayersList[i].y)..", " .. "Z : " .. tostring(ActualPlayersList[i].z))
 						
 						--move player and update previous position only if new position != previous position
 						if(PreviousPlayerPosition.x ~= ActualPlayersList[i].x or PreviousPlayerPosition.y ~= ActualPlayersList[i].y or PreviousPlayerPosition.yaw ~= ActualPlayersList[i].yaw) then
-							debugPrint(1,ActualPlayersList[i].avatar)
-							debugPrint(1,PreviousPlayerPosition.avatar)
+							debugPrint(2,ActualPlayersList[i].avatar)
+							debugPrint(2,PreviousPlayerPosition.avatar)
 							if(PreviousPlayerPosition.avatar == ActualPlayersList[i].avatar) then
 							
 							
@@ -888,12 +913,12 @@ end
 function spawnPlayers()
 	if(#to_spawn > 0) then
 	for i=1,#to_spawn do
-	debugPrint(1,tostring(to_spawn[i].pseudo))
-	debugPrint(1,tostring(to_spawn[i].finished))
+	debugPrint(2,tostring(to_spawn[i].pseudo))
+	debugPrint(2,tostring(to_spawn[i].finished))
 	if(to_spawn[i].finished == "false")then
 		to_spawn[i].finished = true
 		spawnEntity(to_spawn[i].chara, to_spawn[i].pseudo, to_spawn[i].x, to_spawn[i].y ,to_spawn[i].z,13,false)
-		debugPrint(1,"Player spawn")
+		debugPrint(2,"Player spawn")
 		table.remove(to_spawn,i)
 		
 	end
@@ -913,7 +938,7 @@ function spawnPlayers()
 	
 	if(count == #to_spawn) then
 		to_spawn = {}
-		debugPrint(1,"clean waited players spawn")
+		debugPrint(2,"clean waited players spawn")
 		canSpawn = true
 	end
 	

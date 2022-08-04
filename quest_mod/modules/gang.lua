@@ -8,7 +8,7 @@ function waitSelectionFinished(timer,functionprint)
 		if (selectedEntity == true) then
 			
 			
-			functionprint()	
+			functionprint()
 			else
 			
 			
@@ -74,7 +74,7 @@ function setAttitudeByGangScore()
 			
 		
 			
-			--debugPrint(1,npcCurrentName)
+			--debugPrint(2,npcCurrentName)
 			
 			
 			for k,v in pairs(arrayFaction) do
@@ -128,7 +128,7 @@ function checkAttitudeByGangScore(enti)
 			local group = Game.NameToString(targetAttAgent:GetAttitudeGroup())
 			local npcCurrentName = Game.NameToString(enti:GetCurrentAppearanceName())
 			
-			--print(tostring(group))
+			--debugPrint(10,tostring(group))
 			
 			for k,v in pairs(arrayFaction) do
 				
@@ -168,17 +168,17 @@ end
 function checkAlliesByScore(score)
 	
 	if(score >= 5) then
-		--debugPrint(1,"Is potential ally")
+		--debugPrint(2,"Is potential ally")
 		return true
 		
 		elseif(score < 0) then
 		
-		--debugPrint(1,"Is not potential ally")
+		--debugPrint(2,"Is not potential ally")
 		return false
 		
 		elseif(score== 0) then
 		
-		--debugPrint(1,"Is neutral")
+		--debugPrint(2,"Is neutral")
 		return true
 	end
 	
@@ -188,17 +188,17 @@ end
 function checkAlliesScoreByScore(score)
 	
 	if(score >= 5) then
-		--debugPrint(1,"Is potential ally")
+		--debugPrint(2,"Is potential ally")
 		return 1
 		
 		elseif(score < 0) then
 		
-		--debugPrint(1,"Is not potential ally")
+		--debugPrint(2,"Is not potential ally")
 		return -1
 		
 		elseif(score== 0) then
 		
-		--debugPrint(1,"Is neutral")
+		--debugPrint(2,"Is neutral")
 		return 0
 	end
 	
@@ -240,9 +240,9 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 		end	
 	
 	
-	--debugPrint(1,"isFollower "..tostring(isFollower))
+	--debugPrint(2,"isFollower "..tostring(isFollower))
 	if isFollower == false and CanbeChanged then
-		--debugPrint(1,"it's a npc")
+		--debugPrint(2,"it's a npc")
 		if(score > 0) then
 			
 			local FriendlyFollower = objlook	
@@ -279,7 +279,7 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 			FriendlyFollower.movePolicies:Toggle(true)
 			
 			
-			--debugPrint(1,"Friend")
+			--debugPrint(2,"Friend")
 			
 			elseif(score == 0) then
 			
@@ -295,7 +295,7 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 			if currentRole then
 				currentRole:OnRoleCleared(neutalEntity)
 			end
-			--debugPrint(1,"Neutral")
+			--debugPrint(2,"Neutral")
 			
 			local followerRole = NewObject('handle:AIRole')
 			--followerRole.followerRef = Game.CreateEntityReference('#player', {})
@@ -372,7 +372,7 @@ function setAttituteByScore(targetAttAgent,score, objlook)
 			reactionComp:SetReactionPreset(GetSingleton("gamedataTweakDBInterface"):GetReactionPresetRecord(TweakDBID.new("ReactionPresets.Ganger_Aggressive")))
 			reactionComp:TriggerCombat(Game.GetPlayer())
 			
-			--debugPrint(1,"Hostile")
+			--debugPrint(2,"Hostile")
 			
 			
 			
@@ -389,7 +389,7 @@ end
 
 function spawnAmbush(currentDistrict, ishostile)
 	
-	debugPrint(1,"Ambush Spawn !")
+	debugPrint(2,"Ambush Spawn !")
 	
 	charatableAmbush = {}
 	vehicleambushtable = {}
@@ -477,12 +477,12 @@ function spawnAmbush(currentDistrict, ishostile)
 				spawnNPC(chara, vehicle, needvehicule,ishostile)
 				
 				else
-				debugPrint(1,"custom POI")
-				debugPrint(1,round(currentpoi.x))
-				debugPrint(1,round(currentpoi.y))
-				debugPrint(1,round(currentpoi.z))
+				debugPrint(2,"custom POI")
+				debugPrint(2,round(currentpoi.x))
+				debugPrint(2,round(currentpoi.y))
+				debugPrint(2,round(currentpoi.z))
 				spawnNPCAtPosition(chara, vehicule, needvehicule, ishostile, currentpoi.x+i, currentpoi.y ,currentpoi.z)
-				debugPrint(1,chara)
+				debugPrint(2,chara)
 			end
 		end
 		
@@ -493,7 +493,7 @@ function spawnAmbush(currentDistrict, ishostile)
 				
 				else
 				
-				debugPrint(1,"custom POI vehicule")
+				debugPrint(2,"custom POI vehicule")
 				spawnvehiculeAtPosition(vehicle, currentpoi.x, currentpoi.y+5 ,currentpoi.z)
 			end
 			
@@ -508,7 +508,7 @@ function spawnAmbush(currentDistrict, ishostile)
 		
 		else
 		
-		debugPrint(1,"No relationed district...	")
+		debugPrint(2,"No relationed district...	")
 		
 		
 	end
@@ -695,7 +695,7 @@ function GangAffinityCalculator()
 		
 		
 		local isquestok = Game.GetQuestsSystem():GetFactStr(affinity.fact)
-		print("testing fact "..affinity.fact.." result "..isquestok)
+		debugPrint(10,"testing fact "..affinity.fact.." result "..isquestok)
 		if(isquestok == 1)then
 			
 			
@@ -705,7 +705,7 @@ function GangAffinityCalculator()
 					local factionScore = affinity.factionscore[y]
 					
 					addFactionScoreByTagScore(factionScore.faction,factionScore.value)
-					--print("added score "..tostring(factionScore.value).." to faction "..factionScore.faction)
+					--debugPrint(10,"added score "..tostring(factionScore.value).." to faction "..factionScore.faction)
 					
 					
 				end
@@ -724,7 +724,7 @@ function GangAffinityCalculator()
 					
 					score = score + npcScore.value
 					setScore(npcScore.Names,"Score",score)
-				--	print("added score "..tostring(score).." to NPC "..npcScore.Names)
+				--	debugPrint(10,"added score "..tostring(score).." to NPC "..npcScore.Names)
 				
 			end
 			
