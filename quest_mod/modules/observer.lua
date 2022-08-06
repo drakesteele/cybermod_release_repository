@@ -3034,6 +3034,10 @@ function SetObserver()
 		actionValue = action:GetValue(action)
 		
 		if actionName == "PhoneInteract" and actionType == "BUTTON_RELEASED" and currentPhoneCall ~= nil   then 
+local audioEvent = SoundStopEvent.new()
+audioEvent.soundName = "ui_phone_incoming_call"
+			Game.GetPlayer():QueueEvent(audioEvent)
+			
 			runActionList(currentPhoneCall.answer_action,"phone_call","interact",false,"player")
 			incomingCallGameController:GetRootWidget():SetVisible(false)
 			currentPhoneCall = nil
@@ -3041,6 +3045,11 @@ function SetObserver()
 		end
 		
 		if actionName == "PhoneReject" and actionType == "BUTTON_HOLD_COMPLETE" and currentPhoneCall ~= nil   then 
+
+local audioEvent = SoundStopEvent.new()
+audioEvent.soundName = "ui_phone_incoming_call"
+			Game.GetPlayer():QueueEvent(audioEvent)
+			
 			runActionList(currentPhoneCall.rejected_action,"phone_call","interact",false,"player")
 			incomingCallGameController:GetRootWidget():SetVisible(false)
 			currentPhoneCall = nil

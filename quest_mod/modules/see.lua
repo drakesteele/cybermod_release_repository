@@ -5931,17 +5931,22 @@ end
 				currentPhoneCall = action
 				incomingCallGameController:GetRootWidget():SetVisible(true)
 				StatusEffectHelper.ApplyStatusEffect(Game.GetPlayer(), "GameplayRestriction.FistFight")
-				if IsDefined(incomingCallGameController.animProxy) then
-					incomingCallGameController.animProxy:Stop()
-					incomingCallGameController.animProxy = nil
-				end
+			--	if IsDefined(incomingCallGameController.animProxy) then
+				--	incomingCallGameController.animProxy:Stop()
+				--	incomingCallGameController.animProxy = nil
+			--	end
 				incomingCallGameController.animProxy = incomingCallGameController:PlayLibraryAnimation("ring")
+local audioEvent = SoundPlayEvent.new()
+			audioEvent.soundName = "ui_phone_incoming_call"
+			Game.GetPlayer():QueueEvent(audioEvent)
 				else
 				error("can't find incomingCallGameController controller, please call an npc for load one or reload an save")
 			end
 		end
 		if(action.name == "show_phone_avatar") then
 			if(HudPhoneAvatarController ~= nil and HudPhoneGameController ~= nil) then
+
+			
 				HudPhoneGameController.RootWidget:SetVisible(true)
 			  inkWidgetRef.SetVisible(HudPhoneAvatarController.ContactAvatar, true)
 			  
@@ -8877,7 +8882,24 @@ if(action.name == "hide_phone_avatar") then
 			
 			
 		end
+		if(action.name == "give_reward_from_scannerdata") then
+		  if(ScannerInfoManager[action.tag] ~= nil and ScannerInfoManager[action.tag].bounty ~= nil) then
+
+local player = Game.GetPlayer()
+			local ts = Game.GetTransactionSystem()
+			local tid = TweakDBID.new("Items.money")
+			local itemid = ItemID.new(tid)
+			local amount = tonumber(ScannerInfoManager[action.tag].bounty.reward)
 		
+			local result = ts:GiveItem(player, itemid, amount)
+			
+			Game.GetStatPoolsSystem():RequestChangingStatPoolValue(Game.GetPlayer():GetEntityID(), 948, ScannerInfoManager[action.tag].bounty.streetreward, Game.GetPlayer(), true, false)
+	
+
+
+end
+		  
+		end
 		
 		if(action.name == "edit_scannerdata") then
 			

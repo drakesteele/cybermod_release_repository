@@ -2957,7 +2957,13 @@
 				"name": "hide_phone_avatar",
 					"helper": "This action will Hide Npc Phone Portrait",
 		"helperTitle": "Ui : Hide Phone Avatar "
-			}
+			},
+						{
+			  "name":"give_reward_from_scannerdata",
+			  "tag":"scanner_mission_target",
+			  	"helper": "This action will give money and street cred reward from an scanner data bounty",
+		"helperTitle": "Gameplay : Give reward from scanner data "
+			},
 	
 	
 	
