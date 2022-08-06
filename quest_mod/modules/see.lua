@@ -57,6 +57,7 @@ function scriptcheckTrigger(trigger)
 					if(checkTriggerRequirement(v.requirement,v.trigger))then
 						for k,u in pairs(v.prop) do
 							local path =  splitDot(k, ".")
+							logme(3,"scanner "..k)
 							setValueToTablePath(trigger, path, GeneratefromContext(u))
 							
 						end
@@ -768,7 +769,7 @@ if(trigger.name == "player_is_targeted") then
 				
 				end
 				
-				if(trigger.operator == "empty") then
+				if(trigger.operator == "empty" or trigger.operator == "nothing") then
 				
 					
 						result = score == nil or score == ""
@@ -777,7 +778,7 @@ if(trigger.name == "player_is_targeted") then
 				end
 				
 				
-				if(trigger.operator == "notempty") then
+				if(trigger.operator == "notempty" or trigger.operator == "notnothing") then
 				
 					
 						result = score ~= nil and score ~= ""
@@ -1945,6 +1946,8 @@ function executeAction(action,tag,parent,index,source,executortag)
 					
 					
 					local path =  splitDot(k, ".")
+					
+					
 					setValueToTablePath(action, path, GeneratefromContext(u))
 				end
 			end
@@ -5932,10 +5935,61 @@ end
 					incomingCallGameController.animProxy:Stop()
 					incomingCallGameController.animProxy = nil
 				end
-				this.animProxy = incomingCallGameController.PlayLibraryAnimation("ring")
+				incomingCallGameController.animProxy = incomingCallGameController:PlayLibraryAnimation("ring")
 				else
 				error("can't find incomingCallGameController controller, please call an npc for load one or reload an save")
 			end
+		end
+		if(action.name == "show_phone_avatar") then
+			if(HudPhoneAvatarController ~= nil and HudPhoneGameController ~= nil) then
+				HudPhoneGameController.RootWidget:SetVisible(true)
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.ContactAvatar, true)
+			  
+			  inkTextRef.SetText(HudPhoneAvatarController.StatusText, action.desc)
+			  inkTextRef.SetText(HudPhoneAvatarController.ContactName,action.caller)
+			   InkImageUtils.RequestSetImage(HudPhoneAvatarController, HudPhoneAvatarController.ContactAvatar, "PhoneAvatars"..action.image)
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.SignalRangeIcon, true)
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.WaveformPlaceholder, true)
+				inkWidgetRef.SetVisible(HudPhoneAvatarController.HolocallRenderTexture, true)
+			   inkWidgetRef.SetVisible(HudPhoneAvatarController.StatusText, true)
+			   inkWidgetRef.SetVisible(HudPhoneAvatarController.HolocallHolder, true)
+			  
+			   HudPhoneAvatarController:SetState(EHudPhoneVisibility.Visible)
+				HudPhoneAvatarController:GetRootWidget():SetVisible(true)
+				HudPhoneAvatarController.HolocallAnimation = HudPhoneAvatarController:PlayLibraryAnimation("avatarHolocallShowingAnimation")
+				HudPhoneAvatarController.HolocallAnimation:RegisterToCallback(inkanimEventType.OnFinish, HudPhoneAvatarController, "OnHolocallAnimationFinished")
+				
+				
+				
+				
+				
+			end
+		
+		
+		
+		end
+if(action.name == "hide_phone_avatar") then
+			if(HudPhoneAvatarController ~= nil and HudPhoneGameController ~= nil) then
+				
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.ContactAvatar, false)
+
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.SignalRangeIcon, false)
+			  inkWidgetRef.SetVisible(HudPhoneAvatarController.WaveformPlaceholder, false)
+				inkWidgetRef.SetVisible(HudPhoneAvatarController.HolocallRenderTexture, false)
+			   inkWidgetRef.SetVisible(HudPhoneAvatarController.StatusText, false)
+			   inkWidgetRef.SetVisible(HudPhoneAvatarController.HolocallHolder, false)
+			  
+			   HudPhoneAvatarController:SetState(EHudPhoneVisibility.Visible)
+				HudPhoneAvatarController:GetRootWidget():SetVisible(false)
+				
+				
+				
+				HudPhoneGameController.RootWidget:SetVisible(false)
+				
+			end
+		
+		
+		
 		end
 		if(action.name == "subtitle") then 
 			if(currentSubtitlesGameController ~= nil) then
@@ -8809,6 +8863,7 @@ end
 			ScannerInfoManager[action.tag].faction = action.faction
 			ScannerInfoManager[action.tag].networkstate = ""
 			ScannerInfoManager[action.tag].text = getLang(action.text)
+			print(action.text)
 			ScannerInfoManager[action.tag].attitude = action.attitude
 			
 			if(action.bounty ~= nil) then
@@ -11540,7 +11595,7 @@ function GeneratefromContext(context)
 	
 	for k,v in pairs(context.values)do
 		
-		if(v.type ~= "object") then
+		if(v.type ~= "object" and v.type ~= "list") then
 			local value = GenerateTextFromContextValues(context, v)
 			text = text:gsub("##"..k, value) 
 			
@@ -11560,7 +11615,11 @@ function GeneratefromContext(context)
 		text = tonumber(text)
 	end
 	
+	if(context.type ~= nil and context.type =="text") then
+		text = tostring(text)
+	end
 	
+
 	return text
 	
 end
@@ -11578,6 +11637,23 @@ function GenerateTextFromContextValues(context, v)
 	if(v.type == "object") then
 	
 		value = v.value
+	
+	end
+	
+	if(v.type == "list") then
+		local list = {}
+		for key,item in pairs(v.items)do
+		
+			
+				
+			
+				local result = GenerateTextFromContextValues(context, item)
+					
+				table.insert(list,result)
+			
+		end
+		
+		value = list
 	
 	end
 	

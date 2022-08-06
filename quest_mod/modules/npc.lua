@@ -1431,7 +1431,7 @@ end
 function MoveTo(targetPuppet, targetPosition, targetDistance, movementType, v2)
 
 --debugPrint(2,"moving....")
-if not targetPosition then
+if not targetPosition or not targetPosition.x then
 targetPosition = Game.GetPlayer():GetWorldPosition()
 
 end
@@ -1448,7 +1448,7 @@ if(v2 == nil) then
 
 local worldPosition = NewObject('WorldPosition')
 
-worldPosition:SetVector4(worldPosition,Vector4.new(targetPosition.x, targetPosition.y, targetPosition.z, targetPosition.w))
+worldPosition:SetVector4(worldPosition,Vector4.new(targetPosition.x, targetPosition.y, targetPosition.z, 1))
 
 local AIPositionSpec = NewObject('AIPositionSpec')
 AIPositionSpec:SetWorldPosition(AIPositionSpec, worldPosition)

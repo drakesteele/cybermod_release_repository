@@ -63,19 +63,6 @@ function file_exists(filename)
 	return false
 end
 
-if not file_exists("cyberscript.log") then
-		
-		io.open("cyberscript.log", "w"):close()
-	end
-local logfile =io.open("cyberscript.log")
-local logsize = logfile:seek("end")    -- get file size
-logfile:close()
-
-if logsize > 10000000 then
-io.open("cyberscript.log", "w"):close()
-end
-
-logf = io.open("cyberscript.log", "a")
 
 function logme(level,msg) 
 	
@@ -87,17 +74,16 @@ function logme(level,msg)
 	
 	if(level == 1) then
 	print(obj.msg)
-	spdlog.error(obj.msg)
+	
 	
 	end
+
+if logrecordlevel == nil or (logrecordlevel ~= nil and level <= logrecordlevel )then
 	table.insert(logTable,obj)
-	logf:write("[Level:"..obj.level.."]"..obj.datestring..":"..obj.msg.."\n")
-end
+	spdlog.error(obj.msg)
+	end 
+	end
 
-if logsize > 10000000 then
-
-logme(2,"Cleaning old log, log file was too big !")
-end
 
 logme(2,"Start Mod")
 function debugPrint(level,value)
@@ -361,7 +347,7 @@ function SaveLoading()
 	AmbushMax = getUserSettingWithDefault("AmbushMax",AmbushMax)
 	GangWarsEnabled = getUserSettingWithDefault("GangWarsEnabled",GangWarsEnabled)
 	AutoRefreshDatapack = getUserSettingWithDefault("AutoRefreshDatapack",AutoRefreshDatapack)
-	
+	logrecordlevel = getUserSettingWithDefault("logrecordlevel",logrecordlevel)
 	
 	InfiniteDoubleJump =  getUserSettingWithDefault("InfiniteDoubleJump",InfiniteDoubleJump)
 	DisableFallDamage =  getUserSettingWithDefault("DisableFallDamage",DisableFallDamage)
@@ -928,12 +914,12 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				appName = Game.NameToString(objLook:GetCurrentAppearanceName())
 				targName = tostring(objLook:GetTweakDBDisplayName(true))
 				openCompanion, gangscore, lookatgang = checkAttitudeByGangScore(objLook)
-				if questMod.EntityManager["lookatnpc"].isquest == nil then questMod.EntityManager["lookatnpc"].isquest = false end
-				questMod.EntityManager["lookatnpc"].id = nil
+				
+				
 				
 				
 				local obj = getEntityFromManagerById(objLook:GetEntityID())
-				questMod.EntityManager["lookatnpc"].id = objLook:GetEntityID()
+				
 				if(obj.id ~= nil) then
 					
 					if obj.isquest == nil then obj.isquest = false end
@@ -942,6 +928,10 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 					
 					else
 					
+					if questMod.EntityManager["lookatnpc"].isquest == nil then questMod.EntityManager["lookatnpc"].isquest = false end
+					questMod.EntityManager["lookatnpc"].id = nil
+					
+					questMod.EntityManager["lookatnpc"].id = objLook:GetEntityID()
 					objLook:MarkAsQuest(questMod.EntityManager["lookatnpc"].isquest)
 				
 					
@@ -1557,7 +1547,7 @@ function mainThread()-- update event when mod is ready and in game (main thread 
 				else
 				if rootContainer ~= nil then
 				
-				rootContainer:SetVisible(true)
+				rootContainer:SetVisible(false)
 				end
 			end
 			
@@ -2006,7 +1996,7 @@ function shutdownManager() -- setup some function at shutdown
 	
 	
 	
-	logf:close()
+--	logf:close()
 	collectgarbage()
 end
 function TweakManager() -- Load vehicles and change some TweakDB

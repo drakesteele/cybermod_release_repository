@@ -1401,9 +1401,13 @@ return (
 	) or
 	(operator == "empty" and value1 == nil) or
 	(operator == "notempty" and value1 ~= nil)
-	)
+	
+	or
+	(operator == "nothing" and value1 == nil) or
+	(operator == "notnothing" and value1 ~= nil)
+
 		
-		
+)
 end
 
 --Get List

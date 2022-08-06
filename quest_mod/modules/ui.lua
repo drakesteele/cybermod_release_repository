@@ -426,6 +426,20 @@ function makeNativeSettings()
 		
 	end)
 	
+	nativeSettings.addRangeFloat("/CMCHEAT/player", getLang("logrecordlevel"),  getLang("logrecordlevel"), 1, 10, 1, "%.1f", logrecordlevel, 1, function(value) -- path, label, desc, min, max, step, currentValue, defaultValue, callback
+		pcall(function() 
+		logrecordlevel = tonumber(string.format("%.1f", value))
+		updateUserSetting("logrecordlevel", logrecordlevel)
+		
+		-- local newMod = gameConstantStatModifierData.new()
+		-- newMod.statType = 596
+		-- newMod.modifierType = 2
+		-- newMod.value = Jump_Height
+		
+		-- Game.GetStatsSystem():AddModifier(Game.GetPlayer():GetEntityID(),newmod)
+		end)
+	end)
+	
 	
 	end)
 	
@@ -1346,7 +1360,7 @@ function debugWindows()
 				ImGui.Text("level : "..tostring(currentScannerItem.level))
 				ImGui.Text("rarity : "..tostring(currentScannerItem.rarity))
 				ImGui.Text("attitude : "..tostring(currentScannerItem.attitude))
-				
+				ImGui.Text("Desc : "..currentScannerItem.text)
 				if currentScannerItem.bounty ~= nil then
 				
 				ImGui.Text("reward : "..tostring(currentScannerItem.bounty.reward))

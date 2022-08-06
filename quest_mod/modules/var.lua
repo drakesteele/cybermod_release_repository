@@ -172,7 +172,7 @@ moveZ=0
 debugOptions= false
 
 arrayBoundedEntity = {}
-
+logrecordlevel =3
 currentScannerItem = nil
 currentScannerEntity = nil
 

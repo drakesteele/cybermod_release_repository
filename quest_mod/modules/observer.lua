@@ -17,7 +17,15 @@ function SetObserver()
 		
 	end)
 	
-
+	ObserveAfter("HudPhoneAvatarController", "OnInitialize", function(this)
+	HudPhoneAvatarController = this
+	
+	end)
+	
+	ObserveAfter("HudPhoneGameController", "OnInitialize", function(this)
+	HudPhoneGameController = this
+	
+	end)
 	
 	ObserveAfter("PlayerPuppet", "ReactToHitProcess", function(this,hitEvent)
 	
@@ -244,7 +252,7 @@ function SetObserver()
 				currentScannerItem.attitude = tonumber(this:GetAttitudeTowards(Game.GetPlayer()))
 				currentScannerItem.faction = tostring(NameToString(characterRecord:Affiliation():EnumName()))
 				currentScannerItem.rarity = tonumber(this:GetPuppetRarity():Type())
-				
+				currentScannerItem.text = ""
 				currentScannerItem.bounty = {}
 				currentScannerItem.bounty.danger = bountyUI.level
 				currentScannerItem.bounty.reward = bountyUI.moneyReward
@@ -3978,13 +3986,13 @@ function SetOverrider()
 					
 					local testshow = ScannerInfoManager[entity.tag].primaryname
 					
-					if(ScannerInfoManager[entity.tag].secondaryname ~= nil) then
+					if(ScannerInfoManager[entity.tag].secondaryname ~= nil and ScannerInfoManager[entity.tag].secondaryname ~= "") then
 						
-						testshow = testshow.."\n"..ScannerInfoManager[entity.tag].secondaryname
+						testshow = testshow.." "..ScannerInfoManager[entity.tag].secondaryname
 						
 					end
 					
-					inkTextRef.SetText(this.nameText, ScannerInfoManager[entity.tag].primaryname)
+					inkTextRef.SetText(this.nameText, testshow)
 					this.isValidName = true
 					this:UpdateGlobalVisibility()
 					else

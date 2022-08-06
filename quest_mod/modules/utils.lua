@@ -198,6 +198,7 @@ function setValueToTablePath(obj, keys, value)
     -- (as above in the loop), rather than modify the table.
     -- So the last index has to be done separately from the loop:
     obj[keys[#keys]] = value
+	
 end
 
 function table_contains(tables,value,checkkey)

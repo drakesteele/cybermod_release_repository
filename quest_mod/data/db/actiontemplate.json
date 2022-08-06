@@ -2942,7 +2942,22 @@
 		"value":true,
 		"helper": "This action will toggle gold highlight the entity",
 		"helperTitle": "Entity : Toggle Hightlight  "
-	}
+	},
+	
+				{
+				"name": "show_phone_avatar",
+				"caller":"NCPD Bounty Departement",
+				"desc":"NCPD",
+				"image":"Avatar_Ncpd",
+			"helper": "This action will show Npc Phone Portrait",
+		"helperTitle": "Ui : Show Phone Avatar "
+			},
+			
+						{
+				"name": "hide_phone_avatar",
+					"helper": "This action will Hide Npc Phone Portrait",
+		"helperTitle": "Ui : Hide Phone Avatar "
+			}
 	
 	
 	
