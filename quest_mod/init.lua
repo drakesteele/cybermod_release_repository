@@ -179,6 +179,10 @@ function ModInitialisation()
 	UIScroller = require('external/UIScroller')
 	UIButton = require('external/UIButton')
 	GameSession = require('external/GameSession')
+	CPStyling =  require('external/cpstyling')
+	CPS =  CPStyling:New()
+	
+	
 	
 	CompiledDatapack = {}
 	
@@ -629,8 +633,6 @@ function initCore() --Setup session, external observer and trigger mod core load
 	
 	if GetMod('ImmersiveFirstPerson') then GetMod('ImmersiveFirstPerson').api.Disable() debugPrint(1,getLang("immersivepersonenabled")) end
 	
-	
-	if GetMod('CPStyling') then CPS =  GetMod("CPStyling"):New("questMod") else debugPrint(1,getLang("cpstylingnotfound")) error(getLang("cpstylingnotfound")) end
 	
 	
 	if(nativeSettings ~= nil and nativeSettings.data["CMDT"] ~= nil  ) then

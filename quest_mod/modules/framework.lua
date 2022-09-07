@@ -2214,3 +2214,29 @@ function WriteAction(action)
 	
 	
 end
+
+
+
+--redmod 
+function enableRedmod(namepack)
+	
+		local action = {}
+		
+		action.action = "enableRedmod"
+		action.parameter = namepack
+		
+		WriteAction(action)
+	
+end
+
+
+function disableRedmod(namepack)
+	
+		local action = {}
+		
+		action.action = "disableRedmod"
+		action.parameter = namepack
+		
+		WriteAction(action)
+	
+end

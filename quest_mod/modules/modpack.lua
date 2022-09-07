@@ -390,6 +390,8 @@ end
 function loadDatapackObject(namespace)
 	
 	arrayDatapack[namespace].enabled = false
+	arrayDatapack[namespace].haveredmod = false
+	
 	
 	if(namespace == "default") then
 		
@@ -422,8 +424,11 @@ function loadDatapackObject(namespace)
 						
 					end
 					
+					elseif(objtype == "redmod") then
 					
 					
+						arrayDatapack[namespace].haveredmod = true
+				
 					
 					
 					elseif(objtype == "texture") then
@@ -762,6 +767,8 @@ end
 	arraySound = {}
 	arrayTexture = {}
 	arrayCorpo = {}
+	
+	
 	
 	arrayHousingTemplate = {}
 	
@@ -1130,6 +1137,10 @@ end
 							arrayHUD[value.tag].file = path
 							arrayHUD[value.tag].datapack = datapackname
 						end
+						
+						
+						
+						
 					end
 				end
 			end,
@@ -1146,6 +1157,14 @@ end
 		
 		if(name ~= "default") then
 			arrayDatapack[name].enabled = false
+			
+			if(arrayDatapack[name].haveredmod == true) then
+		
+				disableRedmod(name)
+			
+			end
+			
+			
 			exportCompiledDatapackFolder(name,name.." datapack : Update Disable state to cache")
 		end
 		
@@ -1153,6 +1172,13 @@ end
 	function EnableDatapack(name)
 		
 		arrayDatapack[name].enabled = true
+		
+		if(arrayDatapack[name].haveredmod == true) then
+		
+			enableRedmod(name)
+	
+		end
+		
 		exportCompiledDatapackFolder(name,name.." datapack : Update Enable state to cache")
 	end
 	
